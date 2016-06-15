@@ -9,3 +9,6 @@ hc256 = "0.1"
 blake2-rfc = "0.2"
 argon2rs = "0.2"
 memsec = "0.1"
+
+[dev-dependencies]
+nix = "0.6"

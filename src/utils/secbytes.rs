@@ -16,6 +16,9 @@ pub struct SecBytes {
     lock: Mutex<()>,
 }
 
+unsafe impl Send for SecBytes {}
+unsafe impl Sync for SecBytes {}
+
 impl SecBytes {
     pub fn new(input: &[u8]) -> Option<SecBytes> {
         let sec_bytes = SecBytes {
@@ -52,10 +55,10 @@ impl SecBytes {
     /// use sarkara::utils::SecBytes;
     ///
     /// let pass = [1; 8];
-    /// let mut secbytes = SecBytes::new(&pass).unwrap(); // should memzero pass.
+    /// let secbytes = SecBytes::new(&pass).unwrap(); // should memzero pass.
     /// secbytes.map_read(|bs| assert_eq!(bs, pass));
     /// ```
-    pub fn map_read<U, F: FnOnce(&[u8]) -> U>(&mut self, f: F) -> U {
+    pub fn map_read<U, F: FnOnce(&[u8]) -> U>(&self, f: F) -> U {
         let lock = match self.lock.lock() {
             Ok(lock) => lock,
             Err(poison) => poison.into_inner()
@@ -73,7 +76,7 @@ impl SecBytes {
     /// # use sarkara::utils::SecBytes;
     /// #
     /// # let pass = [1; 8];
-    /// # let mut secbytes = SecBytes::new(&pass).unwrap(); // should memzero pass.
+    /// # let secbytes = SecBytes::new(&pass).unwrap(); // should memzero pass.
     /// secbytes.map_write(|bs| bs[0] = 0);
     /// let bs = secbytes.map_read(|bs| {
     ///     let mut pass = [0; 8];
@@ -82,7 +85,7 @@ impl SecBytes {
     /// });
     /// assert_eq!(bs, [0, 1, 1, 1, 1, 1, 1, 1])
     /// ```
-    pub fn map_write<U, F: FnOnce(&mut [u8]) -> U>(&mut self, f: F) -> U {
+    pub fn map_write<U, F: FnOnce(&mut [u8]) -> U>(&self, f: F) -> U {
         let lock = match self.lock.lock() {
             Ok(lock) => lock,
             Err(poison) => poison.into_inner()
