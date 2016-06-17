@@ -1,7 +1,7 @@
 śarkarā
 =======
 
-Sarkara is a cryptography library like Sodium. But use only Post-Quantum cryptography algorithms.
+Sarkara is a cryptography library like `libsodium`. But use only Post-Quantum cryptography algorithms.
 
 
 Public-key cryptography

@@ -58,6 +58,14 @@ impl SecBytes {
     /// let secbytes = SecBytes::new(&pass).unwrap(); // should memzero pass.
     /// secbytes.map_read(|bs| assert_eq!(bs, pass));
     /// ```
+    ///
+    /// Don't call it in `map_read`/`map_write`, this could lead to deadlock.
+    ///
+    /// ```norun
+    /// secbytes.map_read(|_|
+    ///     secbytes.map_read(|_| ()) // deadlock!
+    /// );
+    /// ```
     pub fn map_read<U, F: FnOnce(&[u8]) -> U>(&self, f: F) -> U {
         let lock = match self.lock.lock() {
             Ok(lock) => lock,
