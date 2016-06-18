@@ -17,13 +17,16 @@ pub trait KeyDerive: Default {
         Self::default()
     }
 
+    fn with_size(mut self, len: usize) -> Self;
     fn with_key(mut self, key: &[u8]) -> Self;
     fn with_aad(mut self, aad: &[u8]) -> Self;
     fn with_opslimit(mut self, opslimit: u32) -> Self;
     fn with_memlimit(mut self, memlimit: u32) -> Self;
-    fn derive(&self, password: &[u8], salt: &[u8], outlen: usize) -> Result<Key, ParamErr>;
+    fn derive(&self, password: &[u8], salt: &[u8]) -> Result<Key, ParamErr>;
 }
 
 pub trait KeyVerify: KeyDerive {
-    fn verify(&self, password: &[u8], salt: &[u8], hash: &[u8]) -> Result<bool, ParamErr>;
+    fn verify(&self, password: &[u8], salt: &[u8], hash: &[u8]) -> Result<bool, ParamErr> {
+        Ok(self.derive(password, salt)? == hash[..])
+    }
 }

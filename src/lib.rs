@@ -7,3 +7,4 @@ extern crate memsec;
 pub mod utils;
 pub mod hash;
 pub mod pwhash;
+pub mod auth;
