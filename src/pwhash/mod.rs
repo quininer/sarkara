@@ -16,6 +16,9 @@ pub trait KeyDerive: Default {
     fn new() -> Self {
         Self::default()
     }
+    fn pwhash(&self, password: &[u8]) -> Result<Key, ParamErr> {
+        self.derive(password, &[])
+    }
 
     fn with_size(mut self, len: usize) -> Self;
     fn with_key(mut self, key: &[u8]) -> Self;

@@ -7,30 +7,37 @@ Sarkara is a cryptography library like `libsodium`. But use only Post-Quantum cr
 Public-key cryptography
 -----------------------
 
+I have not decided to choose which public key cryptography algorithm,
+if you have any recommendations, please let me know.
+**In the premise of ensuring safety, public key length as short as possible.**
+
 * Authenticated encryption
-	`rlwekex-norx`
+	`...`
 * Signatures
-	[bliss](http://bliss.di.ens.fr/)
+	+ [ ] [bliss](http://bliss.di.ens.fr/)
 * Key exchange
-	[rlwekex](https://en.wikipedia.org/wiki/Ring_learning_with_errors_key_exchange)
+	+ [ ] [rlwekex](https://en.wikipedia.org/wiki/Ring_learning_with_errors_key_exchange)
+	+ [ ] [newhope](https://github.com/tpoeppelmann/newhope)
+	+ [ ] [sidh](https://en.wikipedia.org/wiki/Supersingular_isogeny_key_exchange)
 
 Secret-key cryptography
 -----------------------
 
 * Authenticated encryption
-	[norx (if it is CAESAR winner)](https://norx.io/)
+	+ [ ] [norx (if it is CAESAR winner)](https://norx.io/)
+	+ [ ] [ascon (if it is CAESAR winner)](http://ascon.iaik.tugraz.at/)
 * Encryption
-	[hc256](https://en.wikipedia.org/wiki/HC-256)
+	+ [ ] [hc256](https://en.wikipedia.org/wiki/HC-256)
 * Authentication
-	`HMAC-blake2 (nonce variant)`
+	+ [x] `HMAC (nonce variant)`
 * Key derivation
-	[argon2](https://en.wikipedia.org/wiki/Argon2)
+	+ [x] [argon2](https://en.wikipedia.org/wiki/Argon2)
 
 Low-level functions
 -------------------
 
 * Hashing
-	[blake2](https://en.wikipedia.org/wiki/BLAKE\_(hash\_function))
+	+ [x] [blake2](https://en.wikipedia.org/wiki/BLAKE\_(hash\_function))
 
 
 Reference
