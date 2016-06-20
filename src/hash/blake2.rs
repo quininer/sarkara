@@ -55,11 +55,11 @@ impl Hash for Blake2b {
 }
 
 impl GenericHash for Blake2b {
-    fn with_size(mut self, nn: usize) -> Self {
+    fn with_size(&mut self, nn: usize) -> &mut Self {
         self.nn = nn;
         self
     }
-    fn with_key(mut self, key: &[u8]) -> Self {
+    fn with_key(&mut self, key: &[u8]) -> &mut Self {
         self.key = Bytes::new(key);
         self
     }
@@ -88,11 +88,11 @@ impl Hash for Blake2s {
 }
 
 impl GenericHash for Blake2s {
-    fn with_size(mut self, nn: usize) -> Self {
+    fn with_size(&mut self, nn: usize) -> &mut Self {
         self.nn = nn;
         self
     }
-    fn with_key(mut self, key: &[u8]) -> Self {
+    fn with_key(&mut self, key: &[u8]) -> &mut Self {
         self.key = Bytes::new(key);
         self
     }

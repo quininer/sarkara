@@ -20,11 +20,11 @@ pub trait KeyDerive: Default {
         self.derive(password, &[])
     }
 
-    fn with_size(mut self, len: usize) -> Self;
-    fn with_key(mut self, key: &[u8]) -> Self;
-    fn with_aad(mut self, aad: &[u8]) -> Self;
-    fn with_opslimit(mut self, opslimit: u32) -> Self;
-    fn with_memlimit(mut self, memlimit: u32) -> Self;
+    fn with_size(&mut self, len: usize) -> &mut Self;
+    fn with_key(&mut self, key: &[u8]) -> &mut Self;
+    fn with_aad(&mut self, aad: &[u8]) -> &mut Self;
+    fn with_opslimit(&mut self, opslimit: u32) -> &mut Self;
+    fn with_memlimit(&mut self, memlimit: u32) -> &mut Self;
     fn derive(&self, password: &[u8], salt: &[u8]) -> Result<Key, ParamErr>;
 }
 

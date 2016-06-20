@@ -1,22 +1,26 @@
-use ::hash::GenericHash;
-use ::utils::Bytes;
+use ::hash::{ Hash, GenericHash };
 use super::{ Mac, NonceMac, Tag };
 
 
 /// HMAC nonce variant.
 ///
 /// `H(nonce, K xor opad || H(nonce, K xor ipad || text))`
-pub struct HMAC {
-    pub nonce: Bytes
+#[derive(Clone, Debug)]
+pub struct HMAC<H> {
+    ih: H,
+    oh: H
 }
 
-impl Default for HMAC {
+impl<H: Hash> Default for HMAC<H> {
     fn default() -> Self {
-        HMAC { nonce: Bytes(Vec::new()) }
+        HMAC {
+            ih: H::new(),
+            oh: H::new()
+        }
     }
 }
 
-impl<H: GenericHash> Mac<H> for HMAC {
+impl<H: Hash> Mac<H> for HMAC<H> {
     fn result(&self, key: &[u8], data: &[u8]) -> Tag {
         let mut ipad = vec![0x36; 64];
         let mut opad = vec![0x5c; 64];
@@ -27,21 +31,16 @@ impl<H: GenericHash> Mac<H> for HMAC {
         }
 
         ipad.extend_from_slice(data);
-        opad.extend_from_slice(
-            &H::new()
-                .with_key(&self.nonce)
-                .hash(&ipad)
-        );
+        opad.extend_from_slice(&self.ih.hash(&ipad));
 
-        H::new()
-            .with_key(&self.nonce)
-            .hash(&opad)
+        self.oh.hash(&opad)
     }
 }
 
-impl<H: GenericHash> NonceMac<H> for HMAC {
-    fn with_nonce(mut self, nonce: &[u8]) -> Self {
-        self.nonce = Bytes::new(nonce);
+impl<H: GenericHash> NonceMac<H> for HMAC<H> {
+    fn with_nonce(&mut self, nonce: &[u8]) -> &mut Self {
+        self.ih.with_key(nonce);
+        self.oh.with_key(nonce);
         self
     }
 }

@@ -5,8 +5,6 @@ use ::memsec::{ memzero, memcmp };
 
 /// Temporary Bytes.
 ///
-/// SecBytes as Bytes:
-///
 /// ```
 /// use sarkara::utils::{ SecBytes, Bytes };
 ///

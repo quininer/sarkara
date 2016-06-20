@@ -14,8 +14,8 @@ pub trait Hash: Default {
 }
 
 pub trait GenericHash: Hash {
-    fn with_size(mut self, nn: usize) -> Self;
-    fn with_key(mut self, key: &[u8]) -> Self;
+    fn with_size(&mut self, nn: usize) -> &mut Self;
+    fn with_key(&mut self, key: &[u8]) -> &mut Self;
 
     fn generichash(nn: usize, key: &[u8], data: &[u8]) -> Digest {
         Self::new()
