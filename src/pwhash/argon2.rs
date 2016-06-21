@@ -10,6 +10,15 @@ pub const MEMLIMIT_MODERATE: u32 = 134217728;
 pub const OPSLIMIT_SENSITIVE: u32 = 8;
 pub const MEMLIMIT_SENSITIVE: u32 = 536870912;
 
+
+/// ```
+/// use sarkara::pwhash::{ Argon2i, KeyDerive, KeyVerify };
+///
+/// let (pass, salt) = ([0; 8], [0; 8]);
+/// let key = Argon2i::new().derive(&pass, &salt).ok().unwrap();
+///
+/// assert!(Argon2i::new().verify(&pass, &salt, &key).unwrap_or(false));
+/// ```
 #[derive(Clone, Debug)]
 pub struct Argon2i {
     pub key: Bytes,

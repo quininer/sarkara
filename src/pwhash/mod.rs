@@ -17,7 +17,7 @@ pub trait KeyDerive: Default {
         Self::default()
     }
     fn pwhash(&self, password: &[u8]) -> Result<Key, ParamErr> {
-        self.derive(password, &[])
+        self.derive(password, &rand!(8))
     }
 
     fn with_size(&mut self, len: usize) -> &mut Self;
@@ -33,3 +33,5 @@ pub trait KeyVerify: KeyDerive {
         Ok(self.derive(password, salt)? == hash[..])
     }
 }
+
+impl<T> KeyVerify for T where T: KeyDerive {}
