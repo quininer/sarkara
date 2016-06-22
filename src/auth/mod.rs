@@ -1,13 +1,12 @@
 mod qhmac;
 
-use ::hash::{ Hash, GenericHash };
 use ::utils::Bytes;
 pub use self::qhmac::HMAC;
 
 
 pub type Tag = Bytes;
 
-pub trait Mac<H: Hash>: Default {
+pub trait Mac: Default {
     fn new() -> Self {
         Self::default()
     }
@@ -18,6 +17,6 @@ pub trait Mac<H: Hash>: Default {
     }
 }
 
-pub trait NonceMac<H: GenericHash>: Mac<H> {
+pub trait NonceMac: Mac {
     fn with_nonce(&mut self, nonce: &[u8]) -> &mut Self;
 }
