@@ -7,7 +7,8 @@
 
 mod argon2;
 
-use argon2rs::ParamErr;
+use std::fmt;
+use std::error::Error;
 use ::utils::Bytes;
 pub use self::argon2::{
     Argon2i,
@@ -20,13 +21,28 @@ pub use self::argon2::{
 /// Hashed Password.
 pub type Key = Bytes;
 
+/// Key derivation error.
+#[derive(Clone, Debug)]
+pub enum KeyDerivationFail {
+    /// parameter error.
+    ParameterError(String),
+    /// Output length too short.
+    OutLenTooShort,
+    /// Output length too long.
+    OutLenTooLong,
+    /// Salt too short.
+    SaltTooShort,
+    /// Salt too long.
+    SaltTooLong
+}
+
 /// `KeyDerive` trait.
-pub trait KeyDerive: Default {
+pub trait KeyDerive<P>: Default {
     /// Generate a hashed password.
     ///
     /// ## Fail When:
     /// * Param Error, see [`ParamErr`](../../argon2rs/enum.ParamErr.html)
-    fn pwhash(&self, password: &[u8]) -> Result<Key, ParamErr> {
+    fn pwhash(&self, password: &[u8]) -> Result<Key, KeyDerivationFail> {
         self.derive(password, &rand!(bytes 8))
     }
 
@@ -45,18 +61,36 @@ pub trait KeyDerive: Default {
     ///
     /// ## Fail When:
     /// * Param Error, see [`ParamErr`](../../argon2rs/enum.ParamErr.html)
-    fn derive(&self, password: &[u8], salt: &[u8]) -> Result<Key, ParamErr>;
+    fn derive(&self, password: &[u8], salt: &[u8]) -> Result<Key, KeyDerivationFail>;
 }
 
 /// `KeyVerify` trait.
-pub trait KeyVerify: KeyDerive {
+pub trait KeyVerify<P>: KeyDerive<P> {
     /// Verify password hash.
     ///
     /// ## Fail When:
     /// * Param Error, see [`ParamErr`](../../argon2rs/enum.ParamErr.html)
-    fn verify(&self, password: &[u8], salt: &[u8], hash: &[u8]) -> Result<bool, ParamErr> {
+    fn verify(&self, password: &[u8], salt: &[u8], hash: &[u8]) -> Result<bool, KeyDerivationFail> {
         Ok(self.derive(password, salt)? == hash[..])
     }
 }
 
-impl<T> KeyVerify for T where T: KeyDerive {}
+impl<T, P> KeyVerify<P> for T where T: KeyDerive<P> {}
+
+impl fmt::Display for KeyDerivationFail {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.description())
+    }
+}
+
+impl Error for KeyDerivationFail {
+    fn description(&self) -> &str {
+        match *self {
+            KeyDerivationFail::ParameterError(ref string) => string,
+            KeyDerivationFail::OutLenTooShort => "Output length too short.",
+            KeyDerivationFail::OutLenTooLong => "Output length too long.",
+            KeyDerivationFail::SaltTooShort => "Salt too short.",
+            KeyDerivationFail::SaltTooLong => "Salt too long."
+        }
+    }
+}

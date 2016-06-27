@@ -16,6 +16,7 @@ if you have any recommendations, please let me know.
 * Signatures
 	+ [ ] [bliss](http://bliss.di.ens.fr/)
 	+ [ ] [NTRUMLS](https://github.com/NTRUOpenSourceProject/NTRUMLS)
+	+ [ ] [rlwesig](https://en.wikipedia.org/wiki/Ring_learning_with_errors_signature)
 * Key exchange
 	+ [ ] [rlwekex](https://en.wikipedia.org/wiki/Ring_learning_with_errors_key_exchange)
 	+ [ ] [newhope](https://github.com/tpoeppelmann/newhope)

@@ -1,21 +1,20 @@
 use argon2rs::{ Argon2, Variant, ParamErr };
 use ::utils::Bytes;
-use super::{ KeyDerive, Key };
+use super::{ KeyDerive, Key, KeyDerivationFail };
 
 
-/// Interactive Opslimit.
+/// Interactive Opslimit. parameter from `libsodium`.
 pub const OPSLIMIT_INTERACTIVE: u32 = 4;
-/// Interactive Memlimit.
+/// Interactive Memlimit. parameter from `libsodium`.
 pub const MEMLIMIT_INTERACTIVE: u32 = 33554432;
-/// Moderate Opslimit.
+/// Moderate Opslimit. parameter from `libsodium`.
 pub const OPSLIMIT_MODERATE: u32 = 6;
-/// Moderate Memlimit.
+/// Moderate Memlimit. parameter from `libsodium`.
 pub const MEMLIMIT_MODERATE: u32 = 134217728;
-/// Sensitive Opslimit.
+/// Sensitive Opslimit. parameter from `libsodium`.
 pub const OPSLIMIT_SENSITIVE: u32 = 8;
-/// Sensitive Memlimit.
+/// Sensitive Memlimit. parameter from `libsodium`.
 pub const MEMLIMIT_SENSITIVE: u32 = 536870912;
-
 
 /// Argon2i.
 ///
@@ -89,7 +88,7 @@ impl Argon2i {
     }
 }
 
-impl KeyDerive for Argon2i {
+impl KeyDerive<ParamErr> for Argon2i {
     fn with_size(&mut self, len: usize) -> &mut Self {
         self.outlen = len;
         self
@@ -111,10 +110,26 @@ impl KeyDerive for Argon2i {
         self
     }
 
-    fn derive(&self, password: &[u8], salt: &[u8]) -> Result<Key, ParamErr> {
+    fn derive(&self, password: &[u8], salt: &[u8]) -> Result<Key, KeyDerivationFail> {
+        if salt.len() < 8 { Err(KeyDerivationFail::SaltTooShort)? };
+        if salt.len() > 0xffffffff { Err(KeyDerivationFail::SaltTooLong)? };
+        if self.outlen < 4 { Err(KeyDerivationFail::OutLenTooShort)? };
+        if self.outlen > 0xffffffff { Err(KeyDerivationFail::OutLenTooLong)? };
+
         let mut output = Bytes(vec![0; self.outlen]);
         Argon2::new(self.passes, self.lanes, self.kib, Variant::Argon2i)?
             .hash(&mut output, password, salt, &self.key, &self.aad);
         Ok(output)
+    }
+}
+
+impl From<ParamErr> for KeyDerivationFail {
+    fn from(err: ParamErr) -> KeyDerivationFail {
+        // TODO `use err.description()` / `err.fmt()`
+        KeyDerivationFail::ParameterError(match err {
+            ParamErr::TooFewPasses => "Argon2 requires one or more passes to be run.".to_string(),
+            ParamErr::TooFewLanes => "The number of lanes must be between one and 2^24 - 1.".to_string(),
+            ParamErr::MinKiB(kib) => format!("Memory parameter must be >= {} KiB.", kib)
+        })
     }
 }
