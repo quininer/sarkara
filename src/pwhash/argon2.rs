@@ -3,29 +3,69 @@ use ::utils::Bytes;
 use super::{ KeyDerive, Key };
 
 
+/// Interactive Opslimit.
 pub const OPSLIMIT_INTERACTIVE: u32 = 4;
+/// Interactive Memlimit.
 pub const MEMLIMIT_INTERACTIVE: u32 = 33554432;
+/// Moderate Opslimit.
 pub const OPSLIMIT_MODERATE: u32 = 6;
+/// Moderate Memlimit.
 pub const MEMLIMIT_MODERATE: u32 = 134217728;
+/// Sensitive Opslimit.
 pub const OPSLIMIT_SENSITIVE: u32 = 8;
+/// Sensitive Memlimit.
 pub const MEMLIMIT_SENSITIVE: u32 = 536870912;
 
 
+/// Argon2i.
+///
+/// # Example(keyderive)
+/// ```
+/// use sarkara::pwhash::{ Argon2i, KeyDerive };
+///
+/// let (pass, salt) = ([0; 8], [0; 8]);
+/// let key = Argon2i::new()
+///     .derive(&pass, &salt)
+///     .ok().unwrap();
+/// assert!(key != pass[..]);
+/// ```
+///
+/// # Example(pwhash)
+/// ```
+/// use sarkara::pwhash::{ Argon2i, KeyDerive };
+///
+/// let pass = [0; 8];
+/// let key = Argon2i::new()
+///     .with_size(16)
+///     .pwhash(&pass)
+///     .ok().unwrap();
+/// assert_eq!(key.len(), 16);
+/// ```
+///
+/// # Example(keyverify)
 /// ```
 /// use sarkara::pwhash::{ Argon2i, KeyDerive, KeyVerify };
 ///
 /// let (pass, salt) = ([0; 8], [0; 8]);
-/// let key = Argon2i::new().derive(&pass, &salt).ok().unwrap();
+/// let key = Argon2i::new()
+///     .derive(&pass, &salt)
+///     .ok().unwrap();
 ///
-/// assert!(Argon2i::new().verify(&pass, &salt, &key).unwrap_or(false));
+/// assert!(Argon2i::new().verify(&pass, &salt, &key).ok().unwrap());
 /// ```
 #[derive(Clone, Debug)]
 pub struct Argon2i {
+    /// key derive key. default empty.
     pub key: Bytes,
+    /// associated data. default empty.
     pub aad: Bytes,
+    /// output length. default `16`.
     pub outlen: usize,
+    /// passes parameter. default `OPSLIMIT_INTERACTIVE`.
     pub passes: u32,
+    /// lanes parameter. default `1`.
     pub lanes: u32,
+    /// kib parameter. default `MEMLIMIT_INTERACTIVE / 1024`.
     pub kib: u32
 }
 
@@ -39,6 +79,13 @@ impl Default for Argon2i {
             lanes: 1,
             kib: MEMLIMIT_INTERACTIVE / 1024
         }
+    }
+}
+
+impl Argon2i {
+    /// Create a new Argon2i.
+    pub fn new() -> Argon2i {
+        Argon2i::default()
     }
 }
 

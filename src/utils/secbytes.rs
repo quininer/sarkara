@@ -9,7 +9,11 @@ use memsec::{
 
 
 /// Secure Bytes Box.
+///
+/// The use [memsec/malloc](../../memsec/fn.malloc.html) protection secret bytes.
 /// When you need the password stored in the memory, you should use it.
+///
+/// More docs see [Secure memory · libsodium](https://download.libsodium.org/doc/helpers/memory_management.html).
 pub struct SecBytes {
     ptr: *mut u8,
     len: usize,
@@ -20,6 +24,7 @@ unsafe impl Send for SecBytes {}
 unsafe impl Sync for SecBytes {}
 
 impl SecBytes {
+    /// Create a new SecBytes.
     pub fn new(input: &[u8]) -> Option<SecBytes> {
         let sec_bytes = SecBytes {
             ptr: match unsafe { allocarray(input.len()) } {
@@ -93,6 +98,8 @@ impl SecBytes {
     /// });
     /// assert_eq!(bs, [0, 1, 1, 1, 1, 1, 1, 1])
     /// ```
+    ///
+    /// Also, don't call it in `map_read`/`map_write`.
     pub fn map_write<U, F: FnOnce(&mut [u8]) -> U>(&self, f: F) -> U {
         let lock = match self.lock.lock() {
             Ok(lock) => lock,

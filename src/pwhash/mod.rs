@@ -1,3 +1,10 @@
+//! Password Hashing.
+//!
+//! Sarkara use [`Argon2i`](https://github.com/P-H-C/phc-winner-argon2),
+//! it based on [`Blake2`](https://blake2.net/) hashing function,
+//! is [Password Hashing Competition](https://password-hashing.net/) winner.
+
+
 mod argon2;
 
 use argon2rs::ParamErr;
@@ -10,25 +17,43 @@ pub use self::argon2::{
 };
 
 
+/// Hashed Password.
 pub type Key = Bytes;
 
+/// `KeyDerive` trait.
 pub trait KeyDerive: Default {
-    fn new() -> Self {
-        Self::default()
-    }
+    /// Generate a hashed password.
+    ///
+    /// ## Fail When:
+    /// * Param Error, see [`ParamErr`](../../argon2rs/enum.ParamErr.html)
     fn pwhash(&self, password: &[u8]) -> Result<Key, ParamErr> {
-        self.derive(password, &rand!(8))
+        self.derive(password, &rand!(bytes 8))
     }
 
+    /// Set output length.
     fn with_size(&mut self, len: usize) -> &mut Self;
+    /// Set key.
     fn with_key(&mut self, key: &[u8]) -> &mut Self;
+    /// Set associated data.
     fn with_aad(&mut self, aad: &[u8]) -> &mut Self;
+    /// Set opslimit parameter.
     fn with_opslimit(&mut self, opslimit: u32) -> &mut Self;
+    /// Set memlimit parameter.
     fn with_memlimit(&mut self, memlimit: u32) -> &mut Self;
+
+    /// Derive key.
+    ///
+    /// ## Fail When:
+    /// * Param Error, see [`ParamErr`](../../argon2rs/enum.ParamErr.html)
     fn derive(&self, password: &[u8], salt: &[u8]) -> Result<Key, ParamErr>;
 }
 
+/// `KeyVerify` trait.
 pub trait KeyVerify: KeyDerive {
+    /// Verify password hash.
+    ///
+    /// ## Fail When:
+    /// * Param Error, see [`ParamErr`](../../argon2rs/enum.ParamErr.html)
     fn verify(&self, password: &[u8], salt: &[u8], hash: &[u8]) -> Result<bool, ParamErr> {
         Ok(self.derive(password, salt)? == hash[..])
     }

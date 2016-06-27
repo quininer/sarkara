@@ -17,8 +17,16 @@ use ::memsec::{ memzero, memcmp };
 pub struct Bytes(pub Vec<u8>);
 
 impl Bytes {
+    /// Create a new Bytes.
     pub fn new(input: &[u8]) -> Bytes {
         Bytes(input.into())
+    }
+
+    /// Create a randomly Bytes.
+    pub fn random(len: usize) -> Bytes {
+        let mut output = vec![0; len];
+        rand!(fill output);
+        Bytes(output)
     }
 }
 
@@ -36,6 +44,7 @@ impl DerefMut for Bytes {
 }
 
 impl cmp::PartialEq<[u8]> for Bytes {
+    /// Constant time eq.
     fn eq(&self, rhs: &[u8]) -> bool {
         if self.0.len() == rhs.len() {
             unsafe {
@@ -48,6 +57,7 @@ impl cmp::PartialEq<[u8]> for Bytes {
 }
 
 impl cmp::PartialEq<Bytes> for Bytes {
+    /// Constant time eq.
     fn eq(&self, rhs: &Bytes) -> bool {
         self.eq(rhs.deref())
     }
@@ -56,6 +66,7 @@ impl cmp::PartialEq<Bytes> for Bytes {
 impl cmp::Eq for Bytes {}
 
 impl Drop for Bytes {
+    /// When drop, it will call `memzero`.
     fn drop(&mut self) {
         unsafe { memzero(self.0.as_mut_ptr(), self.0.len()) };
     }

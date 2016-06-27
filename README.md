@@ -1,7 +1,8 @@
 śarkarā
 =======
 
-Sarkara is a cryptography library like `libsodium`. But use only Post-Quantum cryptography algorithms.
+`Sarkara` is a cryptography library like [libsodium](https://github.com/jedisct1/libsodium),
+use only Post-Quantum cryptography algorithms.
 
 
 Public-key cryptography
@@ -9,12 +10,12 @@ Public-key cryptography
 
 I have not decided to choose which public key cryptography algorithm,
 if you have any recommendations, please let me know.
-**In the premise of ensuring safety, public key length as short as possible.**
 
 * Authenticated encryption
 	`...`
 * Signatures
 	+ [ ] [bliss](http://bliss.di.ens.fr/)
+	+ [ ] [NTRUMLS](https://github.com/NTRUOpenSourceProject/NTRUMLS)
 * Key exchange
 	+ [ ] [rlwekex](https://en.wikipedia.org/wiki/Ring_learning_with_errors_key_exchange)
 	+ [ ] [newhope](https://github.com/tpoeppelmann/newhope)
@@ -27,7 +28,7 @@ Secret-key cryptography
 	+ [ ] [norx (if it is CAESAR winner)](https://norx.io/)
 	+ [ ] [ascon (if it is CAESAR winner)](http://ascon.iaik.tugraz.at/)
 * Encryption
-	+ [ ] [hc256](https://en.wikipedia.org/wiki/HC-256)
+	+ [x] [hc128](http://www.ecrypt.eu.org/stream/hcpf.html)
 * Authentication
 	+ [x] `HMAC (nonce variant)`
 * Key derivation

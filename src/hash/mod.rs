@@ -1,26 +1,30 @@
+//! Hashing.
+//!
+//! Sarkara use [`BLAKE2b`](https://blake2.net/),
+//! it based on [`ChaCha`](https://en.wikipedia.org/wiki/ChaCha_(cipher)) stream cipher,
+//! have good performance and security.
+
 mod blake2;
 
 use ::utils::Bytes;
-pub use self::blake2::{ Blake2b, Blake2s };
+pub use self::blake2::Blake2b;
 
 
+/// Digest.
 pub type Digest = Bytes;
 
+/// `Hash` trait.
 pub trait Hash: Default {
-    fn new() -> Self {
-        Self::default()
-    }
+    /// Calculate hash.
     fn hash(&self, data: &[u8]) -> Digest;
 }
 
-pub trait GenericHash: Hash {
+/// `GenericHash` trait,
+/// allow set output length and key.
+pub trait GenericHash: Default + Hash {
+    /// Set output length.
     fn with_size(&mut self, nn: usize) -> &mut Self;
-    fn with_key(&mut self, key: &[u8]) -> &mut Self;
 
-    fn generichash(nn: usize, key: &[u8], data: &[u8]) -> Digest {
-        Self::new()
-            .with_size(nn)
-            .with_key(key)
-            .hash(data)
-    }
+    /// Set hash key.
+    fn with_key(&mut self, key: &[u8]) -> &mut Self;
 }
