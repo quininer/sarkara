@@ -1,5 +1,4 @@
-//! `Sarkara` is a cryptography library like [libsodium](https://github.com/jedisct1/libsodium),
-//! use only Post-Quantum cryptography algorithms.
+//! `Sarkara` is a Post-Quantum cryptography library.
 
 #![warn(missing_docs)]
 #![feature(question_mark)]
@@ -17,3 +16,4 @@ pub mod pwhash;
 pub mod auth;
 pub mod stream;
 pub mod aead;
+pub mod secretbox;

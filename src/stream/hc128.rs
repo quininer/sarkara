@@ -6,13 +6,15 @@ use super::StreamCipher;
 ///
 /// # Example(process)
 /// ```
+/// use sarkara::utils::Bytes;
 /// use sarkara::stream::{ HC128, StreamCipher };
 ///
-/// let (pass, nonce, text) = ([2; 16], [4; 16], [8; 64]);
+/// let (pass, nonce) = (Bytes::random(16), Bytes::random(16));
+/// let data = [8; 64];
 /// let cipher = HC128::new(&pass);
-/// let ciphertext = cipher.process(&nonce, &text);
+/// let ciphertext = cipher.process(&nonce, &data);
 /// let plaintext = cipher.process(&nonce, &ciphertext);
-/// assert_eq!(plaintext, &text[..]);
+/// assert_eq!(plaintext, &data[..]);
 /// ```
 #[derive(Clone, Debug)]
 pub struct HC128 {

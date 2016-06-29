@@ -2,7 +2,6 @@
 //!
 //! Sarkara will use [CAESAR competition](http://competitions.cr.yp.to/caesar.html) winner.
 
-
 mod ascon;
 
 use std::fmt;
@@ -24,6 +23,15 @@ pub enum DecryptFail {
 pub trait AeadCipher {
     /// Create a new AeadCipher.
     fn new(key: &[u8]) -> Self;
+
+    /// Key length.
+    fn key_length() -> usize;
+
+    /// Tag length.
+    fn tag_length() -> usize;
+
+    /// Nonce length.
+    fn nonce_length() -> usize;
 
     /// Set associated data.
     fn with_aad(&mut self, aad: &[u8]) -> &mut Self;

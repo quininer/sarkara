@@ -37,7 +37,7 @@ pub enum KeyDerivationFail {
 }
 
 /// `KeyDerive` trait.
-pub trait KeyDerive<P>: Default {
+pub trait KeyDerive: Default {
     /// Generate a hashed password.
     ///
     /// ## Fail When:
@@ -65,7 +65,7 @@ pub trait KeyDerive<P>: Default {
 }
 
 /// `KeyVerify` trait.
-pub trait KeyVerify<P>: KeyDerive<P> {
+pub trait KeyVerify: KeyDerive {
     /// Verify password hash.
     ///
     /// ## Fail When:
@@ -75,7 +75,7 @@ pub trait KeyVerify<P>: KeyDerive<P> {
     }
 }
 
-impl<T, P> KeyVerify<P> for T where T: KeyDerive<P> {}
+impl<T> KeyVerify for T where T: KeyDerive {}
 
 impl fmt::Display for KeyDerivationFail {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

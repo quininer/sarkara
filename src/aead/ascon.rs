@@ -7,9 +7,13 @@ use super::{ AeadCipher, DecryptFail };
 ///
 /// # Example(encrypt/decrypt)
 /// ```
+/// use sarkara::utils::Bytes;
 /// use sarkara::aead::{ Ascon, AeadCipher };
 ///
-/// let (pass, nonce) = ([1; 16], [2; 16]);
+/// let (pass, nonce) = (
+///     Bytes::random(Ascon::key_length()),
+///     Bytes::random(Ascon::nonce_length())
+/// );
 /// let data = [3; 64];
 /// let (ciphertext, tag) = Ascon::new(&pass)
 ///     .with_aad(&nonce)
@@ -35,6 +39,10 @@ impl AeadCipher for Ascon {
             aad: Vec::new()
         }
     }
+
+    fn key_length() -> usize { 16 }
+    fn tag_length() -> usize { Self::key_length() }
+    fn nonce_length() -> usize { Self::key_length() }
 
     fn with_aad(&mut self, aad: &[u8]) -> &mut Self {
         self.aad = aad.into();

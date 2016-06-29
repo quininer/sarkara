@@ -20,32 +20,35 @@ pub const MEMLIMIT_SENSITIVE: u32 = 536870912;
 ///
 /// # Example(keyderive)
 /// ```
+/// use sarkara::utils::Bytes;
 /// use sarkara::pwhash::{ Argon2i, KeyDerive };
 ///
-/// let (pass, salt) = ([0; 8], [0; 8]);
+/// let (pass, salt) = (Bytes::random(8), Bytes::random(8));
 /// let key = Argon2i::new()
 ///     .derive(&pass, &salt)
 ///     .ok().unwrap();
-/// assert!(key != pass[..]);
+/// # assert!(key != pass[..]);
 /// ```
 ///
 /// # Example(pwhash)
 /// ```
+/// use sarkara::utils::Bytes;
 /// use sarkara::pwhash::{ Argon2i, KeyDerive };
 ///
-/// let pass = [0; 8];
+/// let pass = Bytes::random(8);
 /// let key = Argon2i::new()
 ///     .with_size(16)
 ///     .pwhash(&pass)
 ///     .ok().unwrap();
-/// assert_eq!(key.len(), 16);
+/// # assert_eq!(key.len(), 16);
 /// ```
 ///
 /// # Example(keyverify)
 /// ```
+/// use sarkara::utils::Bytes;
 /// use sarkara::pwhash::{ Argon2i, KeyDerive, KeyVerify };
 ///
-/// let (pass, salt) = ([0; 8], [0; 8]);
+/// let (pass, salt) = (Bytes::random(8), Bytes::random(8));
 /// let key = Argon2i::new()
 ///     .derive(&pass, &salt)
 ///     .ok().unwrap();
@@ -88,7 +91,7 @@ impl Argon2i {
     }
 }
 
-impl KeyDerive<ParamErr> for Argon2i {
+impl KeyDerive for Argon2i {
     fn with_size(&mut self, len: usize) -> &mut Self {
         self.outlen = len;
         self

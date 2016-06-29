@@ -9,7 +9,7 @@ use ::utils::Bytes;
 pub use self::qhmac::HMAC;
 
 
-/// Tag.
+/// MAC Tag.
 pub type Tag = Bytes;
 
 /// `Mac` trait.
