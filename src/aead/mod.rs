@@ -3,11 +3,13 @@
 //! Sarkara will use [CAESAR competition](http://competitions.cr.yp.to/caesar.html) winner.
 
 mod ascon;
+mod norx;
 
 use std::fmt;
 use std::error::Error;
 use ::auth::Tag;
 pub use self::ascon::Ascon;
+pub use self::norx::Norx;
 
 
 /// Decryption fail.

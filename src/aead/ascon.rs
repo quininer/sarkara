@@ -13,8 +13,8 @@ use super::{ AeadCipher, DecryptFail };
 /// let (pass, nonce) = (
 ///     Bytes::random(Ascon::key_length()),
 ///     Bytes::random(Ascon::nonce_length())
-/// );
-/// let data = [3; 64];
+/// );;
+/// let Bytes(ref data) = Bytes::random(64);
 /// let (ciphertext, tag) = Ascon::new(&pass)
 ///     .with_aad(&nonce)
 ///     .encrypt(&nonce, &data);

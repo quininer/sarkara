@@ -10,6 +10,7 @@ blake2-rfc = "0.2"
 argon2rs = "0.2"
 memsec = "0.1"
 ascon = { git = "https://github.com/quininer/ascon.git" }
+norx-rust = { git = "https://github.com/sneves/norx-rust.git" }
 
 [dev-dependencies]
 nix = "0.6"
