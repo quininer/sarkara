@@ -9,7 +9,6 @@ mod argon2;
 
 use std::fmt;
 use std::error::Error;
-use ::utils::Bytes;
 pub use self::argon2::{
     Argon2i,
     OPSLIMIT_INTERACTIVE, MEMLIMIT_INTERACTIVE,
@@ -17,9 +16,6 @@ pub use self::argon2::{
     OPSLIMIT_SENSITIVE, MEMLIMIT_SENSITIVE
 };
 
-
-/// Hashed Password.
-pub type Key = Bytes;
 
 /// Key derivation error.
 #[derive(Clone, Debug)]
@@ -38,11 +34,14 @@ pub enum KeyDerivationFail {
 
 /// `KeyDerive` trait.
 pub trait KeyDerive: Default {
+    /// Hashed Password.
+    type Key;
+
     /// Generate a hashed password.
     ///
     /// ## Fail When:
     /// * Param Error, see [`ParamErr`](../../argon2rs/enum.ParamErr.html)
-    fn pwhash(&self, password: &[u8]) -> Result<Key, KeyDerivationFail> {
+    fn pwhash(&self, password: &[u8]) -> Result<Self::Key, KeyDerivationFail> {
         self.derive(password, &rand!(bytes 8))
     }
 
@@ -61,11 +60,11 @@ pub trait KeyDerive: Default {
     ///
     /// ## Fail When:
     /// * Param Error, see [`ParamErr`](../../argon2rs/enum.ParamErr.html)
-    fn derive(&self, password: &[u8], salt: &[u8]) -> Result<Key, KeyDerivationFail>;
+    fn derive(&self, password: &[u8], salt: &[u8]) -> Result<Self::Key, KeyDerivationFail>;
 }
 
 /// `KeyVerify` trait.
-pub trait KeyVerify: KeyDerive {
+pub trait KeyVerify<K>: KeyDerive<Key=K> where K: PartialEq<[u8]> {
     /// Verify password hash.
     ///
     /// ## Fail When:
@@ -75,7 +74,10 @@ pub trait KeyVerify: KeyDerive {
     }
 }
 
-impl<T> KeyVerify for T where T: KeyDerive {}
+impl<T, K> KeyVerify<K> for T where
+    T: KeyDerive<Key=K>,
+    K: PartialEq<[u8]>
+{}
 
 impl fmt::Display for KeyDerivationFail {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

@@ -1,6 +1,6 @@
 use argon2rs::{ Argon2, Variant, ParamErr };
 use ::utils::Bytes;
-use super::{ KeyDerive, Key, KeyDerivationFail };
+use super::{ KeyDerive, KeyDerivationFail };
 
 
 /// Interactive Opslimit. parameter from `libsodium`.
@@ -92,6 +92,8 @@ impl Argon2i {
 }
 
 impl KeyDerive for Argon2i {
+    type Key = Bytes;
+
     fn with_size(&mut self, len: usize) -> &mut Self {
         self.outlen = len;
         self
@@ -113,7 +115,7 @@ impl KeyDerive for Argon2i {
         self
     }
 
-    fn derive(&self, password: &[u8], salt: &[u8]) -> Result<Key, KeyDerivationFail> {
+    fn derive(&self, password: &[u8], salt: &[u8]) -> Result<Self::Key, KeyDerivationFail> {
         if salt.len() < 8 { Err(KeyDerivationFail::SaltTooShort)? };
         if salt.len() > 0xffffffff { Err(KeyDerivationFail::SaltTooLong)? };
         if self.outlen < 4 { Err(KeyDerivationFail::OutLenTooShort)? };

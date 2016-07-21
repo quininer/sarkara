@@ -1,6 +1,6 @@
 use blake2_rfc::blake2b::blake2b;
 use ::utils::Bytes;
-use super::{ GenericHash, Hash, Digest };
+use super::{ GenericHash, Hash };
 
 
 /// Blake2b.
@@ -64,8 +64,10 @@ impl Blake2b {
 }
 
 impl Hash for Blake2b {
-    fn hash(&self, data: &[u8]) -> Digest {
-        Digest::new(blake2b(self.outlen, &self.key, data).as_bytes())
+    type Digest = Bytes;
+
+    fn hash(&self, data: &[u8]) -> Self::Digest {
+        Self::Digest::new(blake2b(self.outlen, &self.key, data).as_bytes())
     }
 }
 

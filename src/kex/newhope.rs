@@ -1,4 +1,4 @@
-use std::ops::Deref;
+use std::mem::size_of_val;
 use rand::{ Rng, OsRng, ChaChaRng };
 use newhope::{
     N, POLY_BYTES, SENDABYTES, SENDBBYTES,
@@ -7,22 +7,36 @@ use newhope::{
     keygen, sharedb, shareda,
     sha3_256
 };
+use memsec::memzero;
 use super::KeyExchange;
 
 
+/// Newhope key exchange..
+///
+/// # Example(exchange)
+/// ```
+/// use sarkara::kex::{ KeyExchange, NewHope };
+///
+/// let (mut keya, mut keyb) = ([0; 32], [0; 32]);
+/// let (sk, pk) = NewHope::keygen();
+/// let rec = NewHope::exchange(&mut keyb, &pk);
+/// NewHope::exchange_from(&mut keya, &sk, &rec);
+///
+/// assert_eq!(keya, keyb);
+/// ```
+///
+/// # Example(import/export)
+/// ```
+/// # use sarkara::kex::{ KeyExchange, PrivateKey, NewHope };
+/// # let (mut keya, mut keyb) = ([0; 32], [0; 32]);
+/// # let (sk, pk) = NewHope::keygen();
+/// let sk_bytes = sk.export();
+/// let sk = PrivateKey::import(&sk_bytes);
+/// # let rec = NewHope::exchange(&mut keyb, &pk);
+/// # NewHope::exchange_from(&mut keya, &sk, &rec);
+/// # assert_eq!(keya, keyb);
+/// ```
 pub struct NewHope;
-
-pub struct PrivateKey(pub [u16; N]);
-
-impl PrivateKey {
-    pub fn import(input: &[u8]) -> PrivateKey {
-        PrivateKey(poly_frombytes(input))
-    }
-
-    pub fn export(&self) -> [u8; POLY_BYTES] {
-        poly_tobytes(&self.0)
-    }
-}
 
 impl KeyExchange for NewHope {
     type PrivateKey = PrivateKey;
@@ -66,5 +80,27 @@ impl KeyExchange for NewHope {
         shareda(&mut key, sk, &poly_frombytes(pk), &rec_frombytes(rec));
 
         sha3_256(sharedkey, &key);
+    }
+}
+
+
+/// Newhope private key.
+pub struct PrivateKey(pub [u16; N]);
+
+impl PrivateKey {
+    /// import private key.
+    pub fn import(input: &[u8]) -> PrivateKey {
+        PrivateKey(poly_frombytes(input))
+    }
+
+    /// export private key.
+    pub fn export(&self) -> [u8; POLY_BYTES] {
+        poly_tobytes(&self.0)
+    }
+}
+
+impl Drop for PrivateKey {
+    fn drop(&mut self) {
+        unsafe { memzero(self.0.as_mut_ptr(), size_of_val(&self.0)) }
     }
 }

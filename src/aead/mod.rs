@@ -7,7 +7,6 @@ mod norx;
 
 use std::fmt;
 use std::error::Error;
-use ::auth::Tag;
 pub use self::ascon::Ascon;
 pub use self::norx::Norx;
 
@@ -28,10 +27,8 @@ pub trait AeadCipher {
 
     /// Key length.
     fn key_length() -> usize;
-
     /// Tag length.
     fn tag_length() -> usize;
-
     /// Nonce length.
     fn nonce_length() -> usize;
 
@@ -39,14 +36,14 @@ pub trait AeadCipher {
     fn with_aad(&mut self, aad: &[u8]) -> &mut Self;
 
     /// Encryption.
-    fn encrypt(&self, nonce: &[u8], data: &[u8]) -> (Vec<u8>, Tag);
+    fn encrypt(&self, nonce: &[u8], data: &[u8]) -> Vec<u8>;
 
     /// Decryption
     ///
     /// ## Fail When:
     /// - Tag length error.
     /// - Tag authentication fail.
-    fn decrypt(&self, nonce: &[u8], data: &[u8], tag: &[u8]) -> Result<Vec<u8>, DecryptFail>;
+    fn decrypt(&self, nonce: &[u8], data: &[u8]) -> Result<Vec<u8>, DecryptFail>;
 }
 
 impl fmt::Display for DecryptFail {

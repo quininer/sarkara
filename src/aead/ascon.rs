@@ -1,4 +1,3 @@
-use ::auth::Tag;
 use ::utils::Bytes;
 use super::{ AeadCipher, DecryptFail };
 
@@ -15,12 +14,12 @@ use super::{ AeadCipher, DecryptFail };
 ///     Bytes::random(Ascon::nonce_length())
 /// );;
 /// let Bytes(ref data) = Bytes::random(64);
-/// let (ciphertext, tag) = Ascon::new(&pass)
+/// let ciphertext = Ascon::new(&pass)
 ///     .with_aad(&nonce)
 ///     .encrypt(&nonce, &data);
 /// let plaintext = Ascon::new(&pass)
 ///     .with_aad(&nonce)
-///     .decrypt(&nonce, &ciphertext, &tag)
+///     .decrypt(&nonce, &ciphertext)
 ///     .unwrap();
 /// assert_eq!(plaintext, &data[..]);
 /// ```
@@ -49,12 +48,14 @@ impl AeadCipher for Ascon {
         self
     }
 
-    fn encrypt(&self, nonce: &[u8], data: &[u8]) -> (Vec<u8>, Tag) {
-        let (output, tag) = ::ascon::aead_encrypt(&self.key, nonce, data, &self.aad);
-        (output, Bytes::new(&tag))
+    fn encrypt(&self, nonce: &[u8], data: &[u8]) -> Vec<u8> {
+        let (mut output, tag) = ::ascon::aead_encrypt(&self.key, nonce, data, &self.aad);
+        output.extend_from_slice(&tag);
+        output
     }
 
-    fn decrypt(&self, nonce: &[u8], data: &[u8], tag: &[u8]) -> Result<Vec<u8>, DecryptFail> {
+    fn decrypt(&self, nonce: &[u8], data: &[u8]) -> Result<Vec<u8>, DecryptFail> {
+        let (data, tag) = data.split_at(data.len() - Self::tag_length());
         ::ascon::aead_decrypt(&self.key, nonce, data, &self.aad, tag).map_err(|err| err.into())
     }
 }

@@ -1,5 +1,6 @@
+use std::ops::Deref;
 use ::hash::{ Hash, GenericHash };
-use super::{ Mac, NonceMac, Tag };
+use super::{ Mac, NonceMac };
 
 
 /// HMAC, nonce variant.
@@ -65,8 +66,13 @@ impl<H: Default + Hash> HMAC<H> {
     }
 }
 
-impl<H: Hash> Mac for HMAC<H> {
-    fn result(&self, key: &[u8], data: &[u8]) -> Tag {
+impl<B, H> Mac for HMAC<H> where
+    B: Deref<Target=[u8]> + PartialEq<[u8]>,
+    H: Hash<Digest=B>
+{
+    type Tag = H::Digest;
+
+    fn result(&self, key: &[u8], data: &[u8]) -> Self::Tag {
         let mut ipad = vec![0x36; 64];
         let mut opad = vec![0x5c; 64];
 
@@ -80,9 +86,16 @@ impl<H: Hash> Mac for HMAC<H> {
 
         self.oh.hash(&opad)
     }
+
+    fn verify(&self, key: &[u8], data: &[u8], tag: &[u8]) -> bool {
+        self.result(key, data) == tag[..]
+    }
 }
 
-impl<H: GenericHash> NonceMac for HMAC<H> {
+impl<B, H> NonceMac for HMAC<H> where
+    B: Deref<Target=[u8]> + PartialEq<[u8]>,
+    H: GenericHash<Digest=B>
+{
     fn with_nonce(&mut self, nonce: &[u8]) -> &mut Self {
         self.ih.with_key(nonce);
         self.oh.with_key(nonce);

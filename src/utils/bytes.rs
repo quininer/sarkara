@@ -1,6 +1,5 @@
-use std::cmp;
 use std::ops::{ Deref, DerefMut };
-use ::memsec::{ memzero, memcmp };
+use memsec::{ memzero, memcmp };
 
 
 /// Temporary Bytes.
@@ -43,7 +42,7 @@ impl DerefMut for Bytes {
     }
 }
 
-impl cmp::PartialEq<[u8]> for Bytes {
+impl PartialEq<[u8]> for Bytes {
     /// Constant time eq.
     fn eq(&self, rhs: &[u8]) -> bool {
         if self.0.len() == rhs.len() {
@@ -56,14 +55,14 @@ impl cmp::PartialEq<[u8]> for Bytes {
     }
 }
 
-impl cmp::PartialEq<Bytes> for Bytes {
+impl PartialEq<Bytes> for Bytes {
     /// Constant time eq.
     fn eq(&self, rhs: &Bytes) -> bool {
         self.eq(rhs.deref())
     }
 }
 
-impl cmp::Eq for Bytes {}
+impl Eq for Bytes {}
 
 impl Drop for Bytes {
     /// When drop, it will call `memzero`.
