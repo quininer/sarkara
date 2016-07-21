@@ -17,16 +17,14 @@ if you have any recommendations, please let me know.
 	+ [ ] [NTRUMLS](https://github.com/NTRUOpenSourceProject/NTRUMLS)
 	+ [ ] [rlwesig](https://en.wikipedia.org/wiki/Ring_learning_with_errors_signature)
 * Key exchange
-	+ [ ] [rlwekex](https://en.wikipedia.org/wiki/Ring_learning_with_errors_key_exchange)
-	+ [ ] [newhope](https://github.com/tpoeppelmann/newhope)
-	+ [ ] [sidh](https://en.wikipedia.org/wiki/Supersingular_isogeny_key_exchange)
+	+ [x] [newhope](https://github.com/tpoeppelmann/newhope)
 
 Secret-key cryptography
 -----------------------
 
 * Authenticated encryption
-	+ [ ] [norx (if it is CAESAR winner)](https://norx.io/)
-	+ [ ] [ascon (if it is CAESAR winner)](http://ascon.iaik.tugraz.at/)
+	+ [x] [norx (if it is CAESAR winner)](https://norx.io/)
+	+ [x] [ascon (if it is CAESAR winner)](http://ascon.iaik.tugraz.at/)
 * Encryption
 	+ [x] [hc128](http://www.ecrypt.eu.org/stream/hcpf.html)
 * Authentication
@@ -48,3 +46,4 @@ Reference
 * [Quantum-Secure Message Authentication Codes](http://eprint.iacr.org/2012/606.pdf)
 * [Post-quantum security models for authenticated encryption](http://cacr.uwaterloo.ca/techreports/2016/cacr2016-04.pdf)
 * [Post-quantum security models for authenticated encryption (talk ppt)](https://pqcrypto2016.jp/data/Soukharev-talk3.pdf)
+* [Experimenting with Post-Quantum Cryptography](https://security.googleblog.com/2016/07/experimenting-with-post-quantum.html)

@@ -10,6 +10,7 @@ extern crate hc128;
 extern crate ascon;
 extern crate norx;
 extern crate memsec;
+extern crate newhope;
 
 #[macro_use] pub mod utils;
 pub mod hash;
@@ -17,4 +18,6 @@ pub mod pwhash;
 pub mod auth;
 pub mod stream;
 pub mod aead;
+pub mod kex;
 pub mod secretbox;
+// pub mod sealedbox;

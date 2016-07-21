@@ -11,6 +11,7 @@ argon2rs = "0.2"
 memsec = "0.1"
 ascon = { git = "https://github.com/quininer/ascon.git" }
 norx-rust = { git = "https://github.com/sneves/norx-rust.git" }
+newhope = { git = "https://github.com/quininer/newhope.git", default-features = false }
 
 [dev-dependencies]
 nix = "0.6"
