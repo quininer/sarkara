@@ -8,9 +8,9 @@ extern crate blake2_rfc;
 extern crate argon2rs;
 extern crate hc128;
 extern crate ascon;
-extern crate norx;
 extern crate memsec;
 extern crate newhope;
+#[cfg(feature = "norx")] extern crate norx;
 
 #[macro_use] pub mod utils;
 pub mod hash;

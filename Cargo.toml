@@ -9,9 +9,12 @@ hc128 = "0.1"
 blake2-rfc = "0.2"
 argon2rs = "0.2"
 memsec = "0.1"
-ascon = { git = "https://github.com/quininer/ascon.git" }
-norx-rust = { git = "https://github.com/sneves/norx-rust.git" }
+ascon = "0.1"
+norx-rust = { git = "https://github.com/sneves/norx-rust.git", optional = true }
 newhope = { git = "https://github.com/quininer/newhope.git", default-features = false }
 
 [dev-dependencies]
 nix = "0.6"
+
+[features]
+norx = [ "norx-rust" ]
