@@ -7,11 +7,8 @@
 Public-key cryptography
 -----------------------
 
-I have not decided to choose which public key cryptography algorithm,
-if you have any recommendations, please let me know.
-
 * Authenticated encryption
-	`...`
+	+ [ ] `newhope-ascon` / `newhope-norx`
 * Signatures
 	+ [ ] [bliss](http://bliss.di.ens.fr/)
 	+ [ ] [NTRUMLS](https://github.com/NTRUOpenSourceProject/NTRUMLS)

@@ -40,11 +40,13 @@ pub struct NewHope;
 
 impl KeyExchange for NewHope {
     type PrivateKey = PrivateKey;
-    type PublicKey = [u8; SENDABYTES];
-    type Reconciliation = [u8; SENDBBYTES];
 
-    fn keygen() -> (Self::PrivateKey, Self::PublicKey) {
-        let (mut sk, mut pk) = ([0; N], [0; SENDABYTES]);
+    fn sk_length() -> usize { POLY_BYTES }
+    fn pk_length() -> usize { SENDABYTES }
+    fn rec_length() -> usize { SENDBBYTES }
+
+    fn keygen() -> (Self::PrivateKey, Vec<u8>) {
+        let (mut sk, mut pk) = ([0; N], vec![0; SENDABYTES]);
         let (mut pka, mut nonce) = ([0; N], [0; 32]);
         let mut rng = OsRng::new().unwrap().gen::<ChaChaRng>();
 
@@ -57,24 +59,24 @@ impl KeyExchange for NewHope {
         (PrivateKey(sk), pk)
     }
 
-    fn exchange(sharedkey: &mut [u8], pka: &Self::PublicKey) -> Self::Reconciliation {
-        let mut output = [0; SENDBBYTES];
-        let (mut key, mut pkb, mut c) = ([0; N], [0; N], [0; N]);
+    fn exchange(sharedkey: &mut [u8], pka: &[u8]) -> Vec<u8> {
+        let (mut key, mut pkb, mut rec) = ([0; N], [0; N], [0; N]);
         let (pk, nonce) = pka.split_at(POLY_BYTES);
 
         sharedb(
-            &mut key, &mut pkb, &mut c,
+            &mut key, &mut pkb, &mut rec,
             &poly_frombytes(pk), nonce, OsRng::new().unwrap().gen::<ChaChaRng>()
         );
 
         sha3_256(sharedkey, &key);
 
-        output[..POLY_BYTES].clone_from_slice(&poly_tobytes(&pkb));
-        output[POLY_BYTES..].clone_from_slice(&rec_tobytes(&c));
+        let mut output = Vec::with_capacity(Self::rec_length());
+        output.extend_from_slice(&poly_tobytes(&pkb));
+        output.extend_from_slice(&rec_tobytes(&rec));
         output
     }
 
-    fn exchange_from(sharedkey: &mut [u8], &PrivateKey(ref sk): &Self::PrivateKey, pkb: &Self::Reconciliation) {
+    fn exchange_from(sharedkey: &mut [u8], &PrivateKey(ref sk): &Self::PrivateKey, pkb: &[u8]) {
         let mut key = [0; N];
         let (pk, rec) = pkb.split_at(POLY_BYTES);
         shareda(&mut key, sk, &poly_frombytes(pk), &rec_frombytes(rec));

@@ -12,15 +12,15 @@ pub use self::newhope::{ NewHope, PrivateKey };
 pub trait KeyExchange {
     /// Private key.
     type PrivateKey;
-    /// Public key.
-    type PublicKey;
-    /// Reconciliation data.
-    type Reconciliation;
+
+    fn sk_length() -> usize;
+    fn pk_length() -> usize;
+    fn rec_length() -> usize;
 
     /// Generate keypair.
-    fn keygen() -> (Self::PrivateKey, Self::PublicKey);
+    fn keygen() -> (Self::PrivateKey, Vec<u8>);
     /// Key exchange, from Public key.
-    fn exchange(sharedkey: &mut [u8], pk: &Self::PublicKey) -> Self::Reconciliation;
+    fn exchange(sharedkey: &mut [u8], pk: &[u8]) -> Vec<u8>;
     /// key exchange, from Reconciliation data.
-    fn exchange_from(sharedkey: &mut [u8], sk: &Self::PrivateKey, rec: &Self::Reconciliation);
+    fn exchange_from(sharedkey: &mut [u8], sk: &Self::PrivateKey, rec: &[u8]);
 }
