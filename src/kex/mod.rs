@@ -13,8 +13,11 @@ pub trait KeyExchange {
     /// Private key.
     type PrivateKey;
 
+    /// Secret key length.
     fn sk_length() -> usize;
+    /// Public key length.
     fn pk_length() -> usize;
+    /// Reconciliation data length.
     fn rec_length() -> usize;
 
     /// Generate keypair.
