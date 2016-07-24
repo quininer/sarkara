@@ -1,4 +1,4 @@
-//! Secret-key Authentication encryption.
+//! Secret-key Authenticated encryption.
 
 use ::aead::{ AeadCipher, DecryptFail };
 

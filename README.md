@@ -8,7 +8,7 @@ Public-key cryptography
 -----------------------
 
 * Authenticated encryption
-	+ [ ] `newhope-ascon` / `newhope-norx`
+	+ [x] `newhope-ascon` / `newhope-norx`
 * Signatures
 	+ [ ] [bliss](http://bliss.di.ens.fr/)
 	+ [ ] [NTRUMLS](https://github.com/NTRUOpenSourceProject/NTRUMLS)

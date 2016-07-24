@@ -9,16 +9,16 @@ use sarkara::utils::Bytes;
 
 #[bench]
 fn bytes_eq_bench(b: &mut Bencher) {
-    let x = Bytes::new(&[9; 1024]);
-    let y = Bytes::new(&[9; 1024]);
+    let x = Bytes::new(&[9; 4096]);
+    let y = Bytes::new(&[9; 4096]);
 
     b.iter(|| x == y);
 }
 
 #[bench]
 fn bytes_nq_bench(b: &mut Bencher) {
-    let x = Bytes::new(&[8; 1024]);
-    let z = Bytes::new(&[3; 1024]);
+    let x = Bytes::new(&[8; 4096]);
+    let z = Bytes::new(&[3; 4096]);
 
     b.iter(|| x != z);
 }

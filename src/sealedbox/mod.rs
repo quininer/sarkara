@@ -1,4 +1,4 @@
-//! Public-key Authentication encryption.
+//! Public-key Authenticated encryption.
 
 use ::aead::{ AeadCipher, DecryptFail };
 use ::kex::KeyExchange;
