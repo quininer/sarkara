@@ -23,7 +23,7 @@ Secret-key cryptography
 	+ [x] [norx (if it is CAESAR winner)](https://norx.io/)
 	+ [x] [ascon (if it is CAESAR winner)](http://ascon.iaik.tugraz.at/)
 * Encryption
-	+ [x] [hc128](http://www.ecrypt.eu.org/stream/hcpf.html)
+	+ [x] [rabbit](http://www.ecrypt.eu.org/stream/rabbitpf.html)
 * Authentication
 	+ [x] `HMAC (nonce variant)`
 * Key derivation

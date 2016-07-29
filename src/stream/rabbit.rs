@@ -1,36 +1,33 @@
-use ::utils::Bytes;
 use super::StreamCipher;
 
 
-/// HC-128.
+/// Rabbit.
 ///
 /// # Example(process)
 /// ```
 /// use sarkara::utils::Bytes;
-/// use sarkara::stream::{ HC128, StreamCipher };
+/// use sarkara::stream::{ Rabbit, StreamCipher };
 ///
-/// let (pass, nonce) = (Bytes::random(16), Bytes::random(16));
+/// let (pass, nonce) = (Bytes::random(16), Bytes::random(8));
 /// let data = [8; 64];
-/// let mut cipher = HC128::new(&pass);
+/// let mut cipher = Rabbit::new(&pass);
 /// let ciphertext = cipher.process(&nonce, &data);
 /// let plaintext = cipher.process(&nonce, &ciphertext);
 /// assert_eq!(plaintext, &data[..]);
 /// ```
-#[derive(Clone, Debug)]
-pub struct HC128 {
-    /// key.
-    pub key: Bytes
+pub struct Rabbit {
+    inner: ::rabbit::Rabbit
 }
 
-impl StreamCipher for HC128 {
+impl StreamCipher for Rabbit {
     fn new(key: &[u8]) -> Self {
-        HC128 { key: Bytes::new(key) }
+        Rabbit { inner: ::rabbit::Rabbit::new(&key.into()) }
     }
 
     fn process(&mut self, nonce: &[u8], data: &[u8]) -> Vec<u8> {
         let mut output = vec![0; data.len()];
-        ::hc128::HC128::new(&self.key, nonce)
-            .process(data, &mut output);
+        self.inner.reinit(&nonce.into());
+        self.inner.encrypt(data, &mut output);
         output
     }
 }

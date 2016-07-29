@@ -6,13 +6,13 @@ extern crate rand;
 
 use test::Bencher;
 use sarkara::utils::Bytes;
-use sarkara::stream::{ HC128, StreamCipher };
+use sarkara::stream::{ Rabbit, StreamCipher };
 
 
 #[bench]
-fn bench_stream_hc128(b: &mut Bencher) {
-    let (key, nonce) = (Bytes::random(16), Bytes::random(16));
+fn bench_stream_rabbit(b: &mut Bencher) {
+    let (key, nonce) = (Bytes::random(16), Bytes::random(8));
     let data = rand!(bytes 4096);
     b.bytes = data.len() as u64;
-    b.iter(|| HC128::new(&key).process(&nonce, &data));
+    b.iter(|| Rabbit::new(&key).process(&nonce, &data));
 }
