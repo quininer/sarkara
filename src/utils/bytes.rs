@@ -1,5 +1,6 @@
+use std::fmt;
 use std::ops::{ Deref, DerefMut };
-use memsec::{ memzero, memcmp };
+use memsec::{ memcmp, mlock, munlock };
 
 
 /// Temporary Bytes.
@@ -12,20 +13,23 @@ use memsec::{ memzero, memcmp };
 ///
 /// assert_eq!(bytes, [1; 8][..]);
 /// ```
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct Bytes(pub Vec<u8>);
 
 impl Bytes {
     /// Create a new Bytes.
     pub fn new(input: &[u8]) -> Bytes {
-        Bytes(input.into())
+        let mut input: Vec<u8> = input.into();
+        unsafe { mlock(input.as_mut_ptr(), input.len()) };
+        Bytes(input)
     }
 
     /// Create a randomly Bytes.
     pub fn random(len: usize) -> Bytes {
-        let mut output = vec![0; len];
-        rand!(fill output);
-        Bytes(output)
+        let mut input = vec![0; len];
+        rand!(fill input);
+        unsafe { mlock(input.as_mut_ptr(), input.len()) };
+        Bytes(input)
     }
 }
 
@@ -39,6 +43,12 @@ impl Deref for Bytes {
 impl DerefMut for Bytes {
     fn deref_mut(&mut self) -> &mut [u8] {
         self.0.as_mut_slice()
+    }
+}
+
+impl fmt::Debug for Bytes {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "*** secret bytes ***")
     }
 }
 
@@ -65,8 +75,8 @@ impl PartialEq<Bytes> for Bytes {
 impl Eq for Bytes {}
 
 impl Drop for Bytes {
-    /// When drop, it will call `memzero`.
+    /// When drop, it will call `munlock`.
     fn drop(&mut self) {
-        unsafe { memzero(self.0.as_mut_ptr(), self.0.len()) };
+        unsafe { munlock(self.0.as_mut_ptr(), self.0.len()) };
     }
 }

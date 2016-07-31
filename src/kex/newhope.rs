@@ -60,7 +60,7 @@ impl KeyExchange for NewHope {
     }
 
     fn exchange(sharedkey: &mut [u8], pka: &[u8]) -> Vec<u8> {
-        let (mut key, mut pkb, mut rec) = ([0; N], [0; N], [0; N]);
+        let (mut key, mut pkb, mut rec) = ([0; 32], [0; N], [0; N]);
         let (pk, nonce) = pka.split_at(POLY_BYTES);
 
         sharedb(
@@ -77,7 +77,7 @@ impl KeyExchange for NewHope {
     }
 
     fn exchange_from(sharedkey: &mut [u8], &PrivateKey(ref sk): &Self::PrivateKey, pkb: &[u8]) {
-        let mut key = [0; N];
+        let mut key = [0; 32];
         let (pk, rec) = pkb.split_at(POLY_BYTES);
         shareda(&mut key, sk, &poly_frombytes(pk), &rec_frombytes(rec));
 

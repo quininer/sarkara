@@ -20,8 +20,8 @@ Secret-key cryptography
 -----------------------
 
 * Authenticated encryption
-	+ [x] [norx (if it is CAESAR winner)](https://norx.io/)
 	+ [x] [ascon (if it is CAESAR winner)](http://ascon.iaik.tugraz.at/)
+	+ [x] [norx (if it is CAESAR winner)](https://norx.io/)
 * Encryption
 	+ [x] [rabbit](http://www.ecrypt.eu.org/stream/rabbitpf.html)
 * Authentication

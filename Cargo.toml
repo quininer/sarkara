@@ -5,9 +5,9 @@ authors = ["quininer kel <quininer@live.com>"]
 
 [dependencies]
 rand = "0.3"
-rabbit = "0.1"
+rabbit = { version = "0.1", features = ["nostd"] }
 blake2-rfc = "0.2"
-argon2rs = "0.2"
+argon2rs = { version = "0.2", features = ["simd"] }
 memsec = "0.1"
 ascon = "0.1"
 norx-rust = { git = "https://github.com/sneves/norx-rust.git", optional = true }
