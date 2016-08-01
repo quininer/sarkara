@@ -1,4 +1,5 @@
 use std::ops::Deref;
+use ::utils::Bytes;
 use ::hash::{ Hash, GenericHash };
 use super::{ Mac, NonceMac };
 
@@ -14,7 +15,7 @@ use super::{ Mac, NonceMac };
 /// use sarkara::hash::Blake2b;
 ///
 /// assert_eq!(
-///     HMAC::<Blake2b>::new().result(&[5; 16], &[]),
+///     HMAC::<Blake2b>::new(&[5; 16]).result(&[]),
 ///     [
 ///         103, 94, 237, 110, 44, 95, 234, 140,
 ///         231, 34, 21, 54, 134, 161, 118, 37,
@@ -34,10 +35,10 @@ use super::{ Mac, NonceMac };
 /// use sarkara::hash::Blake2b;
 ///
 /// assert_eq!(
-///     HMAC::<Blake2b>::new()
+///     HMAC::<Blake2b>::new(&[5; 16])
 ///         .with_size(16)
 ///         .with_nonce(&[1; 8])
-///         .result(&[5; 16], &[]),
+///         .result(&[]),
 ///     [
 ///         156, 249, 9, 142, 32, 148, 190, 61,
 ///         50, 43, 151, 147, 161, 103, 56, 10
@@ -46,24 +47,9 @@ use super::{ Mac, NonceMac };
 /// ```
 #[derive(Clone, Debug)]
 pub struct HMAC<H> {
+    key: Bytes,
     ih: H,
     oh: H
-}
-
-impl<H: Default + Hash> Default for HMAC<H> {
-    fn default() -> Self {
-        HMAC {
-            ih: H::default(),
-            oh: H::default()
-        }
-    }
-}
-
-impl<H: Default + Hash> HMAC<H> {
-    /// Create a new HMAC.
-    pub fn new() -> HMAC<H> {
-        HMAC::default()
-    }
 }
 
 impl<B, H> Mac for HMAC<H> where
@@ -72,13 +58,24 @@ impl<B, H> Mac for HMAC<H> where
 {
     type Tag = H::Digest;
 
-    fn result(&self, key: &[u8], data: &[u8]) -> Self::Tag {
+    #[inline] fn key_length() -> usize { 16 }
+    #[inline] fn tag_length() -> usize { H::digest_length() }
+
+    fn new(key: &[u8]) -> Self {
+        HMAC {
+            key: Bytes::new(key),
+            ih: H::default(),
+            oh: H::default()
+        }
+    }
+
+    fn result(&self, data: &[u8]) -> Self::Tag {
         let mut ipad = vec![0x36; 64];
         let mut opad = vec![0x5c; 64];
 
-        for i in 0..key.len() {
-            ipad[i] ^= key[i];
-            opad[i] ^= key[i];
+        for i in 0..self.key.len() {
+            ipad[i] ^= self.key[i];
+            opad[i] ^= self.key[i];
         }
 
         ipad.extend_from_slice(data);
@@ -87,8 +84,8 @@ impl<B, H> Mac for HMAC<H> where
         self.oh.hash(&opad)
     }
 
-    fn verify(&self, key: &[u8], data: &[u8], tag: &[u8]) -> bool {
-        self.result(key, data) == tag[..]
+    fn verify(&self, data: &[u8], tag: &[u8]) -> bool {
+        self.result(data) == tag[..]
     }
 }
 
@@ -96,6 +93,8 @@ impl<B, H> NonceMac for HMAC<H> where
     B: Deref<Target=[u8]> + PartialEq<[u8]>,
     H: GenericHash<Digest=B>
 {
+    #[inline] fn nonce_length() -> usize { 8 }
+
     fn with_nonce(&mut self, nonce: &[u8]) -> &mut Self {
         self.ih.with_key(nonce);
         self.oh.with_key(nonce);

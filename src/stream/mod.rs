@@ -14,6 +14,11 @@ pub trait StreamCipher {
     /// Create a new StreamCipher.
     fn new(key: &[u8]) -> Self;
 
+    /// Key length.
+    fn key_length() -> usize;
+    /// Nonce length.
+    fn nonce_length() -> usize;
+
     /// Process data.
     fn process(&mut self, nonce: &[u8], data: &[u8]) -> Vec<u8>;
 }

@@ -2,11 +2,13 @@
 //!
 //! Sarkara will use [CAESAR competition](http://competitions.cr.yp.to/caesar.html) winner.
 
+mod general;
 mod ascon;
 #[cfg(feature = "norx")] mod norx;
 
 use std::fmt;
 use std::error::Error;
+pub use self::general::General;
 pub use self::ascon::Ascon;
 #[cfg(feature = "norx")] pub use self::norx::Norx;
 
@@ -36,14 +38,14 @@ pub trait AeadCipher {
     fn with_aad(&mut self, aad: &[u8]) -> &mut Self;
 
     /// Encryption.
-    fn encrypt(&self, nonce: &[u8], data: &[u8]) -> Vec<u8>;
+    fn encrypt(&mut self, nonce: &[u8], data: &[u8]) -> Vec<u8>;
 
     /// Decryption
     ///
     /// ## Fail When:
     /// - Tag length error.
     /// - Tag authentication fail.
-    fn decrypt(&self, nonce: &[u8], data: &[u8]) -> Result<Vec<u8>, DecryptFail>;
+    fn decrypt(&mut self, nonce: &[u8], data: &[u8]) -> Result<Vec<u8>, DecryptFail>;
 }
 
 impl fmt::Display for DecryptFail {

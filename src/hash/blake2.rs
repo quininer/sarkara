@@ -50,7 +50,7 @@ pub struct Blake2b {
 impl Default for Blake2b {
     fn default() -> Blake2b {
         Blake2b {
-            outlen: 64,
+            outlen: Blake2b::digest_length(),
             key: Bytes(Vec::new())
         }
     }
@@ -65,6 +65,8 @@ impl Blake2b {
 
 impl Hash for Blake2b {
     type Digest = Bytes;
+
+    #[inline] fn digest_length() -> usize { 64 }
 
     fn hash(&self, data: &[u8]) -> Self::Digest {
         Self::Digest::new(blake2b(self.outlen, &self.key, data).as_bytes())

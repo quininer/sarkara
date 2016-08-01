@@ -14,6 +14,9 @@ pub trait Hash: Default {
     /// Hash digest.
     type Digest;
 
+    /// Digest length.
+    fn digest_length() -> usize;
+
     /// Calculate hash.
     fn hash(&self, data: &[u8]) -> Self::Digest;
 }

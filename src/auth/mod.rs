@@ -9,18 +9,29 @@ pub use self::qhmac::HMAC;
 
 
 /// `Mac` trait.
-pub trait Mac: Default {
+pub trait Mac {
     /// MAC tag.
     type Tag;
 
+    /// Key length.
+    fn key_length() -> usize;
+    /// Tag length.
+    fn tag_length() -> usize;
+
+    /// Create a new MAC.
+    fn new(key: &[u8]) -> Self;
+
     /// Calculate MAC Tag.
-    fn result(&self, key: &[u8], data: &[u8]) -> Self::Tag;
+    fn result(&self, data: &[u8]) -> Self::Tag;
     /// Verify MAC Tag.
-    fn verify(&self, key: &[u8], data: &[u8], tag: &[u8]) -> bool;
+    fn verify(&self, data: &[u8], tag: &[u8]) -> bool;
 }
 
 /// `NonceMac` trait.
 pub trait NonceMac: Mac {
+    /// Nonce length
+    fn nonce_length() -> usize;
+
     /// Set Nonce.
     fn with_nonce(&mut self, nonce: &[u8]) -> &mut Self;
     /// Set MAC code length.

@@ -24,6 +24,9 @@ impl StreamCipher for Rabbit {
         Rabbit { inner: ::rabbit::Rabbit::new(&key.into()) }
     }
 
+    #[inline] fn key_length() -> usize { 16 }
+    #[inline] fn nonce_length() -> usize { 8 }
+
     fn process(&mut self, nonce: &[u8], data: &[u8]) -> Vec<u8> {
         let mut output = vec![0; data.len()];
         self.inner.reinit(&nonce.into());
