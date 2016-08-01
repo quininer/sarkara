@@ -23,7 +23,6 @@ use super::{ AeadCipher, DecryptFail };
 ///     .unwrap();
 /// assert_eq!(plaintext, &data[..]);
 /// ```
-#[derive(Clone, Debug)]
 pub struct Ascon {
     /// key.
     pub key: Bytes,

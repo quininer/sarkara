@@ -51,14 +51,9 @@ impl<C, M, B> AeadCipher for General<C, M> where
         }
     }
 
-    #[inline] fn key_length() -> usize {
-        C::key_length() + M::key_length()
-    }
-
+    #[inline] fn key_length() -> usize { C::key_length() + M::key_length() }
     #[inline] fn tag_length() -> usize { M::tag_length() }
-    #[inline] fn nonce_length() -> usize {
-        C::nonce_length() + M::nonce_length()
-    }
+    #[inline] fn nonce_length() -> usize { C::nonce_length() + M::nonce_length() }
 
     fn with_aad(&mut self, aad: &[u8]) -> &mut Self {
         self.aad.extend_from_slice(aad);

@@ -7,94 +7,69 @@ extern crate rand;
 use test::Bencher;
 use sarkara::utils::Bytes;
 use sarkara::kex::{ NewHope, KeyExchange };
-use sarkara::aead::{ Ascon, AeadCipher };
-#[cfg(feature = "norx")] use sarkara::aead::Norx;
+use sarkara::aead::{ Ascon, General, AeadCipher };
+use sarkara::stream::Rabbit;
+use sarkara::auth::HMAC;
+use sarkara::hash::Blake2b;
+
+type RHCipher = General<Rabbit, HMAC<Blake2b>>;
 
 
-#[bench]
-fn bench_secretbox_ascon_encrypt(b: &mut Bencher) {
-    use sarkara::secretbox::SecretBox;
+macro_rules! bench_box {
+    (secretbox encrypt $name:ident $ty:ident ) => {
+        #[bench]
+        fn $name(b: &mut Bencher) {
+            use sarkara::secretbox::SecretBox;
 
-    let key = Bytes::random(Ascon::key_length());
-    let data = rand!(bytes 4096);
-    b.bytes = data.len() as u64;
-    b.iter(|| Ascon::seal(&key, &data));
+            let key = Bytes::random($ty::key_length());
+            let data = rand!(bytes 4096);
+            b.bytes = data.len() as u64;
+            b.iter(|| $ty::seal(&key, &data));
+        }
+    };
+    (secretbox decrypt $name:ident $ty:ident ) => {
+        #[bench]
+        fn $name(b: &mut Bencher) {
+            use sarkara::secretbox::SecretBox;
+
+            let key = Bytes::random($ty::key_length());
+            let data = rand!(bytes 4096);
+            let ciphertext = $ty::seal(&key, &data);
+            b.bytes = ciphertext.len() as u64;
+            b.iter(|| $ty::open(&key, &ciphertext));
+        }
+    };
+    (sealedbox encrypt $name:ident $kty:ident $cty:ident ) => {
+        #[bench]
+        fn $name(b: &mut Bencher) {
+            use sarkara::sealedbox::SealedBox;
+
+            let (_, pk) = $kty::keygen();
+            let data = rand!(bytes 4096);
+            b.bytes = data.len() as u64;
+            b.iter(|| $cty::seal::<$kty>(&pk, &data));
+        }
+    };
+    (sealedbox decrypt $name:ident $kty:ident $cty:ident ) => {
+        #[bench]
+        fn $name(b: &mut Bencher) {
+            use sarkara::sealedbox::SealedBox;
+
+            let (sk, pk) = $kty::keygen();
+            let data = rand!(bytes 4096);
+            let ciphertext = $cty::seal::<$kty>(&pk, &data);
+            b.bytes = ciphertext.len() as u64;
+            b.iter(|| $cty::open::<$kty>(&sk, &ciphertext));
+        }
+    }
 }
 
-#[bench]
-fn bench_secretbox_ascon_decrypt(b: &mut Bencher) {
-    use sarkara::secretbox::SecretBox;
+bench_box!(secretbox encrypt bench_secretbox_ascon_encrypt Ascon);
+bench_box!(secretbox decrypt bench_secretbox_ascon_decrypt Ascon);
+bench_box!(sealedbox encrypt bench_sealedbox_ascon_encrypt NewHope Ascon);
+bench_box!(sealedbox decrypt bench_sealedbox_ascon_decrypt NewHope Ascon);
 
-    let key = Bytes::random(Ascon::key_length());
-    let data = rand!(bytes 4096);
-    let ciphertext = Ascon::seal(&key, &data);
-    b.bytes = ciphertext.len() as u64;
-    b.iter(|| Ascon::open(&key, &ciphertext));
-}
-
-#[cfg(feature = "norx")]
-#[bench]
-fn bench_secretbox_norx_encrypt(b: &mut Bencher) {
-    use sarkara::secretbox::SecretBox;
-
-    let key = Bytes::random(Norx::key_length());
-    let data = rand!(bytes 4096);
-    b.bytes = data.len() as u64;
-    b.iter(|| Norx::seal(&key, &data));
-}
-
-#[cfg(feature = "norx")]
-#[bench]
-fn bench_secretbox_norx_decrypt(b: &mut Bencher) {
-    use sarkara::secretbox::SecretBox;
-
-    let key = Bytes::random(Norx::key_length());
-    let data = rand!(bytes 4096);
-    let ciphertext = Norx::seal(&key, &data);
-    b.bytes = ciphertext.len() as u64;
-    b.iter(|| Norx::open(&key, &ciphertext));
-}
-
-#[bench]
-fn bench_sealedbox_ascon_encrypt(b: &mut Bencher) {
-    use sarkara::sealedbox::SealedBox;
-
-    let (_, pk) = NewHope::keygen();
-    let data = rand!(bytes 4096);
-    b.bytes = data.len() as u64;
-    b.iter(|| Ascon::seal::<NewHope>(&pk, &data));
-}
-
-#[bench]
-fn bench_sealedbox_ascon_decrypt(b: &mut Bencher) {
-    use sarkara::sealedbox::SealedBox;
-
-    let (sk, pk) = NewHope::keygen();
-    let data = rand!(bytes 4096);
-    let ciphertext = Ascon::seal::<NewHope>(&pk, &data);
-    b.bytes = ciphertext.len() as u64;
-    b.iter(|| Ascon::open::<NewHope>(&sk, &ciphertext));
-}
-
-#[cfg(feature = "norx")]
-#[bench]
-fn bench_sealedbox_norx_encrypt(b: &mut Bencher) {
-    use sarkara::sealedbox::SealedBox;
-
-    let (_, pk) = NewHope::keygen();
-    let data = rand!(bytes 4096);
-    b.bytes = data.len() as u64;
-    b.iter(|| Norx::seal::<NewHope>(&pk, &data));
-}
-
-#[cfg(feature = "norx")]
-#[bench]
-fn bench_sealedbox_norx_decrypt(b: &mut Bencher) {
-    use sarkara::sealedbox::SealedBox;
-
-    let (sk, pk) = NewHope::keygen();
-    let data = rand!(bytes 4096);
-    let ciphertext = Norx::seal::<NewHope>(&pk, &data);
-    b.bytes = ciphertext.len() as u64;
-    b.iter(|| Norx::open::<NewHope>(&sk, &ciphertext));
-}
+bench_box!(secretbox encrypt bench_secretbox_rhb_encrypt RHCipher);
+bench_box!(secretbox decrypt bench_secretbox_rhb_decrypt RHCipher);
+bench_box!(sealedbox encrypt bench_sealedbox_rhb_encrypt NewHope RHCipher);
+bench_box!(sealedbox decrypt bench_sealedbox_rhb_decrypt NewHope RHCipher);

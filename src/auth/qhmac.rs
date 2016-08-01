@@ -45,7 +45,6 @@ use super::{ Mac, NonceMac };
 ///     ][..]
 /// );
 /// ```
-#[derive(Clone, Debug)]
 pub struct HMAC<H> {
     key: Bytes,
     ih: H,
