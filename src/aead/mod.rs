@@ -4,13 +4,11 @@
 
 mod general;
 mod ascon;
-#[cfg(feature = "norx")] mod norx;
 
 use std::fmt;
 use std::error::Error;
 pub use self::general::General;
 pub use self::ascon::Ascon;
-#[cfg(feature = "norx")] pub use self::norx::Norx;
 
 
 /// Decryption fail.

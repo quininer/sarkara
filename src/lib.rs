@@ -10,7 +10,6 @@ extern crate rabbit;
 extern crate ascon;
 extern crate memsec;
 extern crate newhope;
-#[cfg(feature = "norx")] extern crate norx;
 
 #[macro_use] pub mod utils;
 pub mod hash;

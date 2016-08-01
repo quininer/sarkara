@@ -8,7 +8,7 @@ Public-key cryptography
 -----------------------
 
 * Authenticated encryption
-	+ [x] `newhope-ascon` / `newhope-norx`
+	+ [x] `newhope-ascon`
 * Signatures
 	+ [ ] [bliss](http://bliss.di.ens.fr/)
 	+ [ ] [NTRUMLS](https://github.com/NTRUOpenSourceProject/NTRUMLS)
@@ -21,7 +21,7 @@ Secret-key cryptography
 
 * Authenticated encryption
 	+ [x] [ascon (if it is CAESAR winner)](http://ascon.iaik.tugraz.at/)
-	+ [x] [norx (if it is CAESAR winner)](https://norx.io/)
+	+ [x] `rabbit-hmac-blake2`
 * Encryption
 	+ [x] [rabbit](http://www.ecrypt.eu.org/stream/rabbitpf.html)
 * Authentication
