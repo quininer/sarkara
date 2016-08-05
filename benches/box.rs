@@ -8,11 +8,11 @@ use test::Bencher;
 use sarkara::utils::Bytes;
 use sarkara::kex::{ NewHope, KeyExchange };
 use sarkara::aead::{ Ascon, General, AeadCipher };
-use sarkara::stream::Rabbit;
+use sarkara::stream::HC128;
 use sarkara::auth::HMAC;
 use sarkara::hash::Blake2b;
 
-type RHCipher = General<Rabbit, HMAC<Blake2b>>;
+type HHCipher = General<HC128, HMAC<Blake2b>>;
 
 
 macro_rules! bench_box {
@@ -69,7 +69,7 @@ bench_box!(secretbox decrypt bench_secretbox_ascon_decrypt Ascon);
 bench_box!(sealedbox encrypt bench_sealedbox_ascon_encrypt NewHope Ascon);
 bench_box!(sealedbox decrypt bench_sealedbox_ascon_decrypt NewHope Ascon);
 
-bench_box!(secretbox encrypt bench_secretbox_rhb_encrypt RHCipher);
-bench_box!(secretbox decrypt bench_secretbox_rhb_decrypt RHCipher);
-bench_box!(sealedbox encrypt bench_sealedbox_rhb_encrypt NewHope RHCipher);
-bench_box!(sealedbox decrypt bench_sealedbox_rhb_decrypt NewHope RHCipher);
+bench_box!(secretbox encrypt bench_secretbox_hhb_encrypt HHCipher);
+bench_box!(secretbox decrypt bench_secretbox_hhb_decrypt HHCipher);
+bench_box!(sealedbox encrypt bench_sealedbox_hhb_encrypt NewHope HHCipher);
+bench_box!(sealedbox decrypt bench_sealedbox_hhb_decrypt NewHope HHCipher);

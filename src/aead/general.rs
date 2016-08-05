@@ -10,11 +10,11 @@ use super::{ AeadCipher, DecryptFail };
 /// ```
 /// use sarkara::utils::Bytes;
 /// use sarkara::aead::{ General, AeadCipher };
-/// use sarkara::stream::Rabbit;
+/// use sarkara::stream::HC128;
 /// use sarkara::auth::HMAC;
 /// use sarkara::hash::Blake2b;
 ///
-/// type RHCipher = General<Rabbit, HMAC<Blake2b>>;
+/// type RHCipher = General<HC128, HMAC<Blake2b>>;
 ///
 /// let (pass, nonce) = (
 ///     Bytes::random(RHCipher::key_length()),

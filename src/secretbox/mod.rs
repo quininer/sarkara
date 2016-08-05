@@ -46,7 +46,9 @@ pub trait SecretBox: AeadCipher {
 
     /// Open SecretBox.
     fn open(key: &[u8], data: &[u8]) -> Result<Vec<u8>, DecryptFail> {
-        if data.len() < Self::tag_length() { Err(DecryptFail::TagLengthError)? };
+        if data.len() < Self::tag_length() + Self::nonce_length() {
+            Err(DecryptFail::TagLengthError)?
+        };
 
         let (nonce, data) = data.split_at(Self::nonce_length());
         Self::new(key)

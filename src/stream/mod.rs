@@ -1,12 +1,12 @@
 //! Secret-key encryption.
 //!
-//! Sarkara use [`Rabbit`](http://www.ecrypt.eu.org/stream/rabbitpf.html),
+//! Sarkara use [`hc128`](http://www.ecrypt.eu.org/stream/hcpf.html),
 //! it is one of [`eSTREAM`](http://www.ecrypt.eu.org/stream/) portfolio,
 //! have good design and performance.
 
-mod rabbit;
+mod hc128;
 
-pub use self::rabbit::Rabbit;
+pub use self::hc128::HC128;
 
 
 /// `StreamCipher` trait.

@@ -30,7 +30,7 @@ fn thread_shared_secbytes_test() {
     assert!(result);
 }
 
-#[cfg(unix)]
+#[cfg(all(unix, not(any(target_os = "macos", target_os = "ios"))))]
 #[should_panic]
 #[test]
 fn protect_secbytes_test() {

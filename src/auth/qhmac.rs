@@ -72,9 +72,9 @@ impl<B, H> Mac for HMAC<H> where
         let mut ipad = vec![0x36; 64];
         let mut opad = vec![0x5c; 64];
 
-        for i in 0..self.key.len() {
-            ipad[i] ^= self.key[i];
-            opad[i] ^= self.key[i];
+        for (i, &b) in self.key.iter().take(64).enumerate() {
+            ipad[i] ^= b;
+            opad[i] ^= b;
         }
 
         ipad.extend_from_slice(data);

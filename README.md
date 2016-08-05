@@ -21,9 +21,9 @@ Secret-key cryptography
 
 * Authenticated encryption
 	+ [x] [ascon (if it is CAESAR winner)](http://ascon.iaik.tugraz.at/)
-	+ [x] `rabbit-hmac-blake2`
+	+ [x] `hc128-hmac-blake2`
 * Encryption
-	+ [x] [rabbit](http://www.ecrypt.eu.org/stream/rabbitpf.html)
+	+ [x] [hc128](http://www.ecrypt.eu.org/stream/hcpf.html)
 * Authentication
 	+ [x] `HMAC (nonce variant)`
 * Key derivation
