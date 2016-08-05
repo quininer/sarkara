@@ -16,60 +16,46 @@ type HHCipher = General<HC128, HMAC<Blake2b>>;
 
 
 macro_rules! bench_box {
-    (secretbox encrypt $name:ident $ty:ident ) => {
+    ( secretbox $name:ident $ty:ident, $len:expr ) => {
         #[bench]
         fn $name(b: &mut Bencher) {
             use sarkara::secretbox::SecretBox;
 
             let key = Bytes::random($ty::key_length());
-            let data = rand!(bytes 4096);
+            let data = rand!(bytes $len);
             b.bytes = data.len() as u64;
-            b.iter(|| $ty::seal(&key, &data));
+            b.iter(|| {
+                let ciphertext = $ty::seal(&key, &data);
+                $ty::open(&key, &ciphertext)
+            });
         }
     };
-    (secretbox decrypt $name:ident $ty:ident ) => {
-        #[bench]
-        fn $name(b: &mut Bencher) {
-            use sarkara::secretbox::SecretBox;
-
-            let key = Bytes::random($ty::key_length());
-            let data = rand!(bytes 4096);
-            let ciphertext = $ty::seal(&key, &data);
-            b.bytes = ciphertext.len() as u64;
-            b.iter(|| $ty::open(&key, &ciphertext));
-        }
-    };
-    (sealedbox encrypt $name:ident $kty:ident $cty:ident ) => {
-        #[bench]
-        fn $name(b: &mut Bencher) {
-            use sarkara::sealedbox::SealedBox;
-
-            let (_, pk) = $kty::keygen();
-            let data = rand!(bytes 4096);
-            b.bytes = data.len() as u64;
-            b.iter(|| $cty::seal::<$kty>(&pk, &data));
-        }
-    };
-    (sealedbox decrypt $name:ident $kty:ident $cty:ident ) => {
+    ( sealedbox $name:ident $kty:ident $cty:ident, $len:expr ) => {
         #[bench]
         fn $name(b: &mut Bencher) {
             use sarkara::sealedbox::SealedBox;
 
             let (sk, pk) = $kty::keygen();
-            let data = rand!(bytes 4096);
-            let ciphertext = $cty::seal::<$kty>(&pk, &data);
-            b.bytes = ciphertext.len() as u64;
-            b.iter(|| $cty::open::<$kty>(&sk, &ciphertext));
+            let data = rand!(bytes $len);
+            b.bytes = data.len() as u64;
+            b.iter(|| {
+                let ciphertext = $cty::seal::<$kty>(&pk, &data);
+                $cty::open::<$kty>(&sk, &ciphertext)
+            });
         }
     }
 }
 
-bench_box!(secretbox encrypt bench_secretbox_ascon_encrypt Ascon);
-bench_box!(secretbox decrypt bench_secretbox_ascon_decrypt Ascon);
-bench_box!(sealedbox encrypt bench_sealedbox_ascon_encrypt NewHope Ascon);
-bench_box!(sealedbox decrypt bench_sealedbox_ascon_decrypt NewHope Ascon);
+bench_box!(secretbox bench_secretbox_ascon_10 Ascon, 10);
+bench_box!(sealedbox bench_sealedbox_ascon_10 NewHope Ascon, 10);
+bench_box!(secretbox bench_secretbox_ascon_1k Ascon, 1024);
+bench_box!(sealedbox bench_sealedbox_ascon_1k NewHope Ascon, 1024);
+bench_box!(secretbox bench_secretbox_ascon_64k Ascon, 65536);
+bench_box!(sealedbox bench_sealedbox_ascon_64k NewHope Ascon, 65536);
 
-bench_box!(secretbox encrypt bench_secretbox_hhb_encrypt HHCipher);
-bench_box!(secretbox decrypt bench_secretbox_hhb_decrypt HHCipher);
-bench_box!(sealedbox encrypt bench_sealedbox_hhb_encrypt NewHope HHCipher);
-bench_box!(sealedbox decrypt bench_sealedbox_hhb_decrypt NewHope HHCipher);
+bench_box!(secretbox bench_secretbox_hhb_10 HHCipher, 10);
+bench_box!(sealedbox bench_sealedbox_hhb_10 NewHope HHCipher, 10);
+bench_box!(secretbox bench_secretbox_hhb_1k HHCipher, 1024);
+bench_box!(sealedbox bench_sealedbox_hhb_1k NewHope HHCipher, 1024);
+bench_box!(secretbox bench_secretbox_hhb_64k HHCipher, 65536);
+bench_box!(sealedbox bench_sealedbox_hhb_64k NewHope HHCipher, 65536);

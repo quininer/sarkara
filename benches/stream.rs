@@ -8,14 +8,21 @@ use test::Bencher;
 use sarkara::utils::Bytes;
 use sarkara::stream::{ HC128, StreamCipher };
 
-
-#[bench]
-fn bench_stream_hc128(b: &mut Bencher) {
-    let (key, nonce) = (
-        Bytes::random(HC128::key_length()),
-        Bytes::random(HC128::nonce_length())
-    );
-    let data = rand!(bytes 4096);
-    b.bytes = data.len() as u64;
-    b.iter(|| HC128::new(&key).process(&nonce, &data));
+macro_rules! bench_stream {
+    ( $name:ident $ty:ident, $len:expr ) => {
+        #[bench]
+        fn $name(b: &mut Bencher) {
+            let (key, nonce) = (
+                Bytes::random($ty::key_length()),
+                Bytes::random($ty::nonce_length())
+            );
+            let data = rand!(bytes $len);
+            b.bytes = data.len() as u64;
+            b.iter(|| $ty::new(&key).process(&nonce, &data));
+        }
+    }
 }
+
+bench_stream!(bench_stream_hc128_10 HC128, 10);
+bench_stream!(bench_stream_hc128_1k HC128, 1024);
+bench_stream!(bench_stream_hc128_64k HC128, 65536);
