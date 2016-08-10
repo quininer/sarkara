@@ -1,4 +1,4 @@
-//! `Sarkara` is a Post-Quantum cryptography library.
+//! Sarkara is a Post-Quantum cryptography library.
 
 #![warn(missing_docs)]
 #![feature(question_mark)]

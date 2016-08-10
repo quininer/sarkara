@@ -5,6 +5,7 @@ extern crate rand;
 #[macro_use] extern crate sarkara;
 
 use test::Bencher;
+use rand::OsRng;
 use sarkara::utils::Bytes;
 use sarkara::kex::{ NewHope, KeyExchange };
 use sarkara::aead::{ Ascon, General, AeadCipher };
@@ -12,7 +13,7 @@ use sarkara::stream::HC128;
 use sarkara::auth::HMAC;
 use sarkara::hash::Blake2b;
 
-type HHCipher = General<HC128, HMAC<Blake2b>>;
+type HHBCipher = General<HC128, HMAC<Blake2b>>;
 
 
 macro_rules! bench_box {
@@ -23,9 +24,10 @@ macro_rules! bench_box {
 
             let key = Bytes::random($ty::key_length());
             let data = rand!(bytes $len);
+            let mut rng = OsRng::new().unwrap();
             b.bytes = data.len() as u64;
             b.iter(|| {
-                let ciphertext = $ty::seal(&key, &data);
+                let ciphertext = $ty::seal_with_rng(&mut rng, &key, &data);
                 $ty::open(&key, &ciphertext)
             });
         }
@@ -53,9 +55,9 @@ bench_box!(sealedbox bench_sealedbox_ascon_1k NewHope Ascon, 1024);
 bench_box!(secretbox bench_secretbox_ascon_64k Ascon, 65536);
 bench_box!(sealedbox bench_sealedbox_ascon_64k NewHope Ascon, 65536);
 
-bench_box!(secretbox bench_secretbox_hhb_10 HHCipher, 10);
-bench_box!(sealedbox bench_sealedbox_hhb_10 NewHope HHCipher, 10);
-bench_box!(secretbox bench_secretbox_hhb_1k HHCipher, 1024);
-bench_box!(sealedbox bench_sealedbox_hhb_1k NewHope HHCipher, 1024);
-bench_box!(secretbox bench_secretbox_hhb_64k HHCipher, 65536);
-bench_box!(sealedbox bench_sealedbox_hhb_64k NewHope HHCipher, 65536);
+bench_box!(secretbox bench_secretbox_hhb_10 HHBCipher, 10);
+bench_box!(sealedbox bench_sealedbox_hhb_10 NewHope HHBCipher, 10);
+bench_box!(secretbox bench_secretbox_hhb_1k HHBCipher, 1024);
+bench_box!(sealedbox bench_sealedbox_hhb_1k NewHope HHBCipher, 1024);
+bench_box!(secretbox bench_secretbox_hhb_64k HHBCipher, 65536);
+bench_box!(sealedbox bench_sealedbox_hhb_64k NewHope HHBCipher, 65536);

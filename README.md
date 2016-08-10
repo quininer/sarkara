@@ -1,7 +1,7 @@
 śarkarā
 =======
 
-`Sarkara` is a Post-Quantum cryptography library.
+Sarkara is a Post-Quantum cryptography library.
 
 
 Public-key cryptography
@@ -9,12 +9,11 @@ Public-key cryptography
 
 * Authenticated encryption
 	+ [x] `newhope-ascon`
+	+ [x] `newhope-hc128-hmac-blake2`
 * Signatures
 	+ [ ] [bliss](http://bliss.di.ens.fr/)
-	+ [ ] [NTRUMLS](https://github.com/NTRUOpenSourceProject/NTRUMLS)
-	+ [ ] [rlwesig](https://en.wikipedia.org/wiki/Ring_learning_with_errors_signature)
 * Key exchange
-	+ [x] [newhope](https://github.com/tpoeppelmann/newhope)
+	+ [x] [newhope](https://eprint.iacr.org/2015/1092)
 
 Secret-key cryptography
 -----------------------
@@ -27,13 +26,13 @@ Secret-key cryptography
 * Authentication
 	+ [x] `HMAC (nonce variant)`
 * Key derivation
-	+ [x] [argon2](https://en.wikipedia.org/wiki/Argon2)
+	+ [x] [argon2](https://password-hashing.net/)
 
 Low-level functions
 -------------------
 
 * Hashing
-	+ [x] [blake2](https://en.wikipedia.org/wiki/BLAKE\_(hash\_function))
+	+ [x] [blake2](https://blake2.net/)
 
 
 Reference
@@ -44,3 +43,4 @@ Reference
 * [Post-quantum security models for authenticated encryption](http://cacr.uwaterloo.ca/techreports/2016/cacr2016-04.pdf)
 * [Post-quantum security models for authenticated encryption (talk ppt)](https://pqcrypto2016.jp/data/Soukharev-talk3.pdf)
 * [Experimenting with Post-Quantum Cryptography](https://security.googleblog.com/2016/07/experimenting-with-post-quantum.html)
+* [The BRUTUS automatic cryptanalytic framework](https://link.springer.com/article/10.1007%2Fs13389-015-0114-1)

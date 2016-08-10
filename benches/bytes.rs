@@ -20,5 +20,5 @@ fn bytes_nq_bench(b: &mut Bencher) {
     let x = Bytes::new(&[8; 4096]);
     let z = Bytes::new(&[3; 4096]);
 
-    b.iter(|| x != z);
+    b.iter(|| x == z);
 }

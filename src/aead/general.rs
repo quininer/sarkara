@@ -14,17 +14,17 @@ use super::{ AeadCipher, DecryptFail };
 /// use sarkara::auth::HMAC;
 /// use sarkara::hash::Blake2b;
 ///
-/// type RHCipher = General<HC128, HMAC<Blake2b>>;
+/// type HHBCipher = General<HC128, HMAC<Blake2b>>;
 ///
 /// let (pass, nonce) = (
-///     Bytes::random(RHCipher::key_length()),
-///     Bytes::random(RHCipher::nonce_length())
+///     Bytes::random(HHBCipher::key_length()),
+///     Bytes::random(HHBCipher::nonce_length())
 /// );
 /// let Bytes(ref data) = Bytes::random(64);
-/// let ciphertext = RHCipher::new(&pass)
+/// let ciphertext = HHBCipher::new(&pass)
 ///     .with_aad(&nonce)
 ///     .encrypt(&nonce, &data);
-/// let plaintext = RHCipher::new(&pass)
+/// let plaintext = HHBCipher::new(&pass)
 ///     .with_aad(&nonce)
 ///     .decrypt(&nonce, &ciphertext)
 ///     .unwrap();

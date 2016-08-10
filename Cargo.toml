@@ -6,11 +6,15 @@ authors = ["quininer kel <quininer@live.com>"]
 [dependencies]
 rand = "0.3"
 hc128 = "0.1"
-blake2-rfc = { version = "0.2", features = ["simd_asm"] }
-argon2rs = { version = "0.2", features = ["simd"] }
+blake2-rfc = "0.2"
+argon2rs = "0.2"
 memsec = "0.1"
 ascon = "0.1"
 newhope = { version = "0.1", default-features = false }
 
 [dev-dependencies]
 nix = "0.6"
+
+[features]
+default = [ "simd" ]
+simd = [ "blake2-rfc/simd_asm", "argon2rs/simd" ]

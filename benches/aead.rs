@@ -11,7 +11,7 @@ use sarkara::stream::HC128;
 use sarkara::auth::HMAC;
 use sarkara::hash::Blake2b;
 
-type HHCipher = General<HC128, HMAC<Blake2b>>;
+type HHBCipher = General<HC128, HMAC<Blake2b>>;
 
 
 macro_rules! bench_aead {
@@ -34,8 +34,8 @@ macro_rules! bench_aead {
 }
 
 bench_aead!(bench_aead_ascon_10 Ascon, 10);
-bench_aead!(bench_aead_hhb_10 HHCipher, 10);
+bench_aead!(bench_aead_hhb_10 HHBCipher, 10);
 bench_aead!(bench_aead_ascon_1k Ascon, 1024);
-bench_aead!(bench_aead_hhb_1k HHCipher, 1024);
+bench_aead!(bench_aead_hhb_1k HHBCipher, 1024);
 bench_aead!(bench_aead_ascon_64k Ascon, 65536);
-bench_aead!(bench_aead_hhb_64k HHCipher, 65536);
+bench_aead!(bench_aead_hhb_64k HHBCipher, 65536);
