@@ -24,10 +24,8 @@ use super::{ AeadCipher, DecryptFail };
 /// assert_eq!(plaintext, &data[..]);
 /// ```
 pub struct Ascon {
-    /// key.
-    pub key: Bytes,
-    /// associated data.
-    pub aad: Vec<u8>
+    key: Bytes,
+    aad: Vec<u8>
 }
 
 impl AeadCipher for Ascon {

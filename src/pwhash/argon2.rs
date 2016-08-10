@@ -56,18 +56,12 @@ pub const MEMLIMIT_SENSITIVE: u32 = 536870912;
 /// assert!(Argon2i::new().verify(&pass, &salt, &key).ok().unwrap());
 /// ```
 pub struct Argon2i {
-    /// key derive key. default empty.
-    pub key: Bytes,
-    /// associated data. default empty.
-    pub aad: Bytes,
-    /// output length. default `16`.
-    pub outlen: usize,
-    /// passes parameter. default `OPSLIMIT_INTERACTIVE`.
-    pub passes: u32,
-    /// lanes parameter. default `1`.
-    pub lanes: u32,
-    /// kib parameter. default `MEMLIMIT_INTERACTIVE / 1024`.
-    pub kib: u32
+    key: Bytes,
+    aad: Bytes,
+    outlen: usize,
+    passes: u32,
+    lanes: u32,
+    kib: u32
 }
 
 impl Default for Argon2i {

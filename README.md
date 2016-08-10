@@ -9,7 +9,7 @@ Public-key cryptography
 
 * Authenticated encryption
 	+ [x] `newhope-ascon`
-	+ [x] `newhope-hc128-hmac-blake2`
+	+ [x] `newhope-hc128hmacblake2`
 * Signatures
 	+ [ ] [bliss](http://bliss.di.ens.fr/)
 * Key exchange
@@ -20,7 +20,7 @@ Secret-key cryptography
 
 * Authenticated encryption
 	+ [x] [ascon (if it is CAESAR winner)](http://ascon.iaik.tugraz.at/)
-	+ [x] `hc128-hmac-blake2`
+	+ [x] `hc128hmacblake2`
 * Encryption
 	+ [x] [hc128](http://www.ecrypt.eu.org/stream/hcpf.html)
 * Authentication

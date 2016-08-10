@@ -40,10 +40,8 @@ use super::{ GenericHash, Hash };
 /// );
 /// ```
 pub struct Blake2b {
-    /// output length. default `64`.
-    pub outlen: usize,
-    /// hash key. default empty.
-    pub key: Bytes
+    outlen: usize,
+    key: Bytes
 }
 
 impl Default for Blake2b {
