@@ -46,16 +46,12 @@ impl AeadCipher for Ascon {
     }
 
     fn encrypt(&mut self, nonce: &[u8], data: &[u8]) -> Vec<u8> {
-        debug_assert_eq!(nonce.len(), Self::nonce_length());
-
         let (mut output, tag) = ::ascon::aead_encrypt(&self.key, nonce, data, &self.aad);
         output.extend_from_slice(&tag);
         output
     }
 
     fn decrypt(&mut self, nonce: &[u8], data: &[u8]) -> Result<Vec<u8>, DecryptFail> {
-        debug_assert_eq!(nonce.len(), Self::nonce_length());
-
         let (data, tag) = data.split_at(data.len() - Self::tag_length());
         ::ascon::aead_decrypt(&self.key, nonce, data, &self.aad, tag).map_err(|err| err.into())
     }

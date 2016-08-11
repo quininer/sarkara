@@ -1,4 +1,3 @@
-use std::ops::Deref;
 use ::stream::StreamCipher;
 use ::auth::NonceMac;
 use super::{ AeadCipher, DecryptFail };
@@ -36,13 +35,11 @@ pub struct General<C, M> {
     aad: Vec<u8>
 }
 
-impl<C, M, B> AeadCipher for General<C, M> where
-    B: Deref<Target=[u8]>,
+impl<C, M> AeadCipher for General<C, M> where
     C: StreamCipher,
-    M: NonceMac<Tag=B>
+    M: NonceMac
 {
     fn new(key: &[u8]) -> Self {
-        debug_assert_eq!(key.len(), Self::key_length());
         let (ckey, mkey) = key.split_at(C::key_length());
         General {
             cipher: C::new(ckey),
@@ -61,8 +58,6 @@ impl<C, M, B> AeadCipher for General<C, M> where
     }
 
     fn encrypt(&mut self, nonce: &[u8], data: &[u8]) -> Vec<u8> {
-        debug_assert_eq!(nonce.len(), Self::nonce_length());
-
         let (cn, mn) = nonce.split_at(C::nonce_length());
         let mut output = self.cipher.process(cn, data);
         let mut aad = self.aad.clone();
@@ -76,7 +71,6 @@ impl<C, M, B> AeadCipher for General<C, M> where
     }
 
     fn decrypt(&mut self, nonce: &[u8], data: &[u8]) -> Result<Vec<u8>, DecryptFail> {
-        debug_assert_eq!(nonce.len(), Self::nonce_length());
         if data.len() < Self::tag_length() { Err(DecryptFail::TagLengthError)? };
 
         let (cn, mn) = nonce.split_at(C::nonce_length());

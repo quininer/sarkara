@@ -1,6 +1,5 @@
 use std::{ fmt, slice };
 use std::iter::repeat;
-use std::sync::Mutex;
 use std::ptr::copy;
 use memsec::{
     allocarray, free,
@@ -17,11 +16,7 @@ use memsec::{
 pub struct SecBytes {
     ptr: *mut u8,
     len: usize,
-    lock: Mutex<()>,
 }
-
-unsafe impl Send for SecBytes {}
-unsafe impl Sync for SecBytes {}
 
 impl SecBytes {
     /// Create a new SecBytes.
@@ -32,7 +27,6 @@ impl SecBytes {
                 None => return None
             },
             len: input.len(),
-            lock: Mutex::default(),
         };
         unsafe { copy(input.as_ptr(), sec_bytes.ptr, input.len()) };
         sec_bytes.lock();
@@ -63,23 +57,10 @@ impl SecBytes {
     /// let secbytes = SecBytes::new(&pass).unwrap(); // should memzero pass.
     /// secbytes.map_read(|bs| assert_eq!(bs, pass));
     /// ```
-    ///
-    /// Don't call it in `map_read`/`map_write`, this could lead to deadlock.
-    ///
-    /// ```norun
-    /// secbytes.map_read(|_|
-    ///     secbytes.map_read(|_| ()) // deadlock!
-    /// );
-    /// ```
     pub fn map_read<U, F: FnOnce(&[u8]) -> U>(&self, f: F) -> U {
-        let lock = match self.lock.lock() {
-            Ok(lock) => lock,
-            Err(poison) => poison.into_inner()
-        };
         self.read();
         let output = f(unsafe { slice::from_raw_parts(self.ptr, self.len) });
         self.lock();
-        drop(lock);
         output
     }
 
@@ -98,17 +79,10 @@ impl SecBytes {
     /// });
     /// assert_eq!(bs, [0, 1, 1, 1, 1, 1, 1, 1])
     /// ```
-    ///
-    /// Also, don't call it in `map_read`/`map_write`.
     pub fn map_write<U, F: FnOnce(&mut [u8]) -> U>(&self, f: F) -> U {
-        let lock = match self.lock.lock() {
-            Ok(lock) => lock,
-            Err(poison) => poison.into_inner()
-        };
         self.release();
         let output = f(unsafe { slice::from_raw_parts_mut(self.ptr, self.len) });
         self.lock();
-        drop(lock);
         output
     }
 }

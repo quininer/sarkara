@@ -10,9 +10,6 @@ pub use self::qhmac::HMAC;
 
 /// `Mac` trait.
 pub trait Mac {
-    /// MAC tag.
-    type Tag;
-
     /// Key length.
     fn key_length() -> usize;
     /// Tag length.
@@ -22,7 +19,7 @@ pub trait Mac {
     fn new(key: &[u8]) -> Self;
 
     /// Calculate MAC Tag.
-    fn result(&self, data: &[u8]) -> Self::Tag;
+    fn result(&self, data: &[u8]) -> Vec<u8>;
     /// Verify MAC Tag.
     fn verify(&self, data: &[u8], tag: &[u8]) -> bool;
 }

@@ -1,4 +1,4 @@
-use std::ops::Deref;
+use memsec::memcmp;
 use ::utils::Bytes;
 use ::hash::{ Hash, GenericHash };
 use super::{ Mac, NonceMac };
@@ -16,7 +16,7 @@ use super::{ Mac, NonceMac };
 ///
 /// assert_eq!(
 ///     HMAC::<Blake2b>::new(&[5; 16]).result(&[]),
-///     [
+///     &[
 ///         103, 94, 237, 110, 44, 95, 234, 140,
 ///         231, 34, 21, 54, 134, 161, 118, 37,
 ///         36, 117, 44, 209, 164, 126, 32, 1,
@@ -39,10 +39,10 @@ use super::{ Mac, NonceMac };
 ///         .with_size(16)
 ///         .with_nonce(&[1; 8])
 ///         .result(&[]),
-///     [
+///     &[
 ///         156, 249, 9, 142, 32, 148, 190, 61,
 ///         50, 43, 151, 147, 161, 103, 56, 10
-///     ][..]
+///     ]
 /// );
 /// ```
 pub struct HMAC<H> {
@@ -51,12 +51,7 @@ pub struct HMAC<H> {
     oh: H
 }
 
-impl<B, H> Mac for HMAC<H> where
-    B: Deref<Target=[u8]> + PartialEq<[u8]>,
-    H: Hash<Digest=B>
-{
-    type Tag = H::Digest;
-
+impl<H> Mac for HMAC<H> where H: Hash {
     #[inline] fn key_length() -> usize { 16 }
     #[inline] fn tag_length() -> usize { H::digest_length() }
 
@@ -68,7 +63,7 @@ impl<B, H> Mac for HMAC<H> where
         }
     }
 
-    fn result(&self, data: &[u8]) -> Self::Tag {
+    fn result(&self, data: &[u8]) -> Vec<u8> {
         let mut ipad = vec![0x36; 64];
         let mut opad = vec![0x5c; 64];
 
@@ -84,14 +79,20 @@ impl<B, H> Mac for HMAC<H> where
     }
 
     fn verify(&self, data: &[u8], tag: &[u8]) -> bool {
-        self.result(data) == tag[..]
+        let result = self.result(data);
+        if result.len() == tag.len() {
+            unsafe { memcmp(
+                result.as_ptr(),
+                tag.as_ptr(),
+                result.len()
+            ) == 0 }
+        } else {
+            false
+        }
     }
 }
 
-impl<B, H> NonceMac for HMAC<H> where
-    B: Deref<Target=[u8]> + PartialEq<[u8]>,
-    H: GenericHash<Digest=B>
-{
+impl<H> NonceMac for HMAC<H> where H: GenericHash {
     #[inline] fn nonce_length() -> usize { 8 }
 
     fn with_nonce(&mut self, nonce: &[u8]) -> &mut Self {

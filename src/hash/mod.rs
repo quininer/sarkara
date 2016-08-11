@@ -11,14 +11,11 @@ pub use self::blake2::Blake2b;
 
 /// `Hash` trait.
 pub trait Hash: Default {
-    /// Hash digest.
-    type Digest;
-
     /// Digest length.
     fn digest_length() -> usize;
 
     /// Calculate hash.
-    fn hash(&self, data: &[u8]) -> Self::Digest;
+    fn hash(&self, data: &[u8]) -> Vec<u8>;
 }
 
 /// `GenericHash` trait,

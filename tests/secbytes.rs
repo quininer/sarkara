@@ -1,34 +1,9 @@
 extern crate sarkara;
 #[cfg(unix)] extern crate nix;
 
-use std::{ slice, thread };
-use std::sync::Arc;
-use std::time::Duration;
+use std::slice;
 use sarkara::utils::SecBytes;
 
-
-#[test]
-fn thread_shared_secbytes_test() {
-    let secbytes = Arc::new(SecBytes::new(&[1; 8]).unwrap());
-    let secbytes_clone = secbytes.clone();
-
-    thread::spawn(move || {
-        secbytes_clone.map_write(|bs| {
-            thread::sleep(Duration::from_millis(300));
-            bs.clone_from_slice(&[3; 8]);
-        });
-    });
-
-    let result = thread::spawn(move || {
-        thread::sleep(Duration::from_millis(100));
-        secbytes.map_read(|bs| {
-            assert_eq!(bs, [3; 8]);
-            true
-        })
-    }).join().unwrap();
-
-    assert!(result);
-}
 
 #[cfg(all(unix, not(any(target_os = "macos", target_os = "ios"))))]
 #[should_panic]
