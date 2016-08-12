@@ -7,7 +7,7 @@ use newhope::{
     keygen, sharedb, shareda,
     sha3_256
 };
-use memsec::memzero;
+use memsec::{ mlock, munlock };
 use super::KeyExchange;
 
 
@@ -56,6 +56,7 @@ impl KeyExchange for NewHope {
         pk[..POLY_BYTES].clone_from_slice(&poly_tobytes(&pka));
         pk[POLY_BYTES..].clone_from_slice(&nonce);
 
+        unsafe { mlock(sk.as_mut_ptr(), size_of_val(&sk)) };
         (PrivateKey(sk), pk)
     }
 
@@ -92,7 +93,9 @@ pub struct PrivateKey(pub [u16; N]);
 impl PrivateKey {
     /// import private key.
     pub fn import(input: &[u8]) -> PrivateKey {
-        PrivateKey(poly_frombytes(input))
+        let mut input = poly_frombytes(input);
+        unsafe { mlock(input.as_mut_ptr(), size_of_val(&input)) };
+        PrivateKey(input)
     }
 
     /// export private key.
@@ -103,6 +106,6 @@ impl PrivateKey {
 
 impl Drop for PrivateKey {
     fn drop(&mut self) {
-        unsafe { memzero(self.0.as_mut_ptr(), size_of_val(&self.0)) }
+        unsafe { munlock(self.0.as_mut_ptr(), size_of_val(&self.0)) };
     }
 }
