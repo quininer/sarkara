@@ -6,7 +6,7 @@
 extern crate rand;
 extern crate blake2_rfc;
 extern crate argon2rs;
-extern crate hc128;
+extern crate hc256;
 extern crate ascon;
 extern crate memsec;
 extern crate newhope;

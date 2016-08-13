@@ -1,12 +1,12 @@
 //! Secret-key encryption.
 //!
-//! Sarkara use [`hc128`](http://www.ecrypt.eu.org/stream/hcpf.html),
+//! Sarkara use [`hc256`](http://www.ecrypt.eu.org/stream/hcpf.html),
 //! it is one of [`eSTREAM`](http://www.ecrypt.eu.org/stream/) portfolio,
 //! have good design and performance.
 
-mod hc128;
+mod hc256;
 
-pub use self::hc128::HC128;
+pub use self::hc256::HC256;
 
 
 /// `StreamCipher` trait.

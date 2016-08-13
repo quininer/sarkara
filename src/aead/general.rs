@@ -9,11 +9,11 @@ use super::{ AeadCipher, DecryptFail };
 /// ```
 /// use sarkara::utils::Bytes;
 /// use sarkara::aead::{ General, AeadCipher };
-/// use sarkara::stream::HC128;
+/// use sarkara::stream::HC256;
 /// use sarkara::auth::HMAC;
 /// use sarkara::hash::Blake2b;
 ///
-/// type HHBCipher = General<HC128, HMAC<Blake2b>>;
+/// type HHBCipher = General<HC256, HMAC<Blake2b>>;
 ///
 /// let (pass, nonce) = (
 ///     Bytes::random(HHBCipher::key_length()),
