@@ -10,7 +10,7 @@ use super::{ GenericHash, Hash };
 /// use sarkara::hash::{ Blake2b, Hash };
 ///
 /// assert_eq!(
-///     Blake2b::default().hash(&[]),
+///     Blake2b::default().hash::<Vec<u8>>(&[]),
 ///     &[
 ///         120, 106, 2, 247, 66, 1, 89, 3,
 ///         198, 198, 253, 133, 37, 82, 210, 114,
@@ -32,7 +32,7 @@ use super::{ GenericHash, Hash };
 ///     Blake2b::default()
 ///         .with_size(16)
 ///         .with_key(&[5; 16])
-///         .hash(&[]),
+///         .hash::<Vec<u8>>(&[]),
 ///     &[
 ///         148, 148, 166, 38, 121, 23, 19, 81,
 ///         108, 248, 28, 149, 40, 170, 25, 209
@@ -56,8 +56,10 @@ impl Default for Blake2b {
 impl Hash for Blake2b {
     #[inline] fn digest_length() -> usize { 64 }
 
-    fn hash(&self, data: &[u8]) -> Vec<u8> {
-        blake2b(self.outlen, &self.key, data).as_bytes().into()
+    fn hash<D>(&self, data: &[u8]) -> D where
+        D: From<Vec<u8>>
+    {
+        D::from(blake2b(self.outlen, &self.key, data).as_bytes().into())
     }
 }
 

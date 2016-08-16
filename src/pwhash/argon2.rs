@@ -24,8 +24,8 @@ pub const MEMLIMIT_SENSITIVE: u32 = 536870912;
 /// use sarkara::pwhash::{ Argon2i, KeyDerive };
 ///
 /// let (pass, salt) = (Bytes::random(8), Bytes::random(8));
-/// let key = Argon2i::new()
-///     .derive(&pass, &salt)
+/// let key = Argon2i::default()
+///     .derive::<Bytes>(&pass, &salt)
 ///     .ok().unwrap();
 /// # assert!(key != pass[..]);
 /// ```
@@ -36,9 +36,9 @@ pub const MEMLIMIT_SENSITIVE: u32 = 536870912;
 /// use sarkara::pwhash::{ Argon2i, KeyDerive };
 ///
 /// let pass = Bytes::random(8);
-/// let key = Argon2i::new()
+/// let key = Argon2i::default()
 ///     .with_size(16)
-///     .pwhash(&pass)
+///     .pwhash::<Bytes>(&pass)
 ///     .ok().unwrap();
 /// # assert_eq!(key.len(), 16);
 /// ```
@@ -49,11 +49,11 @@ pub const MEMLIMIT_SENSITIVE: u32 = 536870912;
 /// use sarkara::pwhash::{ Argon2i, KeyDerive, KeyVerify };
 ///
 /// let (pass, salt) = (Bytes::random(8), Bytes::random(8));
-/// let key = Argon2i::new()
-///     .derive(&pass, &salt)
+/// let key = Argon2i::default()
+///     .derive::<Bytes>(&pass, &salt)
 ///     .ok().unwrap();
 ///
-/// assert!(Argon2i::new().verify(&pass, &salt, &key).ok().unwrap());
+/// assert!(Argon2i::default().verify::<Bytes>(&pass, &salt, &key).ok().unwrap());
 /// ```
 pub struct Argon2i {
     key: Bytes,
@@ -77,16 +77,7 @@ impl Default for Argon2i {
     }
 }
 
-impl Argon2i {
-    /// Create a new Argon2i.
-    pub fn new() -> Argon2i {
-        Argon2i::default()
-    }
-}
-
 impl KeyDerive for Argon2i {
-    type Key = Bytes;
-
     fn with_size(&mut self, len: usize) -> &mut Self {
         self.outlen = len;
         self
@@ -108,16 +99,18 @@ impl KeyDerive for Argon2i {
         self
     }
 
-    fn derive(&self, password: &[u8], salt: &[u8]) -> Result<Self::Key, KeyDerivationFail> {
+    fn derive<K>(&self, password: &[u8], salt: &[u8]) -> Result<K, KeyDerivationFail> where
+        K: From<Vec<u8>>
+    {
         if salt.len() < 8 { Err(KeyDerivationFail::SaltTooShort)? };
         if salt.len() > 0xffffffff { Err(KeyDerivationFail::SaltTooLong)? };
         if self.outlen < 4 { Err(KeyDerivationFail::OutLenTooShort)? };
         if self.outlen > 0xffffffff { Err(KeyDerivationFail::OutLenTooLong)? };
 
-        let mut output = Bytes(vec![0; self.outlen]);
+        let mut output = vec![0; self.outlen];
         Argon2::new(self.passes, self.lanes, self.kib, Variant::Argon2i)?
             .hash(&mut output, password, salt, &self.key, &self.aad);
-        Ok(output)
+        Ok(output.into())
     }
 }
 

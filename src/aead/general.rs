@@ -63,10 +63,10 @@ impl<C, M> AeadCipher for General<C, M> where
         let mut aad = self.aad.clone();
         aad.extend_from_slice(&output);
 
-        let tag = self.mac
+        let mut tag = self.mac
             .with_nonce(mn)
-            .result(&aad);
-        output.extend_from_slice(&tag);
+            .result::<Vec<u8>>(&aad);
+        output.append(&mut tag);
         output
     }
 

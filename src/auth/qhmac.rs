@@ -1,4 +1,4 @@
-use memsec::memcmp;
+use std::ops::Deref;
 use ::utils::Bytes;
 use ::hash::{ Hash, GenericHash };
 use super::{ Mac, NonceMac };
@@ -15,7 +15,7 @@ use super::{ Mac, NonceMac };
 /// use sarkara::hash::Blake2b;
 ///
 /// assert_eq!(
-///     HMAC::<Blake2b>::new(&[5; 16]).result(&[]),
+///     HMAC::<Blake2b>::new(&[5; 16]).result::<Vec<u8>>(&[]),
 ///     &[
 ///         103, 94, 237, 110, 44, 95, 234, 140,
 ///         231, 34, 21, 54, 134, 161, 118, 37,
@@ -37,11 +37,11 @@ use super::{ Mac, NonceMac };
 /// assert_eq!(
 ///     HMAC::<Blake2b>::new(&[5; 16])
 ///         .with_size(16)
-///         .with_nonce(&[1; 8])
-///         .result(&[]),
+///         .with_nonce(&[1; 12])
+///         .result::<Vec<u8>>(&[]),
 ///     &[
-///         156, 249, 9, 142, 32, 148, 190, 61,
-///         50, 43, 151, 147, 161, 103, 56, 10
+///         119, 177, 186, 169, 58, 108, 163, 90,
+///         181, 106, 35, 221, 75, 209, 183, 35
 ///     ]
 /// );
 /// ```
@@ -63,7 +63,9 @@ impl<H> Mac for HMAC<H> where H: Hash {
         }
     }
 
-    fn result(&self, data: &[u8]) -> Vec<u8> {
+    fn result<T>(&self, data: &[u8]) -> T where
+        T: From<Vec<u8>> + Deref<Target=[u8]>
+    {
         let mut ipad = vec![0x36; 64];
         let mut opad = vec![0x5c; 64];
 
@@ -73,27 +75,14 @@ impl<H> Mac for HMAC<H> where H: Hash {
         }
 
         ipad.extend_from_slice(data);
-        opad.extend_from_slice(&self.ih.hash(&ipad));
+        opad.extend_from_slice(&self.ih.hash::<T>(&ipad));
 
         self.oh.hash(&opad)
-    }
-
-    fn verify(&self, data: &[u8], tag: &[u8]) -> bool {
-        let result = self.result(data);
-        if result.len() == tag.len() {
-            unsafe { memcmp(
-                result.as_ptr(),
-                tag.as_ptr(),
-                result.len()
-            ) == 0 }
-        } else {
-            false
-        }
     }
 }
 
 impl<H> NonceMac for HMAC<H> where H: GenericHash {
-    #[inline] fn nonce_length() -> usize { 8 }
+    #[inline] fn nonce_length() -> usize { 12 }
 
     fn with_nonce(&mut self, nonce: &[u8]) -> &mut Self {
         self.ih.with_key(nonce);

@@ -34,15 +34,14 @@ pub enum KeyDerivationFail {
 
 /// `KeyDerive` trait.
 pub trait KeyDerive: Default {
-    /// Hashed Password.
-    type Key;
-
     /// Generate a hashed password.
     ///
     /// ## Fail When:
     /// * Param Error, see [`ParamErr`](../../argon2rs/enum.ParamErr.html)
-    fn pwhash(&self, password: &[u8]) -> Result<Self::Key, KeyDerivationFail> {
-        self.derive(password, &rand!(bytes 8))
+    fn pwhash<K>(&self, password: &[u8]) -> Result<K, KeyDerivationFail> where
+        K: From<Vec<u8>>
+    {
+        self.derive::<K>(password, &rand!(bytes 8))
     }
 
     /// Set output length.
@@ -60,24 +59,24 @@ pub trait KeyDerive: Default {
     ///
     /// ## Fail When:
     /// * Param Error, see [`ParamErr`](../../argon2rs/enum.ParamErr.html)
-    fn derive(&self, password: &[u8], salt: &[u8]) -> Result<Self::Key, KeyDerivationFail>;
+    fn derive<K>(&self, password: &[u8], salt: &[u8]) -> Result<K, KeyDerivationFail> where
+        K: From<Vec<u8>>;
 }
 
 /// `KeyVerify` trait.
-pub trait KeyVerify<K>: KeyDerive<Key=K> where K: PartialEq<[u8]> {
+pub trait KeyVerify: KeyDerive {
     /// Verify password hash.
     ///
     /// ## Fail When:
     /// * Param Error, see [`ParamErr`](../../argon2rs/enum.ParamErr.html)
-    fn verify(&self, password: &[u8], salt: &[u8], hash: &[u8]) -> Result<bool, KeyDerivationFail> {
-        Ok(self.derive(password, salt)? == hash[..])
+    fn verify<K>(&self, password: &[u8], salt: &[u8], hash: &[u8]) -> Result<bool, KeyDerivationFail> where
+        K: From<Vec<u8>> + PartialEq<[u8]>
+    {
+        Ok(self.derive::<K>(password, salt)? == hash[..])
     }
 }
 
-impl<T, K> KeyVerify<K> for T where
-    T: KeyDerive<Key=K>,
-    K: PartialEq<[u8]>
-{}
+impl<T> KeyVerify for T where T: KeyDerive {}
 
 impl fmt::Display for KeyDerivationFail {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

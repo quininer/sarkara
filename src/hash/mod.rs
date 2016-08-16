@@ -15,7 +15,7 @@ pub trait Hash: Default {
     fn digest_length() -> usize;
 
     /// Calculate hash.
-    fn hash(&self, data: &[u8]) -> Vec<u8>;
+    fn hash<D>(&self, data: &[u8]) -> D where D: From<Vec<u8>>;
 }
 
 /// `GenericHash` trait,

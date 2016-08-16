@@ -34,6 +34,19 @@ impl Bytes {
     }
 }
 
+impl From<Vec<u8>> for Bytes {
+    fn from(mut t: Vec<u8>) -> Bytes {
+        unsafe { mlock(t.as_mut_ptr(), t.len()) };
+        Bytes(t)
+    }
+}
+
+impl<'a> From<&'a [u8]> for Bytes {
+    fn from(t: &'a [u8]) -> Bytes {
+        Bytes::new(t)
+    }
+}
+
 impl Deref for Bytes {
     type Target = [u8];
     fn deref(&self) -> &[u8] {
