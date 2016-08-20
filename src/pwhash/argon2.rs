@@ -116,11 +116,7 @@ impl KeyDerive for Argon2i {
 
 impl From<ParamErr> for KeyDerivationFail {
     fn from(err: ParamErr) -> KeyDerivationFail {
-        // TODO `use err.description()` / `err.fmt()`
-        KeyDerivationFail::ParameterError(match err {
-            ParamErr::TooFewPasses => "Argon2 requires one or more passes to be run.".to_string(),
-            ParamErr::TooFewLanes => "The number of lanes must be between one and 2^24 - 1.".to_string(),
-            ParamErr::MinKiB(kib) => format!("Memory parameter must be >= {} KiB.", kib)
-        })
+        use std::error::Error;
+        KeyDerivationFail::ParameterError(err.description().to_string())
     }
 }
