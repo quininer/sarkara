@@ -27,7 +27,7 @@ pub const MEMLIMIT_SENSITIVE: u32 = 536870912;
 /// let key = Argon2i::default()
 ///     .derive::<Bytes>(&pass, &salt)
 ///     .ok().unwrap();
-/// # assert!(key != pass[..]);
+/// # assert!(key != pass);
 /// ```
 ///
 /// # Example(pwhash)
@@ -53,7 +53,7 @@ pub const MEMLIMIT_SENSITIVE: u32 = 536870912;
 ///     .derive::<Bytes>(&pass, &salt)
 ///     .ok().unwrap();
 ///
-/// assert!(Argon2i::default().verify::<Bytes>(&pass, &salt, &key).ok().unwrap());
+/// assert!(Argon2i::default().verify(&pass, &salt, &key).ok().unwrap());
 /// ```
 pub struct Argon2i {
     key: Bytes,

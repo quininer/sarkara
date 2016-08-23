@@ -9,6 +9,7 @@ mod argon2;
 
 use std::fmt;
 use std::error::Error;
+use ::utils::Bytes;
 pub use self::argon2::{
     Argon2i,
     OPSLIMIT_INTERACTIVE, MEMLIMIT_INTERACTIVE,
@@ -69,10 +70,8 @@ pub trait KeyVerify: KeyDerive {
     ///
     /// ## Fail When:
     /// * Param Error, see [`ParamErr`](../../argon2rs/enum.ParamErr.html)
-    fn verify<K>(&self, password: &[u8], salt: &[u8], hash: &[u8]) -> Result<bool, KeyDerivationFail> where
-        K: From<Vec<u8>> + PartialEq<[u8]>
-    {
-        Ok(self.derive::<K>(password, salt)? == hash[..])
+    fn verify(&self, password: &[u8], salt: &[u8], hash: &[u8]) -> Result<bool, KeyDerivationFail> {
+        Ok(self.derive::<Bytes>(password, salt)? == hash)
     }
 }
 

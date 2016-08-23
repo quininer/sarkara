@@ -10,7 +10,7 @@ fn bytes_eq_test() {
     let z = [3; 16];
 
     assert!(x != y);
-    assert_eq!(x, z[..]);
+    assert_eq!(x, z);
     assert_eq!(x, Bytes::new(&z));
     assert!(x != Bytes::new(&y));
 }

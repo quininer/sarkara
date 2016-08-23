@@ -26,7 +26,7 @@ pub trait Mac {
 
     /// Verify MAC Tag.
     fn verify(&self, data: &[u8], tag: &[u8]) -> bool {
-        self.result::<Bytes>(data) == tag[..]
+        self.result::<Bytes>(data) == tag
     }
 }
 

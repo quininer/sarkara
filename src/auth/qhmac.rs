@@ -75,7 +75,7 @@ impl<H> Mac for HMAC<H> where H: Hash {
         }
 
         ipad.extend_from_slice(data);
-        opad.extend_from_slice(&self.ih.hash::<T>(&ipad));
+        opad.append(&mut self.ih.hash::<Vec<u8>>(&ipad));
 
         self.oh.hash(&opad)
     }

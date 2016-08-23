@@ -20,5 +20,5 @@ pub trait StreamCipher {
     fn nonce_length() -> usize;
 
     /// Process data.
-    fn process(&mut self, nonce: &[u8], data: &[u8]) -> Vec<u8>;
+    fn process(&self, nonce: &[u8], data: &[u8]) -> Vec<u8>;
 }

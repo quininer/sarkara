@@ -38,10 +38,11 @@ pub trait SealedBox: AeadCipher {
     fn seal<K: KeyExchange>(pka: &[u8], data: &[u8]) -> Vec<u8> {
         let mut key = vec![0; Self::key_length() + Self::nonce_length()];
         let rec = K::exchange(&mut key, pka);
+        let (key, nonce) = key.split_at(Self::key_length());
 
-        let mut output = Self::new(&key[..Self::key_length()])
+        let mut output = Self::new(key)
             .with_aad(&rec)
-            .encrypt(&key[Self::key_length()..], data);
+            .encrypt(nonce, data);
         output.extend_from_slice(&rec);
         output
     }
@@ -51,10 +52,11 @@ pub trait SealedBox: AeadCipher {
         let mut key = vec![0; Self::key_length() + Self::nonce_length()];
         let (data, rec) = data.split_at(data.len() - K::rec_length());
         K::exchange_from(&mut key, ska, rec);
+        let (key, nonce) = key.split_at(Self::key_length());
 
-        Self::new(&key[..Self::key_length()])
+        Self::new(key)
             .with_aad(rec)
-            .decrypt(&key[Self::key_length()..], data)
+            .decrypt(nonce, data)
     }
 }
 
