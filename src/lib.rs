@@ -4,11 +4,11 @@
 #![feature(question_mark)]
 
 extern crate rand;
+extern crate seckey;
 extern crate blake2_rfc;
 extern crate argon2rs;
 extern crate hc256;
 extern crate ascon;
-extern crate memsec;
 extern crate newhope;
 
 #[macro_use] pub mod utils;

@@ -1,4 +1,4 @@
-use std::mem::size_of_val;
+use seckey::Key;
 use rand::{ Rng, OsRng, ChaChaRng };
 use newhope::{
     N, POLY_BYTES, SENDABYTES, SENDBBYTES,
@@ -7,7 +7,6 @@ use newhope::{
     keygen, sharedb, shareda,
     sha3_256
 };
-use memsec::{ mlock, munlock };
 use super::KeyExchange;
 
 
@@ -56,11 +55,12 @@ impl KeyExchange for NewHope {
         pk[..POLY_BYTES].clone_from_slice(&poly_tobytes(&pka));
         pk[POLY_BYTES..].clone_from_slice(&nonce);
 
-        unsafe { mlock(sk.as_mut_ptr(), size_of_val(&sk)) };
-        (PrivateKey(sk), pk)
+        (PrivateKey(sk.into()), pk)
     }
 
     fn exchange(sharedkey: &mut [u8], pka: &[u8]) -> Vec<u8> {
+        debug_assert_eq!(pka.len(), Self::pk_length());
+
         let (mut key, mut pkb, mut rec) = ([0; 32], [0; N], [0; N]);
         let (pk, nonce) = pka.split_at(POLY_BYTES);
 
@@ -78,34 +78,27 @@ impl KeyExchange for NewHope {
     }
 
     fn exchange_from(sharedkey: &mut [u8], &PrivateKey(ref sk): &Self::PrivateKey, pkb: &[u8]) {
+        debug_assert_eq!(pkb.len(), Self::rec_length());
+
         let mut key = [0; 32];
         let (pk, rec) = pkb.split_at(POLY_BYTES);
-        shareda(&mut key, sk, &poly_frombytes(pk), &rec_frombytes(rec));
+        shareda(&mut key, &sk[..], &poly_frombytes(pk), &rec_frombytes(rec));
 
         sha3_256(sharedkey, &key);
     }
 }
 
-
 /// Newhope private key.
-pub struct PrivateKey(pub [u16; N]);
+pub struct PrivateKey(pub Key<[u16; N]>);
 
 impl PrivateKey {
     /// import private key.
     pub fn import(input: &[u8]) -> PrivateKey {
-        let mut input = poly_frombytes(input);
-        unsafe { mlock(input.as_mut_ptr(), size_of_val(&input)) };
-        PrivateKey(input)
+        PrivateKey(poly_frombytes(input).into())
     }
 
     /// export private key.
     pub fn export(&self) -> [u8; POLY_BYTES] {
         poly_tobytes(&self.0)
-    }
-}
-
-impl Drop for PrivateKey {
-    fn drop(&mut self) {
-        unsafe { munlock(self.0.as_mut_ptr(), size_of_val(&self.0)) };
     }
 }

@@ -4,16 +4,13 @@ version = "0.1.0"
 authors = ["quininer kel <quininer@live.com>"]
 
 [dependencies]
+seckey = "0.1"
 rand = "0.3"
 hc256 = "0.1"
 blake2-rfc = "0.2"
 argon2rs = "0.2"
-memsec = "0.1"
 ascon = "0.1"
 newhope = { version = "0.1", default-features = false }
-
-[dev-dependencies]
-nix = "0.6"
 
 [features]
 default = [ "simd" ]

@@ -6,7 +6,6 @@ extern crate rand;
 
 use test::Bencher;
 use rand::OsRng;
-use sarkara::utils::Bytes;
 use sarkara::kex::{ NewHope, KeyExchange };
 use sarkara::aead::{ Ascon, General, AeadCipher };
 use sarkara::stream::HC256;
@@ -22,7 +21,7 @@ macro_rules! bench_box {
         fn $name(b: &mut Bencher) {
             use sarkara::secretbox::SecretBox;
 
-            let key = Bytes::random($ty::key_length());
+            let key = rand!($ty::key_length());
             let data = rand!(bytes $len);
             let mut rng = OsRng::new().unwrap();
             b.bytes = data.len() as u64;

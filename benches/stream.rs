@@ -5,7 +5,6 @@ extern crate rand;
 #[macro_use] extern crate sarkara;
 
 use test::Bencher;
-use sarkara::utils::Bytes;
 use sarkara::stream::{ HC256, StreamCipher };
 
 macro_rules! bench_stream {
@@ -13,8 +12,8 @@ macro_rules! bench_stream {
         #[bench]
         fn $name(b: &mut Bencher) {
             let (key, nonce) = (
-                Bytes::random($ty::key_length()),
-                Bytes::random($ty::nonce_length())
+                rand!($ty::key_length()),
+                rand!($ty::nonce_length())
             );
             let data = rand!(bytes $len);
             b.bytes = data.len() as u64;

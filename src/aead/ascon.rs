@@ -1,4 +1,4 @@
-use ::utils::Bytes;
+use seckey::Bytes;
 use super::{ AeadCipher, DecryptFail };
 
 
@@ -6,14 +6,16 @@ use super::{ AeadCipher, DecryptFail };
 ///
 /// # Example(encrypt/decrypt)
 /// ```
-/// use sarkara::utils::Bytes;
+/// # extern crate rand;
+/// # #[macro_use] extern crate sarkara;
+/// # fn main() {
 /// use sarkara::aead::{ Ascon, AeadCipher };
 ///
 /// let (pass, nonce) = (
-///     Bytes::random(Ascon::key_length()),
-///     Bytes::random(Ascon::nonce_length())
+///     rand!(Ascon::key_length()),
+///     rand!(Ascon::nonce_length())
 /// );;
-/// let Bytes(ref data) = Bytes::random(64);
+/// let data = rand!(64);
 /// let ciphertext = Ascon::new(&pass)
 ///     .with_aad(&nonce)
 ///     .encrypt(&nonce, &data);
@@ -22,6 +24,7 @@ use super::{ AeadCipher, DecryptFail };
 ///     .decrypt(&nonce, &ciphertext)
 ///     .unwrap();
 /// assert_eq!(plaintext, &data[..]);
+/// # }
 /// ```
 pub struct Ascon {
     key: Bytes,

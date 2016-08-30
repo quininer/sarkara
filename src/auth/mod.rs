@@ -6,7 +6,7 @@
 mod qhmac;
 
 use std::ops::Deref;
-use ::utils::Bytes;
+use seckey::Bytes;
 pub use self::qhmac::HMAC;
 
 

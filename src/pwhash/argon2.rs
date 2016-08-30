@@ -1,5 +1,5 @@
 use argon2rs::{ Argon2, Variant, ParamErr };
-use ::utils::Bytes;
+use seckey::Bytes;
 use super::{ KeyDerive, KeyDerivationFail };
 
 
@@ -20,40 +20,55 @@ pub const MEMLIMIT_SENSITIVE: u32 = 536870912;
 ///
 /// # Example(keyderive)
 /// ```
-/// use sarkara::utils::Bytes;
+/// # extern crate rand;
+/// # extern crate seckey;
+/// # #[macro_use] extern crate sarkara;
+/// # fn main() {
+/// use seckey::Bytes;
 /// use sarkara::pwhash::{ Argon2i, KeyDerive };
 ///
-/// let (pass, salt) = (Bytes::random(8), Bytes::random(8));
+/// let (pass, salt) = (rand!(8), rand!(8));
 /// let key = Argon2i::default()
 ///     .derive::<Bytes>(&pass, &salt)
 ///     .ok().unwrap();
 /// # assert!(key != pass);
+/// # }
 /// ```
 ///
 /// # Example(pwhash)
 /// ```
-/// use sarkara::utils::Bytes;
+/// # extern crate rand;
+/// # extern crate seckey;
+/// # #[macro_use] extern crate sarkara;
+/// # fn main() {
+/// use seckey::Bytes;
 /// use sarkara::pwhash::{ Argon2i, KeyDerive };
 ///
-/// let pass = Bytes::random(8);
+/// let pass = rand!(8);
 /// let key = Argon2i::default()
 ///     .with_size(16)
 ///     .pwhash::<Bytes>(&pass)
 ///     .ok().unwrap();
 /// # assert_eq!(key.len(), 16);
+/// # }
 /// ```
 ///
 /// # Example(keyverify)
 /// ```
-/// use sarkara::utils::Bytes;
+/// # extern crate rand;
+/// # extern crate seckey;
+/// # #[macro_use] extern crate sarkara;
+/// # fn main() {
+/// use seckey::Bytes;
 /// use sarkara::pwhash::{ Argon2i, KeyDerive, KeyVerify };
 ///
-/// let (pass, salt) = (Bytes::random(8), Bytes::random(8));
+/// let (pass, salt) = (rand!(8), rand!(8));
 /// let key = Argon2i::default()
 ///     .derive::<Bytes>(&pass, &salt)
 ///     .ok().unwrap();
 ///
 /// assert!(Argon2i::default().verify(&pass, &salt, &key).ok().unwrap());
+/// # }
 /// ```
 pub struct Argon2i {
     key: Bytes,

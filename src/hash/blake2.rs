@@ -1,5 +1,5 @@
 use blake2_rfc::blake2b::blake2b;
-use ::utils::Bytes;
+use seckey::Bytes;
 use super::{ GenericHash, Hash };
 
 

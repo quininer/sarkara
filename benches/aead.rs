@@ -5,7 +5,6 @@ extern crate rand;
 #[macro_use] extern crate sarkara;
 
 use test::Bencher;
-use sarkara::utils::Bytes;
 use sarkara::aead::{ Ascon, General, AeadCipher };
 use sarkara::stream::HC256;
 use sarkara::auth::HMAC;
@@ -19,8 +18,8 @@ macro_rules! bench_aead {
         #[bench]
         fn $name(b: &mut Bencher) {
             let (key, nonce) = (
-                Bytes::random($ty::key_length()),
-                Bytes::random($ty::nonce_length())
+                rand!($ty::key_length()),
+                rand!($ty::nonce_length())
             );
             let data = rand!(bytes $len);
 

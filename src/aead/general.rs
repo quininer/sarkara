@@ -7,7 +7,9 @@ use super::{ AeadCipher, DecryptFail };
 ///
 /// # Example(encrypt/decrypt)
 /// ```
-/// use sarkara::utils::Bytes;
+/// # extern crate rand;
+/// # #[macro_use] extern crate sarkara;
+/// # fn main() {
 /// use sarkara::aead::{ General, AeadCipher };
 /// use sarkara::stream::HC256;
 /// use sarkara::auth::HMAC;
@@ -16,10 +18,10 @@ use super::{ AeadCipher, DecryptFail };
 /// type HHBCipher = General<HC256, HMAC<Blake2b>>;
 ///
 /// let (pass, nonce) = (
-///     Bytes::random(HHBCipher::key_length()),
-///     Bytes::random(HHBCipher::nonce_length())
+///     rand!(HHBCipher::key_length()),
+///     rand!(HHBCipher::nonce_length())
 /// );
-/// let Bytes(ref data) = Bytes::random(64);
+/// let data = rand!(64);
 /// let ciphertext = HHBCipher::new(&pass)
 ///     .with_aad(&nonce)
 ///     .encrypt(&nonce, &data);
@@ -28,6 +30,7 @@ use super::{ AeadCipher, DecryptFail };
 ///     .decrypt(&nonce, &ciphertext)
 ///     .unwrap();
 /// assert_eq!(plaintext, &data[..]);
+/// # }
 /// ```
 pub struct General<C, M> {
     cipher: C,

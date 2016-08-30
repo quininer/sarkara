@@ -10,11 +10,10 @@ use ::aead::{ AeadCipher, DecryptFail };
 /// # extern crate rand;
 /// # #[macro_use] extern crate sarkara;
 /// # fn main() {
-/// # use sarkara::utils::Bytes;
 /// # use sarkara::aead::{ Ascon, AeadCipher };
 /// # use sarkara::secretbox::SecretBox;
 /// #
-/// let key = Bytes::random(Ascon::key_length());
+/// let key = rand!(Ascon::key_length());
 /// let data = rand!(bytes 64);
 ///
 /// let mut ciphertext = Ascon::seal(&key, &data);

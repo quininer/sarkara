@@ -1,5 +1,5 @@
 use std::ops::Deref;
-use ::utils::Bytes;
+use seckey::Bytes;
 use ::hash::{ Hash, GenericHash };
 use super::{ Mac, NonceMac };
 

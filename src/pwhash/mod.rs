@@ -9,7 +9,7 @@ mod argon2;
 
 use std::fmt;
 use std::error::Error;
-use ::utils::Bytes;
+use seckey::Bytes;
 pub use self::argon2::{
     Argon2i,
     OPSLIMIT_INTERACTIVE, MEMLIMIT_INTERACTIVE,

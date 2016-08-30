@@ -1,4 +1,4 @@
-use ::utils::Bytes;
+use seckey::Bytes;
 use super::StreamCipher;
 
 
@@ -6,18 +6,21 @@ use super::StreamCipher;
 ///
 /// # Example(process)
 /// ```
-/// use sarkara::utils::Bytes;
+/// # extern crate rand;
+/// # #[macro_use] extern crate sarkara;
+/// # fn main() {
 /// use sarkara::stream::{ HC256, StreamCipher };
 ///
 /// let (pass, nonce) = (
-///     Bytes::random(HC256::key_length()),
-///     Bytes::random(HC256::nonce_length())
+///     rand!(HC256::key_length()),
+///     rand!(HC256::nonce_length())
 /// );
 /// let data = [8; 64];
 /// let cipher = HC256::new(&pass);
 /// let ciphertext = cipher.process(&nonce, &data);
 /// let plaintext = cipher.process(&nonce, &ciphertext);
 /// assert_eq!(plaintext, &data[..]);
+/// # }
 /// ```
 pub struct HC256 {
     key: Bytes
