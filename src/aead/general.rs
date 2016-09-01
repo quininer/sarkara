@@ -21,7 +21,7 @@ use super::{ AeadCipher, DecryptFail };
 ///     rand!(HHBCipher::key_length()),
 ///     rand!(HHBCipher::nonce_length())
 /// );
-/// let data = rand!(64);
+/// let data = rand!(rand!(choose 0..1024));
 /// let ciphertext = HHBCipher::new(&pass)
 ///     .with_aad(&nonce)
 ///     .encrypt(&nonce, &data);

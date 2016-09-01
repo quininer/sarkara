@@ -1,5 +1,6 @@
 //! Public-key Authenticated encryption.
 
+use std::ops::Deref;
 use ::aead::{ AeadCipher, DecryptFail };
 use ::kex::KeyExchange;
 
@@ -14,7 +15,7 @@ use ::kex::KeyExchange;
 /// # use sarkara::kex::{ NewHope, KeyExchange };
 /// # use sarkara::sealedbox::SealedBox;
 /// #
-/// let data = rand!(bytes 64);
+/// let data = rand!(rand!(choose 0..1024));
 /// let (sk, pk) = NewHope::keygen();
 ///
 /// let mut ciphertext = Ascon::seal::<NewHope>(&pk, &data);
@@ -35,7 +36,12 @@ use ::kex::KeyExchange;
 /// ```
 pub trait SealedBox: AeadCipher {
     /// Seal SecretBox.
-    fn seal<K: KeyExchange>(pka: &[u8], data: &[u8]) -> Vec<u8> {
+    fn seal<K>(pka: &K::PublicKey, data: &[u8])
+        -> Vec<u8>
+        where
+            K: KeyExchange,
+            K::Reconciliation: Deref<Target=[u8]>
+    {
         let mut key = vec![0; Self::key_length() + Self::nonce_length()];
         let rec = K::exchange(&mut key, pka);
         let (key, nonce) = key.split_at(Self::key_length());
@@ -48,10 +54,17 @@ pub trait SealedBox: AeadCipher {
     }
 
     /// Open SecretBox.
-    fn open<K: KeyExchange>(ska: &K::PrivateKey, data: &[u8]) -> Result<Vec<u8>, DecryptFail> {
+    fn open<'a, K>(ska: &K::PrivateKey, data: &'a [u8])
+        -> Result<Vec<u8>, DecryptFail>
+        where
+            K: KeyExchange,
+            K::Reconciliation: From<&'a [u8]>
+    {
+        if data.len() < K::rec_length() { Err(DecryptFail::TagLengthError)? };
+
         let mut key = vec![0; Self::key_length() + Self::nonce_length()];
         let (data, rec) = data.split_at(data.len() - K::rec_length());
-        K::exchange_from(&mut key, ska, rec);
+        K::exchange_from(&mut key, ska, &rec.into());
         let (key, nonce) = key.split_at(Self::key_length());
 
         Self::new(key)

@@ -1,3 +1,4 @@
+use std::ops::Deref;
 use seckey::Key;
 use rand::{ Rng, OsRng, ChaChaRng };
 use newhope::{
@@ -30,7 +31,7 @@ use super::KeyExchange;
 /// # let (mut keya, mut keyb) = ([0; 32], [0; 32]);
 /// # let (sk, pk) = NewHope::keygen();
 /// let sk_bytes = sk.export();
-/// let sk = PrivateKey::import(&sk_bytes);
+/// let sk = PrivateKey::from(&sk_bytes[..]);
 /// # let rec = NewHope::exchange(&mut keyb, &pk);
 /// # NewHope::exchange_from(&mut keya, &sk, &rec);
 /// # assert_eq!(keya, keyb);
@@ -39,13 +40,15 @@ pub struct NewHope;
 
 impl KeyExchange for NewHope {
     type PrivateKey = PrivateKey;
+    type PublicKey = [u8; SENDABYTES];
+    type Reconciliation = Reconciliation;
 
     fn sk_length() -> usize { POLY_BYTES }
     fn pk_length() -> usize { SENDABYTES }
     fn rec_length() -> usize { SENDBBYTES }
 
-    fn keygen() -> (Self::PrivateKey, Vec<u8>) {
-        let (mut sk, mut pk) = ([0; N], vec![0; SENDABYTES]);
+    fn keygen() -> (Self::PrivateKey, Self::PublicKey) {
+        let (mut sk, mut pk) = ([0; N], [0; SENDABYTES]);
         let (mut pka, mut nonce) = ([0; N], [0; 32]);
         let mut rng = OsRng::new().unwrap().gen::<ChaChaRng>();
 
@@ -58,9 +61,7 @@ impl KeyExchange for NewHope {
         (PrivateKey(sk.into()), pk)
     }
 
-    fn exchange(sharedkey: &mut [u8], pka: &[u8]) -> Vec<u8> {
-        debug_assert_eq!(pka.len(), Self::pk_length());
-
+    fn exchange(sharedkey: &mut [u8], pka: &Self::PublicKey) -> Self::Reconciliation {
         let (mut key, mut pkb, mut rec) = ([0; 32], [0; N], [0; N]);
         let (pk, nonce) = pka.split_at(POLY_BYTES);
 
@@ -71,15 +72,17 @@ impl KeyExchange for NewHope {
 
         sha3_256(sharedkey, &key);
 
-        let mut output = Vec::with_capacity(Self::rec_length());
-        output.extend_from_slice(&poly_tobytes(&pkb));
-        output.extend_from_slice(&rec_tobytes(&rec));
-        output
+        let mut output = [0; SENDBBYTES];
+        output[..POLY_BYTES].clone_from_slice(&poly_tobytes(&pkb));
+        output[POLY_BYTES..].clone_from_slice(&rec_tobytes(&rec));
+        Reconciliation(output)
     }
 
-    fn exchange_from(sharedkey: &mut [u8], &PrivateKey(ref sk): &Self::PrivateKey, pkb: &[u8]) {
-        debug_assert_eq!(pkb.len(), Self::rec_length());
-
+    fn exchange_from(
+        sharedkey: &mut [u8],
+        &PrivateKey(ref sk): &Self::PrivateKey,
+        &Reconciliation(ref pkb): &Self::Reconciliation
+    ) {
         let mut key = [0; 32];
         let (pk, rec) = pkb.split_at(POLY_BYTES);
         shareda(&mut key, &sk[..], &poly_frombytes(pk), &rec_frombytes(rec));
@@ -91,14 +94,35 @@ impl KeyExchange for NewHope {
 /// Newhope private key.
 pub struct PrivateKey(pub Key<[u16; N]>);
 
-impl PrivateKey {
-    /// import private key.
-    pub fn import(input: &[u8]) -> PrivateKey {
-        PrivateKey(poly_frombytes(input).into())
+impl<'a> From<&'a [u8]> for PrivateKey {
+    fn from(t: &[u8]) -> PrivateKey {
+        debug_assert_eq!(t.len(), POLY_BYTES);
+        PrivateKey(poly_frombytes(t).into())
     }
+}
 
+impl PrivateKey {
     /// export private key.
     pub fn export(&self) -> [u8; POLY_BYTES] {
         poly_tobytes(&self.0)
+    }
+}
+
+/// Newhope reconciliation data.
+pub struct Reconciliation(pub [u8; SENDBBYTES]);
+
+impl<'a> From<&'a [u8]> for Reconciliation {
+    fn from(t: &[u8]) -> Reconciliation {
+        debug_assert_eq!(t.len(), SENDBBYTES);
+        let mut rec = [0; SENDBBYTES];
+        rec.clone_from_slice(t);
+        Reconciliation(rec)
+    }
+}
+
+impl Deref for Reconciliation {
+    type Target = [u8];
+    fn deref(&self) -> &[u8] {
+        &self.0
     }
 }

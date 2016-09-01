@@ -15,7 +15,7 @@ use super::StreamCipher;
 ///     rand!(HC256::key_length()),
 ///     rand!(HC256::nonce_length())
 /// );
-/// let data = [8; 64];
+/// let data = rand!(rand!(choose 0..1024));
 /// let cipher = HC256::new(&pass);
 /// let ciphertext = cipher.process(&nonce, &data);
 /// let plaintext = cipher.process(&nonce, &ciphertext);

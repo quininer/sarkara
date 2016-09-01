@@ -14,7 +14,7 @@ use ::aead::{ AeadCipher, DecryptFail };
 /// # use sarkara::secretbox::SecretBox;
 /// #
 /// let key = rand!(Ascon::key_length());
-/// let data = rand!(bytes 64);
+/// let data = rand!(rand!(choose 0..1024));
 ///
 /// let mut ciphertext = Ascon::seal(&key, &data);
 /// # assert_eq!(

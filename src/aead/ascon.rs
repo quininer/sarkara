@@ -15,7 +15,7 @@ use super::{ AeadCipher, DecryptFail };
 ///     rand!(Ascon::key_length()),
 ///     rand!(Ascon::nonce_length())
 /// );;
-/// let data = rand!(64);
+/// let data = rand!(rand!(choose 0..1024));
 /// let ciphertext = Ascon::new(&pass)
 ///     .with_aad(&nonce)
 ///     .encrypt(&nonce, &data);

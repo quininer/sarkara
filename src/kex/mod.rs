@@ -5,13 +5,17 @@
 
 mod newhope;
 
-pub use self::newhope::{ NewHope, PrivateKey };
+pub use self::newhope::{ NewHope, PrivateKey, Reconciliation };
 
 
 /// `KeyExchange` trait.
 pub trait KeyExchange {
     /// Private key.
     type PrivateKey;
+    /// Public key.
+    type PublicKey;
+    /// Reconciliation data.
+    type Reconciliation;
 
     /// Secret key length.
     fn sk_length() -> usize;
@@ -21,9 +25,9 @@ pub trait KeyExchange {
     fn rec_length() -> usize;
 
     /// Generate keypair.
-    fn keygen() -> (Self::PrivateKey, Vec<u8>);
+    fn keygen() -> (Self::PrivateKey, Self::PublicKey);
     /// Key exchange, from Public key.
-    fn exchange(sharedkey: &mut [u8], pk: &[u8]) -> Vec<u8>;
+    fn exchange(sharedkey: &mut [u8], pk: &Self::PublicKey) -> Self::Reconciliation;
     /// key exchange, from Reconciliation data.
-    fn exchange_from(sharedkey: &mut [u8], sk: &Self::PrivateKey, rec: &[u8]);
+    fn exchange_from(sharedkey: &mut [u8], sk: &Self::PrivateKey, rec: &Self::Reconciliation);
 }
