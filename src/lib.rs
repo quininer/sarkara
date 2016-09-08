@@ -10,6 +10,7 @@ extern crate argon2rs;
 extern crate hc256;
 extern crate ascon;
 extern crate newhope;
+extern crate blissb;
 
 #[macro_use] pub mod utils;
 pub mod hash;
@@ -20,3 +21,4 @@ pub mod aead;
 pub mod kex;
 pub mod secretbox;
 pub mod sealedbox;
+pub mod sign;
