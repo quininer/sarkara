@@ -74,7 +74,7 @@ impl<C, M> AeadCipher for General<C, M> where
     }
 
     fn decrypt(&mut self, nonce: &[u8], data: &[u8]) -> Result<Vec<u8>, DecryptFail> {
-        if data.len() < Self::tag_length() { Err(DecryptFail::TagLengthError)? };
+        if data.len() < Self::tag_length() { Err(DecryptFail::LengthError)? };
 
         let (cn, mn) = nonce.split_at(C::nonce_length());
         let (data, tag) = data.split_at(data.len() - Self::tag_length());

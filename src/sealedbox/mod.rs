@@ -60,7 +60,7 @@ pub trait SealedBox: AeadCipher {
             K: KeyExchange,
             K::Reconciliation: From<&'a [u8]>
     {
-        if data.len() < K::rec_length() { Err(DecryptFail::TagLengthError)? };
+        if data.len() < K::rec_length() { Err(DecryptFail::LengthError)? };
 
         let mut key = vec![0; Self::key_length() + Self::nonce_length()];
         let (data, rec) = data.split_at(data.len() - K::rec_length());

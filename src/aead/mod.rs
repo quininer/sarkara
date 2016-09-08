@@ -14,8 +14,8 @@ pub use self::ascon::Ascon;
 /// Decryption fail.
 #[derive(Clone, Debug)]
 pub enum DecryptFail {
-    /// Tag length error.
-    TagLengthError,
+    /// Ciphertext length error.
+    LengthError,
     /// Tag authentication fail.
     AuthenticationFail
 }
@@ -55,7 +55,7 @@ impl fmt::Display for DecryptFail {
 impl Error for DecryptFail {
     fn description(&self) -> &str {
         match *self {
-            DecryptFail::TagLengthError => "Tag length error.",
+            DecryptFail::LengthError => "Ciphertext length error.",
             DecryptFail::AuthenticationFail => "Tag authentication fail."
         }
     }

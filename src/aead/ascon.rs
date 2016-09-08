@@ -63,7 +63,7 @@ impl AeadCipher for Ascon {
 impl From<::ascon::DecryptFail> for DecryptFail {
     fn from(err: ::ascon::DecryptFail) -> DecryptFail {
         match err {
-            ::ascon::DecryptFail::TagLengthError => DecryptFail::TagLengthError,
+            ::ascon::DecryptFail::TagLengthError => DecryptFail::LengthError,
             ::ascon::DecryptFail::AuthenticationFail => DecryptFail::AuthenticationFail
         }
     }
