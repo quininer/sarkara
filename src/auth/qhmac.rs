@@ -1,4 +1,3 @@
-use std::ops::Deref;
 use seckey::Bytes;
 use ::hash::{ Hash, GenericHash };
 use super::{ Mac, NonceMac };
@@ -64,7 +63,7 @@ impl<H> Mac for HMAC<H> where H: Hash {
     }
 
     fn result<T>(&self, data: &[u8]) -> T where
-        T: From<Vec<u8>> + Deref<Target=[u8]>
+        T: From<Vec<u8>> + AsRef<[u8]>
     {
         let mut ipad = vec![0x36; 64];
         let mut opad = vec![0x5c; 64];

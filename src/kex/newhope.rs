@@ -1,4 +1,3 @@
-use std::ops::Deref;
 use seckey::Key;
 use rand::{ Rng, OsRng, ChaChaRng };
 use newhope::{
@@ -30,7 +29,7 @@ use super::KeyExchange;
 /// # use sarkara::kex::{ KeyExchange, PrivateKey, NewHope };
 /// # let (mut keya, mut keyb) = ([0; 32], [0; 32]);
 /// # let (sk, pk) = NewHope::keygen();
-/// let sk_bytes = sk.export();
+/// let sk_bytes: Vec<u8> = sk.into();
 /// let sk = PrivateKey::from(&sk_bytes[..]);
 /// # let rec = NewHope::exchange(&mut keyb, &pk);
 /// # NewHope::exchange_from(&mut keya, &sk, &rec);
@@ -101,10 +100,9 @@ impl<'a> From<&'a [u8]> for PrivateKey {
     }
 }
 
-impl PrivateKey {
-    /// export private key.
-    pub fn export(&self) -> [u8; POLY_BYTES] {
-        poly_tobytes(&self.0)
+impl From<PrivateKey> for Vec<u8> {
+    fn from(PrivateKey(t): PrivateKey) -> Vec<u8> {
+        Vec::from(&poly_tobytes(&t)[..])
     }
 }
 
@@ -120,9 +118,8 @@ impl<'a> From<&'a [u8]> for Reconciliation {
     }
 }
 
-impl Deref for Reconciliation {
-    type Target = [u8];
-    fn deref(&self) -> &[u8] {
-        &self.0
+impl From<Reconciliation> for Vec<u8> {
+    fn from(Reconciliation(t): Reconciliation) -> Vec<u8> {
+        Vec::from(&t[..])
     }
 }
