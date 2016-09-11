@@ -17,7 +17,9 @@ pub enum DecryptFail {
     /// Ciphertext length error.
     LengthError,
     /// Tag authentication fail.
-    AuthenticationFail
+    AuthenticationFail,
+    /// Other error.
+    Other
 }
 
 /// `AeadCipher` trait.
@@ -56,7 +58,8 @@ impl Error for DecryptFail {
     fn description(&self) -> &str {
         match *self {
             DecryptFail::LengthError => "Ciphertext length error.",
-            DecryptFail::AuthenticationFail => "Tag authentication fail."
+            DecryptFail::AuthenticationFail => "Tag authentication fail.",
+            DecryptFail::Other => "Other error."
         }
     }
 }

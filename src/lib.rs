@@ -1,7 +1,7 @@
 //! Sarkara is a Post-Quantum cryptography library.
 
 #![warn(missing_docs)]
-#![feature(question_mark)]
+#![feature(question_mark, try_from)]
 
 extern crate rand;
 extern crate seckey;

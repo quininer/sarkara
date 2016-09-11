@@ -1,5 +1,6 @@
 //! Public-key Authenticated encryption.
 
+use std::convert::TryFrom;
 use ::aead::{ AeadCipher, DecryptFail };
 use ::kex::KeyExchange;
 
@@ -42,13 +43,13 @@ pub trait SealedBox: AeadCipher {
             K::Reconciliation: Into<Vec<u8>>
     {
         let mut key = vec![0; Self::key_length() + Self::nonce_length()];
-        let rec = K::exchange(&mut key, pka).into();
+        let mut rec = K::exchange(&mut key, pka).into();
         let (key, nonce) = key.split_at(Self::key_length());
 
         let mut output = Self::new(key)
             .with_aad(&rec)
             .encrypt(nonce, data);
-        output.extend_from_slice(&rec);
+        output.append(&mut rec);
         output
     }
 
@@ -57,13 +58,13 @@ pub trait SealedBox: AeadCipher {
         -> Result<Vec<u8>, DecryptFail>
         where
             K: KeyExchange,
-            K::Reconciliation: From<&'a [u8]>
+            K::Reconciliation: TryFrom<&'a [u8]>
     {
         if data.len() < K::rec_length() { Err(DecryptFail::LengthError)? };
 
         let mut key = vec![0; Self::key_length() + Self::nonce_length()];
         let (data, rec) = data.split_at(data.len() - K::rec_length());
-        K::exchange_from(&mut key, ska, &rec.into());
+        K::exchange_from(&mut key, ska, &K::Reconciliation::try_from(rec).or(Err(DecryptFail::Other))?);
         let (key, nonce) = key.split_at(Self::key_length());
 
         Self::new(key)

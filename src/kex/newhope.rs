@@ -1,3 +1,5 @@
+use std::io;
+use std::convert::TryFrom;
 use seckey::Key;
 use rand::{ Rng, OsRng, ChaChaRng };
 use newhope::{
@@ -26,11 +28,13 @@ use super::KeyExchange;
 ///
 /// # Example(import/export)
 /// ```
+/// # #![feature(try_from)]
+/// # use std::convert::TryFrom;
 /// # use sarkara::kex::{ KeyExchange, PrivateKey, NewHope };
 /// # let (mut keya, mut keyb) = ([0; 32], [0; 32]);
 /// # let (sk, pk) = NewHope::keygen();
 /// let sk_bytes: Vec<u8> = sk.into();
-/// let sk = PrivateKey::from(&sk_bytes[..]);
+/// let sk = PrivateKey::try_from(&sk_bytes[..]).unwrap();
 /// # let rec = NewHope::exchange(&mut keyb, &pk);
 /// # NewHope::exchange_from(&mut keya, &sk, &rec);
 /// # assert_eq!(keya, keyb);
@@ -39,7 +43,7 @@ pub struct NewHope;
 
 impl KeyExchange for NewHope {
     type PrivateKey = PrivateKey;
-    type PublicKey = [u8; SENDABYTES];
+    type PublicKey = PublicKey;
     type Reconciliation = Reconciliation;
 
     #[inline] fn sk_length() -> usize { POLY_BYTES }
@@ -57,10 +61,10 @@ impl KeyExchange for NewHope {
         pk[..POLY_BYTES].clone_from_slice(&poly_tobytes(&pka));
         pk[POLY_BYTES..].clone_from_slice(&nonce);
 
-        (PrivateKey(sk.into()), pk)
+        (PrivateKey(sk.into()), PublicKey(pk))
     }
 
-    fn exchange(sharedkey: &mut [u8], pka: &Self::PublicKey) -> Self::Reconciliation {
+    fn exchange(sharedkey: &mut [u8], &PublicKey(ref pka): &Self::PublicKey) -> Self::Reconciliation {
         let (mut key, mut pkb, mut rec) = ([0; 32], [0; N], [0; N]);
         let (pk, nonce) = pka.split_at(POLY_BYTES);
 
@@ -93,33 +97,72 @@ impl KeyExchange for NewHope {
 /// Newhope private key.
 pub struct PrivateKey(pub Key<[u16; N]>);
 
-impl<'a> From<&'a [u8]> for PrivateKey {
-    fn from(t: &[u8]) -> PrivateKey {
-        debug_assert_eq!(t.len(), POLY_BYTES);
-        PrivateKey(poly_frombytes(t).into())
+impl<'a> TryFrom<&'a [u8]> for PrivateKey {
+    type Err = io::Error;
+    fn try_from(input: &[u8]) -> io::Result<Self> {
+        if input.len() == POLY_BYTES {
+            Ok(PrivateKey(poly_frombytes(input).into()))
+        } else {
+            Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "Invalid input length."
+            ))
+        }
     }
 }
 
 impl From<PrivateKey> for Vec<u8> {
-    fn from(PrivateKey(t): PrivateKey) -> Vec<u8> {
-        Vec::from(&poly_tobytes(&t)[..])
+    fn from(PrivateKey(sk): PrivateKey) -> Vec<u8> {
+        Vec::from(&poly_tobytes(&sk)[..])
+    }
+}
+
+/// Newhope public key.
+pub struct PublicKey(pub [u8; SENDABYTES]);
+
+impl<'a> TryFrom<&'a [u8]> for PublicKey {
+    type Err = io::Error;
+    fn try_from(input: &[u8]) -> io::Result<Self> {
+        if input.len() == SENDABYTES {
+            let mut pk = [0; SENDABYTES];
+            pk.clone_from_slice(input);
+            Ok(PublicKey(pk))
+        } else {
+            Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "Invalid input length."
+            ))
+        }
+    }
+}
+
+impl From<PublicKey> for Vec<u8> {
+    fn from(PublicKey(pk): PublicKey) -> Vec<u8> {
+        Vec::from(&pk[..])
     }
 }
 
 /// Newhope reconciliation data.
 pub struct Reconciliation(pub [u8; SENDBBYTES]);
 
-impl<'a> From<&'a [u8]> for Reconciliation {
-    fn from(t: &[u8]) -> Reconciliation {
-        debug_assert_eq!(t.len(), SENDBBYTES);
-        let mut rec = [0; SENDBBYTES];
-        rec.clone_from_slice(t);
-        Reconciliation(rec)
+impl<'a> TryFrom<&'a [u8]> for Reconciliation {
+    type Err = io::Error;
+    fn try_from(input: &[u8]) -> io::Result<Self> {
+        if input.len() == SENDBBYTES {
+            let mut rec = [0; SENDBBYTES];
+            rec.clone_from_slice(input);
+            Ok(Reconciliation(rec))
+        } else {
+            Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "Invalid input length."
+            ))
+        }
     }
 }
 
 impl From<Reconciliation> for Vec<u8> {
-    fn from(Reconciliation(t): Reconciliation) -> Vec<u8> {
-        Vec::from(&t[..])
+    fn from(Reconciliation(rec): Reconciliation) -> Vec<u8> {
+        Vec::from(&rec[..])
     }
 }
