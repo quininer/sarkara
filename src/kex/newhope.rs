@@ -105,7 +105,7 @@ impl<'a> TryFrom<&'a [u8]> for PrivateKey {
         } else {
             Err(io::Error::new(
                 io::ErrorKind::InvalidInput,
-                "Invalid input length."
+                "PrivateKey: invalid input length."
             ))
         }
     }
@@ -130,7 +130,7 @@ impl<'a> TryFrom<&'a [u8]> for PublicKey {
         } else {
             Err(io::Error::new(
                 io::ErrorKind::InvalidInput,
-                "Invalid input length."
+                "PublicKey: invalid input length."
             ))
         }
     }
@@ -155,7 +155,7 @@ impl<'a> TryFrom<&'a [u8]> for Reconciliation {
         } else {
             Err(io::Error::new(
                 io::ErrorKind::InvalidInput,
-                "Invalid input length."
+                "Reconciliation: invalid input length."
             ))
         }
     }

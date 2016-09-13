@@ -1,5 +1,6 @@
 //! Public-key Authenticated encryption.
 
+use std::io;
 use std::convert::TryFrom;
 use ::aead::{ AeadCipher, DecryptFail };
 use ::kex::KeyExchange;
@@ -58,13 +59,13 @@ pub trait SealedBox: AeadCipher {
         -> Result<Vec<u8>, DecryptFail>
         where
             K: KeyExchange,
-            K::Reconciliation: TryFrom<&'a [u8]>
+            K::Reconciliation: TryFrom<&'a [u8], Err=io::Error>
     {
         if data.len() < K::rec_length() { Err(DecryptFail::LengthError)? };
 
         let mut key = vec![0; Self::key_length() + Self::nonce_length()];
         let (data, rec) = data.split_at(data.len() - K::rec_length());
-        K::exchange_from(&mut key, ska, &K::Reconciliation::try_from(rec).or(Err(DecryptFail::Other))?);
+        K::exchange_from(&mut key, ska, &K::Reconciliation::try_from(rec)?);
         let (key, nonce) = key.split_at(Self::key_length());
 
         Self::new(key)

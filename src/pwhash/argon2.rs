@@ -30,7 +30,7 @@ pub const MEMLIMIT_SENSITIVE: u32 = 536870912;
 /// let (pass, salt) = (rand!(8), rand!(8));
 /// let key = Argon2i::default()
 ///     .derive::<Bytes>(&pass, &salt)
-///     .ok().unwrap();
+///     .unwrap();
 /// # assert!(key != pass);
 /// # }
 /// ```
@@ -48,7 +48,7 @@ pub const MEMLIMIT_SENSITIVE: u32 = 536870912;
 /// let key = Argon2i::default()
 ///     .with_size(16)
 ///     .pwhash::<Bytes>(&pass)
-///     .ok().unwrap();
+///     .unwrap();
 /// # assert_eq!(key.len(), 16);
 /// # }
 /// ```
@@ -65,9 +65,9 @@ pub const MEMLIMIT_SENSITIVE: u32 = 536870912;
 /// let (pass, salt) = (rand!(8), rand!(8));
 /// let key = Argon2i::default()
 ///     .derive::<Bytes>(&pass, &salt)
-///     .ok().unwrap();
+///     .unwrap();
 ///
-/// assert!(Argon2i::default().verify(&pass, &salt, &key).ok().unwrap());
+/// assert!(Argon2i::default().verify(&pass, &salt, &key).unwrap());
 /// # }
 /// ```
 pub struct Argon2i {
@@ -114,8 +114,9 @@ impl KeyDerive for Argon2i {
         self
     }
 
-    fn derive<K>(&self, password: &[u8], salt: &[u8]) -> Result<K, KeyDerivationFail> where
-        K: From<Vec<u8>>
+    fn derive<K>(&self, password: &[u8], salt: &[u8])
+        -> Result<K, KeyDerivationFail>
+        where K: From<Vec<u8>>
     {
         if salt.len() < 8 { Err(KeyDerivationFail::SaltTooShort)? };
         if salt.len() > 0xffffffff { Err(KeyDerivationFail::SaltTooLong)? };

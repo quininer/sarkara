@@ -39,8 +39,9 @@ pub trait KeyDerive: Default {
     ///
     /// ## Fail When:
     /// * Param Error, see [`ParamErr`](../../argon2rs/enum.ParamErr.html)
-    fn pwhash<K>(&self, password: &[u8]) -> Result<K, KeyDerivationFail> where
-        K: From<Vec<u8>>
+    fn pwhash<K>(&self, password: &[u8])
+        -> Result<K, KeyDerivationFail>
+        where K: From<Vec<u8>>
     {
         self.derive::<K>(password, &rand!(bytes 8))
     }
@@ -60,8 +61,9 @@ pub trait KeyDerive: Default {
     ///
     /// ## Fail When:
     /// * Param Error, see [`ParamErr`](../../argon2rs/enum.ParamErr.html)
-    fn derive<K>(&self, password: &[u8], salt: &[u8]) -> Result<K, KeyDerivationFail> where
-        K: From<Vec<u8>>;
+    fn derive<K>(&self, password: &[u8], salt: &[u8])
+        -> Result<K, KeyDerivationFail>
+        where K: From<Vec<u8>>;
 }
 
 /// `KeyVerify` trait.
