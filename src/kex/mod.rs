@@ -5,7 +5,7 @@
 
 mod newhope;
 
-pub use self::newhope::{ NewHope, PrivateKey, Reconciliation };
+pub use self::newhope::{ NewHope, PrivateKey, PublicKey, Reconciliation };
 
 
 /// `KeyExchange` trait.

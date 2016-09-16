@@ -5,7 +5,6 @@
 
 mod qhmac;
 
-use std::ops::Deref;
 use seckey::Bytes;
 pub use self::qhmac::HMAC;
 
@@ -22,7 +21,7 @@ pub trait Mac {
 
     /// Calculate MAC Tag.
     fn result<T>(&self, data: &[u8]) -> T where
-        T: From<Vec<u8>> + Deref<Target=[u8]>;
+        T: From<Vec<u8>> + AsRef<[u8]>;
 
     /// Verify MAC Tag.
     fn verify(&self, data: &[u8], tag: &[u8]) -> bool {

@@ -5,19 +5,21 @@
 mod general;
 mod ascon;
 
-use std::fmt;
+use std::{ io, fmt };
 use std::error::Error;
 pub use self::general::General;
 pub use self::ascon::Ascon;
 
 
 /// Decryption fail.
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub enum DecryptFail {
     /// Ciphertext length error.
     LengthError,
     /// Tag authentication fail.
-    AuthenticationFail
+    AuthenticationFail,
+    /// Other error.
+    Other(io::Error)
 }
 
 /// `AeadCipher` trait.
@@ -41,8 +43,9 @@ pub trait AeadCipher {
     /// Decryption
     ///
     /// ## Fail When:
-    /// - Tag length error.
+    /// - Ciphertext length error.
     /// - Tag authentication fail.
+    /// - Other error.
     fn decrypt(&mut self, nonce: &[u8], data: &[u8]) -> Result<Vec<u8>, DecryptFail>;
 }
 
@@ -56,7 +59,14 @@ impl Error for DecryptFail {
     fn description(&self) -> &str {
         match *self {
             DecryptFail::LengthError => "Ciphertext length error.",
-            DecryptFail::AuthenticationFail => "Tag authentication fail."
+            DecryptFail::AuthenticationFail => "Tag authentication fail.",
+            DecryptFail::Other(ref err) => err.description()
         }
+    }
+}
+
+impl From<io::Error> for DecryptFail {
+    fn from(err: io::Error) -> DecryptFail {
+        DecryptFail::Other(err)
     }
 }
