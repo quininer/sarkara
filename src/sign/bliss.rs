@@ -29,14 +29,8 @@ impl Signature for Bliss {
         (PrivateKey(sk.into()), pk)
     }
 
-    fn signature(sk: &Self::PrivateKey, data: &[u8]) -> Self::Signature {
-        let &PrivateKey(ref rsk) = sk;
-        let sign = rsk.signature(data).unwrap();
-        if rsk.public().verify(&sign, data) {
-            sign
-        } else {
-            Self::signature(sk, data)
-        }
+    fn signature(&PrivateKey(ref sk): &Self::PrivateKey, data: &[u8]) -> Self::Signature {
+        sk.signature(data).unwrap()
     }
 
     fn verify(pk: &Self::PublicKey, sign: &Self::Signature, data: &[u8]) -> bool {
