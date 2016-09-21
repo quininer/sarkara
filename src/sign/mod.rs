@@ -16,6 +16,13 @@ pub trait Signature {
     /// Signature data.
     type Signature;
 
+    /// Secret key length.
+    fn sk_length() -> usize;
+    /// Public key length.
+    fn pk_length() -> usize;
+    /// Signature length.
+    fn sign_length() -> usize;
+
     /// Key generate.
     fn keygen() -> (Self::PrivateKey, Self::PublicKey);
     /// Signature.

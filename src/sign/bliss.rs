@@ -1,7 +1,9 @@
+use std::io;
+use std::convert::TryFrom;
 use seckey::Key;
 use super::Signature;
 
-pub use blissb::{ PublicKey, Signature as SignatureData };
+use blissb::param::{ PRIVATEKEY_LENGTH, PUBLICKEY_LENGTH, SIGNATURE_LENGTH };
 
 
 /// BLISS Signature Scheme.
@@ -16,27 +18,133 @@ pub use blissb::{ PublicKey, Signature as SignatureData };
 /// assert!(Bliss::verify(&pk, &sign, &data));
 /// assert!(!Bliss::verify(&pk, &sign, &data[1..]));
 /// ```
+///
+/// # Example(import/export)
+/// ```
+/// #![feature(try_from)]
+/// # use std::convert::TryFrom;
+/// # use sarkara::sign::{
+/// #     Bliss, Signature,
+/// #     PrivateKey, PublicKey, SignatureData
+/// # };
+/// #
+/// # let data = [9; 64];
+/// # let (sk, pk) = Bliss::keygen();
+/// let sk_bytes: Vec<u8> = sk.into();
+/// let pk_bytes: Vec<u8> = pk.into();
+/// let sk = PrivateKey::try_from(&sk_bytes[..]).unwrap();
+/// let pk = PublicKey::try_from(&pk_bytes[..]).unwrap();
+/// # let sign = Bliss::signature(&sk, &data);
+/// let sign_bytes: Vec<u8> = sign.into();
+/// let sign = SignatureData::try_from(&sign_bytes[..]).unwrap();
+/// # assert!(Bliss::verify(&pk, &sign, &data));
+/// # assert!(!Bliss::verify(&pk, &sign, &data[1..]));
+/// ```
 pub struct Bliss;
 
 impl Signature for Bliss {
     type PrivateKey = PrivateKey;
-    type PublicKey = ::blissb::PublicKey;
-    type Signature = ::blissb::Signature;
+    type PublicKey = PublicKey;
+    type Signature = SignatureData;
+
+    #[inline] fn sk_length() -> usize { PRIVATEKEY_LENGTH }
+    #[inline] fn pk_length() -> usize { PUBLICKEY_LENGTH }
+    #[inline] fn sign_length() -> usize { SIGNATURE_LENGTH }
 
     fn keygen() -> (Self::PrivateKey, Self::PublicKey) {
         let sk = ::blissb::PrivateKey::new().unwrap();
         let pk = sk.public();
-        (PrivateKey(sk.into()), pk)
+        (PrivateKey(sk.into()), PublicKey(pk))
     }
 
     fn signature(&PrivateKey(ref sk): &Self::PrivateKey, data: &[u8]) -> Self::Signature {
-        sk.signature(data).unwrap()
+        SignatureData(sk.signature(data).unwrap())
     }
 
-    fn verify(pk: &Self::PublicKey, sign: &Self::Signature, data: &[u8]) -> bool {
+    fn verify(
+        &PublicKey(ref pk): &Self::PublicKey,
+        &SignatureData(ref sign): &Self::Signature,
+        data: &[u8]
+    ) -> bool {
         pk.verify(sign, data)
     }
 }
 
-/// BLISS private key.
-pub struct PrivateKey(pub Key<::blissb::PrivateKey>);
+new_type!(
+    /// BLISS private key.
+    pub struct PrivateKey(pub Key<::blissb::PrivateKey>);
+    from: (input) {
+        if input.len() == PRIVATEKEY_LENGTH {
+            let mut sk = [0; PRIVATEKEY_LENGTH];
+            sk.clone_from_slice(input);
+            Ok(PrivateKey(
+                ::blissb::PrivateKey::import(&sk)
+                    .or(Err(io::Error::new(
+                        io::ErrorKind::InvalidInput,
+                        "PrivateKey: invalid input data."
+                    )))?
+                    .into()
+            ))
+        } else {
+            Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "PrivateKey: invalid input length."
+            ))
+        }
+    },
+    into: (input) -> Vec<u8> {
+        Vec::from(&input.0.export().unwrap()[..])
+    }
+);
+
+new_type!(
+    /// BLISS public key.
+    pub struct PublicKey(pub ::blissb::PublicKey);
+    from: (input) {
+        if input.len() == PUBLICKEY_LENGTH {
+            let mut pk = [0; PUBLICKEY_LENGTH];
+            pk.clone_from_slice(input);
+            Ok(PublicKey(
+                ::blissb::PublicKey::import(&pk)
+                    .or(Err(io::Error::new(
+                        io::ErrorKind::InvalidInput,
+                        "PublicKey: invalid input data."
+                    )))?
+            ))
+        } else {
+            Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "PublicKey: invalid input length."
+            ))
+        }
+    },
+    into: (input) -> Vec<u8> {
+        Vec::from(&input.0.export().unwrap()[..])
+    }
+);
+
+new_type!(
+    /// BLISS signature.
+    pub struct SignatureData(pub ::blissb::Signature);
+    from: (input) {
+        if input.len() == SIGNATURE_LENGTH {
+            let mut sign = [0; SIGNATURE_LENGTH];
+            sign.clone_from_slice(input);
+            Ok(SignatureData(
+                ::blissb::Signature::import(&sign)
+                    .or(Err(io::Error::new(
+                        io::ErrorKind::InvalidInput,
+                        "Signature: invalid input data."
+                    )))?
+            ))
+        } else {
+            Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "Signature: invalid input length."
+            ))
+        }
+    },
+    into: (input) -> Vec<u8> {
+        Vec::from(&input.0.export().unwrap()[..])
+    }
+);
