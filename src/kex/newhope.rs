@@ -12,7 +12,7 @@ use newhope::{
 use super::KeyExchange;
 
 
-/// Newhope key exchange..
+/// Newhope key exchange.
 ///
 /// # Example(exchange)
 /// ```
@@ -94,12 +94,11 @@ impl KeyExchange for NewHope {
     }
 }
 
-/// Newhope private key.
-pub struct PrivateKey(pub Key<[u16; N]>);
 
-impl<'a> TryFrom<&'a [u8]> for PrivateKey {
-    type Err = io::Error;
-    fn try_from(input: &[u8]) -> io::Result<Self> {
+new_type!(
+    /// Newhope private key.
+    pub struct PrivateKey(pub Key<[u16; N]>);
+    from: (input) {
         if input.len() == POLY_BYTES {
             Ok(PrivateKey(poly_frombytes(input).into()))
         } else {
@@ -108,21 +107,16 @@ impl<'a> TryFrom<&'a [u8]> for PrivateKey {
                 "PrivateKey: invalid input length."
             ))
         }
+    },
+    into: (input) -> Vec<u8> {
+        Vec::from(&poly_tobytes(&input.0)[..])
     }
-}
+);
 
-impl From<PrivateKey> for Vec<u8> {
-    fn from(PrivateKey(sk): PrivateKey) -> Vec<u8> {
-        Vec::from(&poly_tobytes(&sk)[..])
-    }
-}
-
-/// Newhope public key.
-pub struct PublicKey(pub [u8; SENDABYTES]);
-
-impl<'a> TryFrom<&'a [u8]> for PublicKey {
-    type Err = io::Error;
-    fn try_from(input: &[u8]) -> io::Result<Self> {
+new_type!(
+    /// Newhope public key.
+    pub struct PublicKey(pub [u8; SENDABYTES]);
+    from: (input) {
         if input.len() == SENDABYTES {
             let mut pk = [0; SENDABYTES];
             pk.clone_from_slice(input);
@@ -133,21 +127,16 @@ impl<'a> TryFrom<&'a [u8]> for PublicKey {
                 "PublicKey: invalid input length."
             ))
         }
+    },
+    into: (input) -> Vec<u8> {
+        Vec::from(&input.0[..])
     }
-}
+);
 
-impl From<PublicKey> for Vec<u8> {
-    fn from(PublicKey(pk): PublicKey) -> Vec<u8> {
-        Vec::from(&pk[..])
-    }
-}
-
-/// Newhope reconciliation data.
-pub struct Reconciliation(pub [u8; SENDBBYTES]);
-
-impl<'a> TryFrom<&'a [u8]> for Reconciliation {
-    type Err = io::Error;
-    fn try_from(input: &[u8]) -> io::Result<Self> {
+new_type!(
+    /// Newhope reconciliation data.
+    pub struct Reconciliation(pub [u8; SENDBBYTES]);
+    from: (input) {
         if input.len() == SENDBBYTES {
             let mut rec = [0; SENDBBYTES];
             rec.clone_from_slice(input);
@@ -158,11 +147,8 @@ impl<'a> TryFrom<&'a [u8]> for Reconciliation {
                 "Reconciliation: invalid input length."
             ))
         }
+    },
+    into: (input) -> Vec<u8> {
+        Vec::from(&input.0[..])
     }
-}
-
-impl From<Reconciliation> for Vec<u8> {
-    fn from(Reconciliation(rec): Reconciliation) -> Vec<u8> {
-        Vec::from(&rec[..])
-    }
-}
+);
