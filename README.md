@@ -1,7 +1,12 @@
-śarkarā
-=======
+# śarkarā
+[![travis ci](https://api.travis-ci.org/quininer/sarkara.svg)](https://travis-ci.org/quininer/sarkara)
+[![crates](https://img.shields.io/crates/v/sarkara.svg)](https://crates.io/crates/sarkara)
+[![license](https://img.shields.io/github/license/quininer/sarkara.svg)](https://github.com/quininer/sarkara/blob/master/LICENSE)
+[![docs.rs](https://img.shields.io/badge/docs.rs-now-orange.svg)](https://docs.rs/sarkara/)
 
 Sarkara is a Post-Quantum cryptography library.
+
+**This is an experimental library, don't use it in production environment.**
 
 
 Public-key cryptography
