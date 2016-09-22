@@ -11,7 +11,7 @@ Public-key cryptography
 	+ [x] `newhope-ascon`
 	+ [x] `newhope-hc256hmacblake2`
 * Signatures
-	+ [ ] [bliss](http://bliss.di.ens.fr/)
+	+ [x] [bliss](http://bliss.di.ens.fr/)
 * Key exchange
 	+ [x] [newhope](https://eprint.iacr.org/2015/1092)
 

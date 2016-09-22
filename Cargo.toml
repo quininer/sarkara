@@ -11,7 +11,7 @@ blake2-rfc = "0.2"
 argon2rs = "0.2"
 ascon = "0.1"
 newhope = { version = "0.1", default-features = false }
-blissb = { git = "https://github.com/quininer/blissb.git" }
+blissb = "0.1"
 
 [features]
 default = [ "simd" ]
