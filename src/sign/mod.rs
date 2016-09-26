@@ -23,7 +23,7 @@ pub trait Signature {
     /// Signature length.
     fn sign_length() -> usize;
 
-    /// Key generate.
+    /// Generate keypair.
     fn keygen() -> (Self::PrivateKey, Self::PublicKey);
     /// Signature.
     fn signature(sk: &Self::PrivateKey, data: &[u8]) -> Self::Signature;

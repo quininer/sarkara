@@ -47,16 +47,16 @@ macro_rules! bench_box {
     }
 }
 
-bench_box!(secretbox bench_secretbox_ascon_10 Ascon, 10);
-bench_box!(sealedbox bench_sealedbox_ascon_10 NewHope Ascon, 10);
-bench_box!(secretbox bench_secretbox_ascon_1k Ascon, 1024);
-bench_box!(sealedbox bench_sealedbox_ascon_1k NewHope Ascon, 1024);
-bench_box!(secretbox bench_secretbox_ascon_64k Ascon, 65536);
-bench_box!(sealedbox bench_sealedbox_ascon_64k NewHope Ascon, 65536);
+bench_box!(secretbox bench_secretbox_ascon_10   Ascon,      10);
+bench_box!(secretbox bench_secretbox_ascon_1k   Ascon,      1024);
+bench_box!(secretbox bench_secretbox_ascon_64k  Ascon,      65536);
+bench_box!(secretbox bench_secretbox_hhb_10     HHBCipher,  10);
+bench_box!(secretbox bench_secretbox_hhb_1k     HHBCipher,  1024);
+bench_box!(secretbox bench_secretbox_hhb_64k    HHBCipher,  65536);
 
-bench_box!(secretbox bench_secretbox_hhb_10 HHBCipher, 10);
-bench_box!(sealedbox bench_sealedbox_hhb_10 NewHope HHBCipher, 10);
-bench_box!(secretbox bench_secretbox_hhb_1k HHBCipher, 1024);
-bench_box!(sealedbox bench_sealedbox_hhb_1k NewHope HHBCipher, 1024);
-bench_box!(secretbox bench_secretbox_hhb_64k HHBCipher, 65536);
-bench_box!(sealedbox bench_sealedbox_hhb_64k NewHope HHBCipher, 65536);
+bench_box!(sealedbox bench_sealedbox_ascon_10   NewHope Ascon,      10);
+bench_box!(sealedbox bench_sealedbox_ascon_1k   NewHope Ascon,      1024);
+bench_box!(sealedbox bench_sealedbox_ascon_64k  NewHope Ascon,      65536);
+bench_box!(sealedbox bench_sealedbox_hhb_10     NewHope HHBCipher,  10);
+bench_box!(sealedbox bench_sealedbox_hhb_1k     NewHope HHBCipher,  1024);
+bench_box!(sealedbox bench_sealedbox_hhb_64k    NewHope HHBCipher,  65536);

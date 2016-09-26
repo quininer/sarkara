@@ -38,9 +38,10 @@ pub struct General<C, M> {
     aad: Vec<u8>
 }
 
-impl<C, M> AeadCipher for General<C, M> where
-    C: StreamCipher,
-    M: NonceMac
+impl<C, M> AeadCipher for General<C, M>
+    where
+        C: StreamCipher,
+        M: NonceMac
 {
     fn new(key: &[u8]) -> Self {
         let (ckey, mkey) = key.split_at(C::key_length());

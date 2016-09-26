@@ -22,6 +22,6 @@ macro_rules! bench_stream {
     }
 }
 
-bench_stream!(bench_stream_hc256_10 HC256, 10);
-bench_stream!(bench_stream_hc256_1k HC256, 1024);
-bench_stream!(bench_stream_hc256_64k HC256, 65536);
+bench_stream!(bench_stream_hc256_10     HC256,  10);
+bench_stream!(bench_stream_hc256_1k     HC256,  1024);
+bench_stream!(bench_stream_hc256_64k    HC256,  65536);

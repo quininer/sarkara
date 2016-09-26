@@ -32,9 +32,9 @@ macro_rules! bench_aead {
     }
 }
 
-bench_aead!(bench_aead_ascon_10 Ascon, 10);
-bench_aead!(bench_aead_hhb_10 HHBCipher, 10);
-bench_aead!(bench_aead_ascon_1k Ascon, 1024);
-bench_aead!(bench_aead_hhb_1k HHBCipher, 1024);
-bench_aead!(bench_aead_ascon_64k Ascon, 65536);
-bench_aead!(bench_aead_hhb_64k HHBCipher, 65536);
+bench_aead!(bench_aead_ascon_10     Ascon,      10);
+bench_aead!(bench_aead_ascon_1k     Ascon,      1024);
+bench_aead!(bench_aead_ascon_64k    Ascon,      65536);
+bench_aead!(bench_aead_hhb_10       HHBCipher,  10);
+bench_aead!(bench_aead_hhb_1k       HHBCipher,  1024);
+bench_aead!(bench_aead_hhb_64k      HHBCipher,  65536);
