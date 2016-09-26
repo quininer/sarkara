@@ -11,6 +11,7 @@ extern crate hc256;
 extern crate ascon;
 extern crate newhope;
 extern crate blissb;
+extern crate byteorder;
 
 #[macro_use] pub mod utils;
 pub mod hash;

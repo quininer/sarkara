@@ -26,7 +26,7 @@ macro_rules! bench_box {
             let mut rng = OsRng::new().unwrap();
             b.bytes = data.len() as u64;
             b.iter(|| {
-                let ciphertext = $ty::seal_with_rng(&mut rng, &key, &data);
+                let ciphertext = $ty::seal_with_nonce(&mut rng, &key, &data);
                 $ty::open(&key, &ciphertext)
             });
         }

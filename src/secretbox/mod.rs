@@ -1,7 +1,8 @@
 //! Secret-key Authenticated encryption.
 
-use rand::{ Rng, OsRng };
+use rand::{ OsRng, Rng };
 use ::aead::{ AeadCipher, DecryptFail };
+use ::utils::Nonce;
 
 
 /// `SecretBox` trait.
@@ -37,18 +38,26 @@ pub trait SecretBox: AeadCipher {
     /// Seal SecretBox.
     #[inline]
     fn seal(key: &[u8], data: &[u8]) -> Vec<u8> {
-        Self::seal_with_rng(&mut OsRng::new().unwrap(), key, data)
+        Self::seal_with_nonce(&mut OsRng::new().unwrap(), key, data)
     }
 
-    /// Seal SecretBox with Rng.
-    fn seal_with_rng(rng: &mut Rng, key: &[u8], data: &[u8]) -> Vec<u8> {
+    /// Seal SecretBox with Nonce.
+    fn seal_with_nonce(rng: &mut Nonce, key: &[u8], data: &[u8]) -> Vec<u8> {
         let mut nonce = vec![0; Self::nonce_length()];
-        rng.fill_bytes(&mut nonce);
+        rng.fill(&mut nonce);
         let output = Self::new(key)
             .with_aad(&nonce)
             .encrypt(&nonce, data);
 
         [nonce, output].concat()
+    }
+
+    /// Seal SecretBox with Rng.
+    ///
+    /// **Deprecated**, use the [seal_with_nonce](#method.seal_with_nonce) instead.
+    #[inline]
+    fn seal_with_rng(mut rng: &mut Rng, key: &[u8], data: &[u8]) -> Vec<u8> {
+        Self::seal_with_nonce(&mut rng, key, data)
     }
 
     /// Open SecretBox.

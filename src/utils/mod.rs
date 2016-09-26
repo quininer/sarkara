@@ -1,6 +1,9 @@
 //! Sarkara utils.
 
 #[macro_use] mod rand_macro;
+mod nonce;
+
+pub use self::nonce::{ Nonce, RngCounter };
 
 
 macro_rules! new_type {
