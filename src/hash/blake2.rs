@@ -39,6 +39,7 @@ use super::{ GenericHash, Hash };
 ///     ]
 /// );
 /// ```
+#[derive(Debug, Clone)]
 pub struct Blake2b {
     outlen: usize,
     key: Bytes

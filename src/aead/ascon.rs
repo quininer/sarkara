@@ -26,6 +26,7 @@ use super::{ AeadCipher, DecryptFail };
 /// assert_eq!(plaintext, &data[..]);
 /// # }
 /// ```
+#[derive(Debug, Clone)]
 pub struct Ascon {
     key: Bytes,
     aad: Vec<u8>

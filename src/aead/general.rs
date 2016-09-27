@@ -32,6 +32,7 @@ use super::{ AeadCipher, DecryptFail };
 /// assert_eq!(plaintext, &data[..]);
 /// # }
 /// ```
+#[derive(Debug, Clone)]
 pub struct General<C, M> {
     cipher: C,
     mac: M,

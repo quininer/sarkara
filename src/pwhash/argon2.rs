@@ -70,6 +70,7 @@ pub const MEMLIMIT_SENSITIVE: u32 = 536870912;
 /// assert!(Argon2i::default().verify(&pass, &salt, &key).unwrap());
 /// # }
 /// ```
+#[derive(Debug, Clone)]
 pub struct Argon2i {
     key: Bytes,
     aad: Bytes,

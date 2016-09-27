@@ -34,6 +34,7 @@ pub trait Nonce {
 /// # assert_eq!(HHB::open(&key, &ciphertext).unwrap(), &plaintext[..]);
 /// # }
 /// ```
+#[derive(Debug, Clone)]
 pub struct RngCounter<R> {
     rng: R,
     ctr: Wrapping<u64>

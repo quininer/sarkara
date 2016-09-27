@@ -22,6 +22,7 @@ use super::StreamCipher;
 /// assert_eq!(plaintext, &data[..]);
 /// # }
 /// ```
+#[derive(Debug, Clone)]
 pub struct HC256 {
     key: Bytes
 }

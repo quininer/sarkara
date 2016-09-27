@@ -1,6 +1,6 @@
 //! Secret-key Authenticated encryption.
 
-use rand::{ OsRng, Rng };
+use rand::OsRng;
 use ::aead::{ AeadCipher, DecryptFail };
 use ::utils::Nonce;
 
@@ -50,14 +50,6 @@ pub trait SecretBox: AeadCipher {
             .encrypt(&nonce, data);
 
         [nonce, output].concat()
-    }
-
-    /// Seal SecretBox with Rng.
-    ///
-    /// **Deprecated**, use the [seal_with_nonce](#method.seal_with_nonce) instead.
-    #[inline]
-    fn seal_with_rng(mut rng: &mut Rng, key: &[u8], data: &[u8]) -> Vec<u8> {
-        Self::seal_with_nonce(&mut rng, key, data)
     }
 
     /// Open SecretBox.
