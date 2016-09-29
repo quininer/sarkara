@@ -1,6 +1,8 @@
 use ::stream::StreamCipher;
 use ::auth::NonceMac;
+use ::hash::GenericHash;
 use super::{ AeadCipher, DecryptFail };
+use std::marker::PhantomData;
 
 
 /// General Authenticated Encryption.
@@ -15,7 +17,7 @@ use super::{ AeadCipher, DecryptFail };
 /// use sarkara::auth::HMAC;
 /// use sarkara::hash::Blake2b;
 ///
-/// type HHBCipher = General<HC256, HMAC<Blake2b>>;
+/// type HHBCipher = General<HC256, HMAC<Blake2b>, Blake2b>;
 ///
 /// let (pass, nonce) = (
 ///     rand!(HHBCipher::key_length()),
@@ -33,29 +35,34 @@ use super::{ AeadCipher, DecryptFail };
 /// # }
 /// ```
 #[derive(Debug, Clone)]
-pub struct General<C, M> {
+pub struct General<C, M, H> {
     cipher: C,
     mac: M,
-    aad: Vec<u8>
+    aad: Vec<u8>,
+    _ext: PhantomData<H>
 }
 
-impl<C, M> AeadCipher for General<C, M>
+impl<C, M, H> AeadCipher for General<C, M, H>
     where
         C: StreamCipher,
-        M: NonceMac
+        M: NonceMac,
+        H: GenericHash
 {
     fn new(key: &[u8]) -> Self {
-        let (ckey, mkey) = key.split_at(C::key_length());
+        let mkey = H::default()
+            .with_size(M::key_length())
+            .hash::<Vec<u8>>(key);
         General {
-            cipher: C::new(ckey),
-            mac: M::new(mkey),
-            aad: Vec::new()
+            cipher: C::new(key),
+            mac: M::new(&mkey),
+            aad: Vec::new(),
+            _ext: PhantomData
         }
     }
 
-    #[inline] fn key_length() -> usize { C::key_length() + M::key_length() }
+    #[inline] fn key_length() -> usize { C::key_length() }
     #[inline] fn tag_length() -> usize { M::tag_length() }
-    #[inline] fn nonce_length() -> usize { C::nonce_length() + M::nonce_length() }
+    #[inline] fn nonce_length() -> usize { C::nonce_length() }
 
     fn with_aad(&mut self, aad: &[u8]) -> &mut Self {
         self.aad = aad.into();
@@ -63,13 +70,15 @@ impl<C, M> AeadCipher for General<C, M>
     }
 
     fn encrypt(&mut self, nonce: &[u8], data: &[u8]) -> Vec<u8> {
-        let (cn, mn) = nonce.split_at(C::nonce_length());
-        let mut output = self.cipher.process(cn, data);
+        let mnonce = H::default()
+            .with_size(M::nonce_length())
+            .hash::<Vec<u8>>(nonce);
+        let mut output = self.cipher.process(nonce, data);
         let mut aad = self.aad.clone();
         aad.extend_from_slice(&output);
 
         let mut tag = self.mac
-            .with_nonce(mn)
+            .with_nonce(&mnonce)
             .result::<Vec<u8>>(&aad);
         output.append(&mut tag);
         output
@@ -78,13 +87,15 @@ impl<C, M> AeadCipher for General<C, M>
     fn decrypt(&mut self, nonce: &[u8], data: &[u8]) -> Result<Vec<u8>, DecryptFail> {
         if data.len() < Self::tag_length() { Err(DecryptFail::LengthError)? };
 
-        let (cn, mn) = nonce.split_at(C::nonce_length());
+        let mnonce = H::default()
+            .with_size(M::nonce_length())
+            .hash::<Vec<u8>>(nonce);
         let (data, tag) = data.split_at(data.len() - Self::tag_length());
         let mut aad = self.aad.clone();
         aad.extend_from_slice(data);
 
-        if self.mac.with_nonce(mn).verify(&aad, tag) {
-            Ok(self.cipher.process(cn, data))
+        if self.mac.with_nonce(&mnonce).verify(&aad, tag) {
+            Ok(self.cipher.process(nonce, data))
         } else {
             Err(DecryptFail::AuthenticationFail)
         }

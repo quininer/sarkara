@@ -22,7 +22,7 @@ pub trait Nonce {
 /// # use sarkara::auth::HMAC;
 /// # use sarkara::hash::Blake2b;
 /// # use sarkara::utils::RngCounter;
-/// # type HHB = General<HC256, HMAC<Blake2b>>;
+/// # type HHB = General<HC256, HMAC<Blake2b>, Blake2b>;
 /// # let key = rand!(HHB::key_length());
 /// # let plaintext = rand!(rand!(choose 0..1024));
 /// let mut nonce = RngCounter::new(OsRng::new().unwrap().gen::<ChaChaRng>());

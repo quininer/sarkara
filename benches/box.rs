@@ -12,7 +12,7 @@ use sarkara::stream::HC256;
 use sarkara::auth::HMAC;
 use sarkara::hash::Blake2b;
 
-type HHBCipher = General<HC256, HMAC<Blake2b>>;
+type HHBCipher = General<HC256, HMAC<Blake2b>, Blake2b>;
 
 
 macro_rules! bench_box {
