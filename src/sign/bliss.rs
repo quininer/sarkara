@@ -57,7 +57,7 @@ impl Signature for Bliss {
         (PrivateKey(sk.into()), PublicKey(pk))
     }
 
-    fn signature(&PrivateKey(ref sk): &Self::PrivateKey, data: &[u8]) -> Self::Signature {
+    fn signature(&PrivateKey(Key(ref sk)): &Self::PrivateKey, data: &[u8]) -> Self::Signature {
         SignatureData(sk.signature(data).unwrap())
     }
 
@@ -93,7 +93,8 @@ new_type!(
         }
     },
     into: (input) -> Vec<u8> {
-        Vec::from(&input.0.export().unwrap()[..])
+        let PrivateKey(Key(ref input)) = input;
+        Vec::from(&input.export().unwrap()[..])
     }
 );
 

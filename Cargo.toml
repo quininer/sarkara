@@ -1,6 +1,6 @@
 [package]
 name = "sarkara"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["quininer kel <quininer@live.com>"]
 description = "A Post-Quantum cryptography library."
 repository = "https://github.com/quininer/sarkara"
@@ -9,7 +9,7 @@ keywords = [ "post-quantum", "cryptography" ]
 license = "MIT"
 
 [dependencies]
-seckey = "0.1"
+seckey = "0.2"
 rand = "0.3"
 hc256 = "0.1"
 blake2-rfc = "0.2"

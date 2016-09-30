@@ -83,8 +83,8 @@ pub struct Argon2i {
 impl Default for Argon2i {
     fn default() -> Argon2i {
         Argon2i {
-            key: Bytes(Vec::new()),
-            aad: Bytes(Vec::new()),
+            key: Bytes::empty(),
+            aad: Bytes::empty(),
             outlen: 16,
             passes: OPSLIMIT_INTERACTIVE,
             lanes: 1,

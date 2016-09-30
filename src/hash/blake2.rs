@@ -49,7 +49,7 @@ impl Default for Blake2b {
     fn default() -> Blake2b {
         Blake2b {
             outlen: Blake2b::digest_length(),
-            key: Bytes(Vec::new())
+            key: Bytes::empty()
         }
     }
 }

@@ -83,7 +83,7 @@ impl KeyExchange for NewHope {
 
     fn exchange_from(
         sharedkey: &mut [u8],
-        &PrivateKey(ref sk): &Self::PrivateKey,
+        &PrivateKey(Key(ref sk)): &Self::PrivateKey,
         &Reconciliation(ref pkb): &Self::Reconciliation
     ) {
         let mut key = [0; 32];
@@ -109,7 +109,8 @@ new_type!(
         }
     },
     into: (input) -> Vec<u8> {
-        Vec::from(&poly_tobytes(&input.0)[..])
+        let PrivateKey(Key(ref input)) = input;
+        Vec::from(&poly_tobytes(&input)[..])
     }
 );
 

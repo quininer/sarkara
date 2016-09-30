@@ -2,6 +2,7 @@
 
 use std::io;
 use std::convert::TryFrom;
+use seckey::Bytes;
 use ::aead::{ AeadCipher, DecryptFail };
 use ::kex::KeyExchange;
 
@@ -43,7 +44,7 @@ pub trait SealedBox: AeadCipher {
             K: KeyExchange,
             K::Reconciliation: Into<Vec<u8>>
     {
-        let mut key = vec![0; Self::key_length() + Self::nonce_length()];
+        let mut key = Bytes::from(vec![0; Self::key_length() + Self::nonce_length()]);
         let mut rec = K::exchange(&mut key, pka).into();
         let (key, nonce) = key.split_at(Self::key_length());
 
@@ -63,7 +64,7 @@ pub trait SealedBox: AeadCipher {
     {
         if data.len() < K::rec_length() { Err(DecryptFail::LengthError)? };
 
-        let mut key = vec![0; Self::key_length() + Self::nonce_length()];
+        let mut key = Bytes::from(vec![0; Self::key_length() + Self::nonce_length()]);
         let (data, rec) = data.split_at(data.len() - K::rec_length());
         K::exchange_from(&mut key, ska, &K::Reconciliation::try_from(rec)?);
         let (key, nonce) = key.split_at(Self::key_length());
