@@ -34,7 +34,7 @@ use ::utils::Nonce;
 /// # assert!(Ascon::open(&key, &ciphertext).is_err());
 /// # }
 /// ```
-pub trait SecretBox: AeadCipher {
+pub trait SecretBox {
     /// Seal SecretBox.
     #[inline]
     fn seal(key: &[u8], data: &[u8]) -> Vec<u8> {
@@ -42,6 +42,13 @@ pub trait SecretBox: AeadCipher {
     }
 
     /// Seal SecretBox with Nonce.
+    fn seal_with_nonce(rng: &mut Nonce, key: &[u8], data: &[u8]) -> Vec<u8>;
+
+    /// Open SecretBox.
+    fn open(key: &[u8], data: &[u8]) -> Result<Vec<u8>, DecryptFail>;
+}
+
+impl<T> SecretBox for T where T: AeadCipher {
     fn seal_with_nonce(rng: &mut Nonce, key: &[u8], data: &[u8]) -> Vec<u8> {
         let mut nonce = vec![0; Self::nonce_length()];
         rng.fill(&mut nonce);
@@ -52,7 +59,6 @@ pub trait SecretBox: AeadCipher {
         [nonce, output].concat()
     }
 
-    /// Open SecretBox.
     fn open(key: &[u8], data: &[u8]) -> Result<Vec<u8>, DecryptFail> {
         if data.len() < Self::tag_length() + Self::nonce_length() {
             Err(DecryptFail::LengthError)?
@@ -64,5 +70,3 @@ pub trait SecretBox: AeadCipher {
             .decrypt(nonce, data)
     }
 }
-
-impl<T> SecretBox for T where T: AeadCipher {}

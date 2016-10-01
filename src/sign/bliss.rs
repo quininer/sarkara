@@ -70,6 +70,12 @@ impl Signature for Bliss {
     }
 }
 
+
+#[inline]
+fn invalid(desc: &str) -> io::Error {
+    io::Error::new(io::ErrorKind::InvalidInput, desc)
+}
+
 new_type!(
     /// BLISS private key.
     pub struct PrivateKey(pub Key<::blissb::PrivateKey>);
@@ -79,17 +85,11 @@ new_type!(
             sk.clone_from_slice(input);
             Ok(PrivateKey(
                 ::blissb::PrivateKey::import(&sk)
-                    .or(Err(io::Error::new(
-                        io::ErrorKind::InvalidInput,
-                        "PrivateKey: invalid input data."
-                    )))?
+                    .or(Err(invalid("PrivateKey: invalid input data.")))?
                     .into()
             ))
         } else {
-            Err(io::Error::new(
-                io::ErrorKind::InvalidInput,
-                "PrivateKey: invalid input length."
-            ))
+            Err(invalid("PrivateKey: invalid input length."))
         }
     },
     into: (input) -> Vec<u8> {
@@ -107,20 +107,15 @@ new_type!(
             pk.clone_from_slice(input);
             Ok(PublicKey(
                 ::blissb::PublicKey::import(&pk)
-                    .or(Err(io::Error::new(
-                        io::ErrorKind::InvalidInput,
-                        "PublicKey: invalid input data."
-                    )))?
+                    .or(Err(invalid("PublicKey: invalid input data.")))?
             ))
         } else {
-            Err(io::Error::new(
-                io::ErrorKind::InvalidInput,
-                "PublicKey: invalid input length."
-            ))
+            Err(invalid("PublicKey: invalid input length."))
         }
     },
     into: (input) -> Vec<u8> {
-        Vec::from(&input.0.export().unwrap()[..])
+        let PublicKey(ref input) = input;
+        Vec::from(&input.export().unwrap()[..])
     }
 );
 
@@ -133,19 +128,14 @@ new_type!(
             sign.clone_from_slice(input);
             Ok(SignatureData(
                 ::blissb::Signature::import(&sign)
-                    .or(Err(io::Error::new(
-                        io::ErrorKind::InvalidInput,
-                        "Signature: invalid input data."
-                    )))?
+                    .or(Err(invalid("Signature: invalid input data.")))?
             ))
         } else {
-            Err(io::Error::new(
-                io::ErrorKind::InvalidInput,
-                "Signature: invalid input length."
-            ))
+            Err(invalid("Signature: invalid input length."))
         }
     },
     into: (input) -> Vec<u8> {
-        Vec::from(&input.0.export().unwrap()[..])
+        let SignatureData(ref input) = input;
+        Vec::from(&input.export().unwrap()[..])
     }
 );

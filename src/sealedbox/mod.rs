@@ -36,8 +36,23 @@ use ::kex::KeyExchange;
 /// # assert!(Ascon::open::<NewHope>(&sk, &ciphertext).is_err());
 /// # }
 /// ```
-pub trait SealedBox: AeadCipher {
+pub trait SealedBox {
     /// Seal SecretBox.
+    fn seal<K>(pka: &K::PublicKey, data: &[u8])
+        -> Vec<u8>
+        where
+            K: KeyExchange,
+            K::Reconciliation: Into<Vec<u8>>;
+
+    /// Open SecretBox.
+    fn open<'a, K>(ska: &K::PrivateKey, data: &'a [u8])
+        -> Result<Vec<u8>, DecryptFail>
+        where
+            K: KeyExchange,
+            K::Reconciliation: TryFrom<&'a [u8], Err=io::Error>;
+}
+
+impl<T> SealedBox for T where T: AeadCipher {
     fn seal<K>(pka: &K::PublicKey, data: &[u8])
         -> Vec<u8>
         where
@@ -55,7 +70,6 @@ pub trait SealedBox: AeadCipher {
         output
     }
 
-    /// Open SecretBox.
     fn open<'a, K>(ska: &K::PrivateKey, data: &'a [u8])
         -> Result<Vec<u8>, DecryptFail>
         where
@@ -74,5 +88,3 @@ pub trait SealedBox: AeadCipher {
             .decrypt(nonce, data)
     }
 }
-
-impl<T> SealedBox for T where T: AeadCipher {}
