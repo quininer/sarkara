@@ -95,11 +95,6 @@ impl KeyExchange for NewHope {
 }
 
 
-#[inline]
-fn invalid(desc: &str) -> io::Error {
-    io::Error::new(io::ErrorKind::InvalidInput, desc)
-}
-
 new_type!(
     /// Newhope private key.
     pub struct PrivateKey(pub Key<[u16; N]>);
@@ -107,12 +102,12 @@ new_type!(
         if input.len() == POLY_BYTES {
             Ok(PrivateKey(poly_frombytes(input).into()))
         } else {
-            Err(invalid("PrivateKey: invalid input length."))
+            err!(InvalidInput, "PrivateKey: invalid input length.")
         }
     },
     into: (input) -> Vec<u8> {
         let PrivateKey(Key(ref input)) = input;
-        Vec::from(&poly_tobytes(&input)[..])
+        Vec::from(&poly_tobytes(input)[..])
     }
 );
 
@@ -125,7 +120,7 @@ new_type!(
             pk.clone_from_slice(input);
             Ok(PublicKey(pk))
         } else {
-            Err(invalid("PublicKey: invalid input length."))
+            err!(InvalidInput, "PublicKey: invalid input length.")
         }
     },
     into: (input) -> Vec<u8> {
@@ -143,7 +138,7 @@ new_type!(
             rec.clone_from_slice(input);
             Ok(Reconciliation(rec))
         } else {
-            Err(invalid("Reconciliation: invalid input length."))
+            err!(InvalidInput, "Reconciliation: invalid input length.")
         }
     },
     into: (input) -> Vec<u8> {

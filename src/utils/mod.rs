@@ -26,3 +26,12 @@ macro_rules! new_type {
         }
     }
 }
+
+macro_rules! err {
+    ( $err:ident, $msg:expr ) => {
+        Err(::std::io::Error::new(
+            ::std::io::ErrorKind::$err,
+            $msg
+        ))
+    }
+}

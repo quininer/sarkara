@@ -35,24 +35,6 @@ pub const MEMLIMIT_SENSITIVE: u32 = 536870912;
 /// # }
 /// ```
 ///
-/// # Example(pwhash)
-/// ```
-/// # extern crate rand;
-/// # extern crate seckey;
-/// # #[macro_use] extern crate sarkara;
-/// # fn main() {
-/// use seckey::Bytes;
-/// use sarkara::pwhash::{ Argon2i, KeyDerive };
-///
-/// let pass = rand!(8);
-/// let key = Argon2i::default()
-///     .with_size(16)
-///     .pwhash::<Bytes>(&pass)
-///     .unwrap();
-/// # assert_eq!(key.len(), 16);
-/// # }
-/// ```
-///
 /// # Example(keyverify)
 /// ```
 /// # extern crate rand;

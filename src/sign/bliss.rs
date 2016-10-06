@@ -71,11 +71,6 @@ impl Signature for Bliss {
 }
 
 
-#[inline]
-fn invalid(desc: &str) -> io::Error {
-    io::Error::new(io::ErrorKind::InvalidInput, desc)
-}
-
 new_type!(
     /// BLISS private key.
     pub struct PrivateKey(pub Key<::blissb::PrivateKey>);
@@ -85,11 +80,11 @@ new_type!(
             sk.clone_from_slice(input);
             Ok(PrivateKey(
                 ::blissb::PrivateKey::import(&sk)
-                    .or(Err(invalid("PrivateKey: invalid input data.")))?
+                    .or(err!(InvalidInput, "PrivateKey: invalid input data."))?
                     .into()
             ))
         } else {
-            Err(invalid("PrivateKey: invalid input length."))
+            err!(InvalidInput, "PrivateKey: invalid input length.")
         }
     },
     into: (input) -> Vec<u8> {
@@ -107,10 +102,10 @@ new_type!(
             pk.clone_from_slice(input);
             Ok(PublicKey(
                 ::blissb::PublicKey::import(&pk)
-                    .or(Err(invalid("PublicKey: invalid input data.")))?
+                    .or(err!(InvalidInput, "PublicKey: invalid input data."))?
             ))
         } else {
-            Err(invalid("PublicKey: invalid input length."))
+            err!(InvalidInput, "PublicKey: invalid input length.")
         }
     },
     into: (input) -> Vec<u8> {
@@ -128,10 +123,10 @@ new_type!(
             sign.clone_from_slice(input);
             Ok(SignatureData(
                 ::blissb::Signature::import(&sign)
-                    .or(Err(invalid("Signature: invalid input data.")))?
+                    .or(err!(InvalidInput, "Signature: invalid input data."))?
             ))
         } else {
-            Err(invalid("Signature: invalid input length."))
+            err!(InvalidInput, "Signature: invalid input length.")
         }
     },
     into: (input) -> Vec<u8> {

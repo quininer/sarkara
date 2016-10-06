@@ -70,6 +70,7 @@ impl<T> Nonce for T where T: Rng {
     }
 }
 
+
 #[test]
 fn test_rngcounter() {
     use rand::{ OsRng, ChaChaRng };

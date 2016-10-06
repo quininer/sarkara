@@ -64,7 +64,7 @@ impl<H> Mac for HMAC<H> where H: Hash {
     }
 
     fn result<T>(&self, data: &[u8]) -> T
-        where T: From<Vec<u8>> + AsRef<[u8]>
+        where T: From<Vec<u8>>
     {
         let mut ipad = vec![0x36; 64];
         let mut opad = vec![0x5c; 64];

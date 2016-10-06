@@ -35,17 +35,6 @@ pub enum KeyDerivationFail {
 
 /// `KeyDerive` trait.
 pub trait KeyDerive: Default {
-    /// Generate a hashed password.
-    ///
-    /// ## Fail When:
-    /// * Param Error, see [`ParamErr`](../../argon2rs/enum.ParamErr.html)
-    fn pwhash<K>(&self, password: &[u8])
-        -> Result<K, KeyDerivationFail>
-        where K: From<Vec<u8>>
-    {
-        self.derive::<K>(password, &rand!(bytes 8))
-    }
-
     /// Set output length.
     fn with_size(&mut self, len: usize) -> &mut Self;
     /// Set key.
