@@ -11,13 +11,17 @@ use ::kex::KeyExchange;
 ///
 /// ```
 /// # extern crate rand;
-/// # #[macro_use] extern crate sarkara;
+/// # extern crate sarkara;
 /// # fn main() {
+/// # use rand::{ Rng, thread_rng };
 /// # use sarkara::aead::{ Ascon, AeadCipher };
 /// # use sarkara::kex::{ NewHope, KeyExchange };
 /// # use sarkara::sealedbox::SealedBox;
 /// #
-/// let data = rand!(rand!(choose 0..1024));
+/// let mut rng = thread_rng();
+/// let mut data = vec![0; 1024];
+/// rng.fill_bytes(&mut data);
+///
 /// let (sk, pk) = NewHope::keygen();
 ///
 /// let mut ciphertext = Ascon::seal::<NewHope>(&pk, &data);
@@ -26,7 +30,7 @@ use ::kex::KeyExchange;
 /// #     data.len() + Ascon::tag_length() + NewHope::rec_length()
 /// # );
 /// let plaintext = Ascon::open::<NewHope>(&sk, &ciphertext).unwrap();
-/// assert_eq!(plaintext, &data[..]);
+/// assert_eq!(plaintext, data);
 /// #
 /// # ciphertext[0] ^= 1;
 /// # assert!(Ascon::open::<NewHope>(&sk, &ciphertext).is_err());

@@ -22,12 +22,18 @@ pub const MEMLIMIT_SENSITIVE: u32 = 536870912;
 /// ```
 /// # extern crate rand;
 /// # extern crate seckey;
-/// # #[macro_use] extern crate sarkara;
+/// # extern crate sarkara;
 /// # fn main() {
+/// use rand::{ Rng, thread_rng };
 /// use seckey::Bytes;
 /// use sarkara::pwhash::{ Argon2i, KeyDerive };
 ///
-/// let (pass, salt) = (rand!(8), rand!(8));
+/// let mut rng = thread_rng();
+/// let mut pass = [0; 8];
+/// let mut salt = [0; 8];
+/// rng.fill_bytes(&mut pass);
+/// rng.fill_bytes(&mut salt);
+///
 /// let key = Argon2i::default()
 ///     .derive::<Bytes>(&pass, &salt)
 ///     .unwrap();
@@ -39,12 +45,18 @@ pub const MEMLIMIT_SENSITIVE: u32 = 536870912;
 /// ```
 /// # extern crate rand;
 /// # extern crate seckey;
-/// # #[macro_use] extern crate sarkara;
+/// # extern crate sarkara;
 /// # fn main() {
+/// use rand::{ Rng, thread_rng };
 /// use seckey::Bytes;
 /// use sarkara::pwhash::{ Argon2i, KeyDerive, KeyVerify };
 ///
-/// let (pass, salt) = (rand!(8), rand!(8));
+/// let mut rng = thread_rng();
+/// let mut pass = [0; 8];
+/// let mut salt = [0; 8];
+/// rng.fill_bytes(&mut pass);
+/// rng.fill_bytes(&mut salt);
+///
 /// let key = Argon2i::default()
 ///     .derive::<Bytes>(&pass, &salt)
 ///     .unwrap();

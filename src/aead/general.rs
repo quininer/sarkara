@@ -10,8 +10,9 @@ use std::marker::PhantomData;
 /// # Example(encrypt/decrypt)
 /// ```
 /// # extern crate rand;
-/// # #[macro_use] extern crate sarkara;
+/// # extern crate sarkara;
 /// # fn main() {
+/// use rand::{ Rng, thread_rng };
 /// use sarkara::aead::{ General, AeadCipher };
 /// use sarkara::stream::HC256;
 /// use sarkara::auth::HMAC;
@@ -19,11 +20,14 @@ use std::marker::PhantomData;
 ///
 /// type HHBCipher = General<HC256, HMAC<Blake2b>, Blake2b>;
 ///
-/// let (pass, nonce) = (
-///     rand!(HHBCipher::key_length()),
-///     rand!(HHBCipher::nonce_length())
-/// );
-/// let data = rand!(rand!(choose 0..1024));
+/// let mut rng = thread_rng();
+/// let mut pass = vec![0; HHBCipher::key_length()];
+/// let mut nonce = vec![0; HHBCipher::nonce_length()];
+/// let mut data = vec![0; 1024];
+/// rng.fill_bytes(&mut pass);
+/// rng.fill_bytes(&mut nonce);
+/// rng.fill_bytes(&mut data);
+///
 /// let ciphertext = HHBCipher::new(&pass)
 ///     .with_aad(&nonce)
 ///     .encrypt(&nonce, &data);
@@ -31,7 +35,7 @@ use std::marker::PhantomData;
 ///     .with_aad(&nonce)
 ///     .decrypt(&nonce, &ciphertext)
 ///     .unwrap();
-/// assert_eq!(plaintext, &data[..]);
+/// assert_eq!(plaintext, data);
 /// # }
 /// ```
 #[derive(Debug, Clone)]

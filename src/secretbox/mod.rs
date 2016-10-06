@@ -9,13 +9,17 @@ use ::utils::Nonce;
 ///
 /// ```
 /// # extern crate rand;
-/// # #[macro_use] extern crate sarkara;
+/// # extern crate sarkara;
 /// # fn main() {
+/// # use rand::{ Rng, thread_rng };
 /// # use sarkara::aead::{ Ascon, AeadCipher };
 /// # use sarkara::secretbox::SecretBox;
 /// #
-/// let key = rand!(Ascon::key_length());
-/// let data = rand!(rand!(choose 0..1024));
+/// let mut rng = thread_rng();
+/// let mut key = vec![0; Ascon::key_length()];
+/// let mut data = vec![0; 1024];
+/// rng.fill_bytes(&mut key);
+/// rng.fill_bytes(&mut data);
 ///
 /// let mut ciphertext = Ascon::seal(&key, &data);
 /// # assert_eq!(
@@ -24,7 +28,7 @@ use ::utils::Nonce;
 /// # );
 /// #
 /// let plaintext = Ascon::open(&key, &ciphertext).unwrap();
-/// assert_eq!(plaintext, &data[..]);
+/// assert_eq!(plaintext, data);
 /// #
 /// # ciphertext[0] ^= 1;
 /// # assert!(Ascon::open(&key, &ciphertext).is_err());

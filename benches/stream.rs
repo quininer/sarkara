@@ -2,20 +2,25 @@
 
 extern crate test;
 extern crate rand;
-#[macro_use] extern crate sarkara;
+extern crate sarkara;
 
 use test::Bencher;
+use rand::{ Rng, thread_rng };
 use sarkara::stream::{ HC256, StreamCipher };
 
 macro_rules! bench_stream {
     ( $name:ident $ty:ident, $len:expr ) => {
         #[bench]
         fn $name(b: &mut Bencher) {
-            let (key, nonce) = (
-                rand!($ty::key_length()),
-                rand!($ty::nonce_length())
-            );
-            let data = rand!(bytes $len);
+            let mut rng = thread_rng();
+            let mut key = vec![0; $ty::key_length()];
+            let mut nonce = vec![0; $ty::nonce_length()];
+            let mut data = [0; $len];
+            rng.fill_bytes(&mut key);
+            rng.fill_bytes(&mut nonce);
+            rng.fill_bytes(&mut data);
+
+
             b.bytes = data.len() as u64;
             b.iter(|| $ty::new(&key).process(&nonce, &data));
         }

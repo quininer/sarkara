@@ -13,7 +13,7 @@ pub trait Nonce {
 ///
 /// ```
 /// # extern crate rand;
-/// # #[macro_use] extern crate sarkara;
+/// # extern crate sarkara;
 /// # fn main() {
 /// # use rand::{ OsRng, ChaChaRng, Rng };
 /// # use sarkara::secretbox::SecretBox;
@@ -22,9 +22,15 @@ pub trait Nonce {
 /// # use sarkara::auth::HMAC;
 /// # use sarkara::hash::Blake2b;
 /// # use sarkara::utils::RngCounter;
+/// #
 /// # type HHB = General<HC256, HMAC<Blake2b>, Blake2b>;
-/// # let key = rand!(HHB::key_length());
-/// # let plaintext = rand!(rand!(choose 0..1024));
+/// #
+/// # let mut rng = OsRng::new().unwrap();
+/// # let mut key = vec![0; HHB::key_length()];
+/// # let mut plaintext = vec![0; 1024];
+/// # rng.fill_bytes(&mut key);
+/// # rng.fill_bytes(&mut plaintext);
+/// #
 /// let mut nonce = RngCounter::new(OsRng::new().unwrap().gen::<ChaChaRng>());
 ///
 /// let ciphertext = HHB::seal_with_nonce(&mut nonce, &key, &plaintext);

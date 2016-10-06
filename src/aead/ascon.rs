@@ -7,15 +7,19 @@ use super::{ AeadCipher, DecryptFail };
 /// # Example(encrypt/decrypt)
 /// ```
 /// # extern crate rand;
-/// # #[macro_use] extern crate sarkara;
+/// # extern crate sarkara;
 /// # fn main() {
+/// use rand::{ Rng, thread_rng };
 /// use sarkara::aead::{ Ascon, AeadCipher };
 ///
-/// let (pass, nonce) = (
-///     rand!(Ascon::key_length()),
-///     rand!(Ascon::nonce_length())
-/// );;
-/// let data = rand!(rand!(choose 0..1024));
+/// let mut rng = thread_rng();
+/// let mut pass = vec![0; Ascon::key_length()];
+/// let mut nonce = vec![0; Ascon::nonce_length()];
+/// let mut data = vec![0; 1024];
+/// rng.fill_bytes(&mut pass);
+/// rng.fill_bytes(&mut nonce);
+/// rng.fill_bytes(&mut data);
+///
 /// let ciphertext = Ascon::new(&pass)
 ///     .with_aad(&nonce)
 ///     .encrypt(&nonce, &data);
@@ -23,7 +27,7 @@ use super::{ AeadCipher, DecryptFail };
 ///     .with_aad(&nonce)
 ///     .decrypt(&nonce, &ciphertext)
 ///     .unwrap();
-/// assert_eq!(plaintext, &data[..]);
+/// assert_eq!(plaintext, data);
 /// # }
 /// ```
 #[derive(Debug, Clone)]

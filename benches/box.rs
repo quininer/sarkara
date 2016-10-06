@@ -2,10 +2,10 @@
 
 extern crate test;
 extern crate rand;
-#[macro_use] extern crate sarkara;
+extern crate sarkara;
 
 use test::Bencher;
-use rand::OsRng;
+use rand::{ Rng, thread_rng };
 use sarkara::kex::{ NewHope, KeyExchange };
 use sarkara::aead::{ Ascon, General, AeadCipher };
 use sarkara::stream::HC256;
@@ -21,9 +21,12 @@ macro_rules! bench_box {
         fn $name(b: &mut Bencher) {
             use sarkara::secretbox::SecretBox;
 
-            let key = rand!($ty::key_length());
-            let data = rand!(bytes $len);
-            let mut rng = OsRng::new().unwrap();
+            let mut rng = thread_rng();
+            let mut key = vec![0; $ty::key_length()];
+            let mut data = [0; $len];
+            rng.fill_bytes(&mut key);
+            rng.fill_bytes(&mut data);
+
             b.bytes = data.len() as u64;
             b.iter(|| {
                 let ciphertext = $ty::seal_with_nonce(&mut rng, &key, &data);
@@ -37,7 +40,9 @@ macro_rules! bench_box {
             use sarkara::sealedbox::SealedBox;
 
             let (sk, pk) = $kty::keygen();
-            let data = rand!(bytes $len);
+            let mut data = [0; $len];
+            thread_rng().fill_bytes(&mut data);
+
             b.bytes = data.len() as u64;
             b.iter(|| {
                 let ciphertext = $cty::seal::<$kty>(&pk, &data);
