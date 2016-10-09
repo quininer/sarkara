@@ -62,9 +62,9 @@ impl<R> Nonce for RngCounter<R> where R: Rng {
 
         let len = nonce.len();
         debug_assert!(len >= 8);
-        let (mut r, mut l) = nonce.split_at_mut(len - 8);
-        self.rng.fill_bytes(&mut r);
-        LittleEndian::write_u64(&mut l, self.ctr.0);
+        let (r, l) = nonce.split_at_mut(len - 8);
+        self.rng.fill_bytes(r);
+        LittleEndian::write_u64(l, self.ctr.0);
         self.ctr |= ONE;
     }
 }
