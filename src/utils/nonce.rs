@@ -23,21 +23,21 @@ pub trait Nonce {
 /// # use sarkara::hash::Blake2b;
 /// # use sarkara::utils::RngCounter;
 /// #
-/// # type HHB = General<HC256, HMAC<Blake2b>, Blake2b>;
+/// # type HHBB = General<HC256, HMAC<Blake2b>, Blake2b>;
 /// #
 /// # let mut rng = OsRng::new().unwrap();
-/// # let mut key = vec![0; HHB::key_length()];
+/// # let mut key = vec![0; HHBB::key_length()];
 /// # let mut plaintext = vec![0; 1024];
 /// # rng.fill_bytes(&mut key);
 /// # rng.fill_bytes(&mut plaintext);
 /// #
 /// let mut nonce = RngCounter::new(OsRng::new().unwrap().gen::<ChaChaRng>());
 ///
-/// let ciphertext = HHB::seal_with_nonce(&mut nonce, &key, &plaintext);
-/// # assert_eq!(HHB::open(&key, &ciphertext).unwrap(), &plaintext[..]);
+/// let ciphertext = HHBB::seal_with_nonce(&mut nonce, &key, &plaintext);
+/// # assert_eq!(HHBB::open(&key, &ciphertext).unwrap(), &plaintext[..]);
 /// #
-/// # let ciphertext = HHB::seal_with_nonce(&mut nonce, &key, &plaintext);
-/// # assert_eq!(HHB::open(&key, &ciphertext).unwrap(), &plaintext[..]);
+/// # let ciphertext = HHBB::seal_with_nonce(&mut nonce, &key, &plaintext);
+/// # assert_eq!(HHBB::open(&key, &ciphertext).unwrap(), &plaintext[..]);
 /// # }
 /// ```
 #[derive(Debug, Clone)]

@@ -18,20 +18,20 @@ use std::marker::PhantomData;
 /// use sarkara::auth::HMAC;
 /// use sarkara::hash::Blake2b;
 ///
-/// type HHBCipher = General<HC256, HMAC<Blake2b>, Blake2b>;
+/// type HHBB = General<HC256, HMAC<Blake2b>, Blake2b>;
 ///
 /// let mut rng = thread_rng();
-/// let mut pass = vec![0; HHBCipher::key_length()];
-/// let mut nonce = vec![0; HHBCipher::nonce_length()];
+/// let mut pass = vec![0; HHBB::key_length()];
+/// let mut nonce = vec![0; HHBB::nonce_length()];
 /// let mut data = vec![0; 1024];
 /// rng.fill_bytes(&mut pass);
 /// rng.fill_bytes(&mut nonce);
 /// rng.fill_bytes(&mut data);
 ///
-/// let ciphertext = HHBCipher::new(&pass)
+/// let ciphertext = HHBB::new(&pass)
 ///     .with_aad(&nonce)
 ///     .encrypt(&nonce, &data);
-/// let plaintext = HHBCipher::new(&pass)
+/// let plaintext = HHBB::new(&pass)
 ///     .with_aad(&nonce)
 ///     .decrypt(&nonce, &ciphertext)
 ///     .unwrap();
