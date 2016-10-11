@@ -51,21 +51,25 @@ impl KeyExchange for NewHope {
     #[inline] fn rec_length() -> usize { SENDBBYTES }
 
     fn keygen() -> (Self::PrivateKey, Self::PublicKey) {
-        let (mut sk, mut pk) = ([0; N], [0; SENDABYTES]);
-        let (mut pka, mut nonce) = ([0; N], [0; 32]);
-        let mut rng = OsRng::new().unwrap().gen::<ChaChaRng>();
+        let (mut sk, mut pk) = ([0; N].into(), [0; SENDABYTES]);
 
-        rng.fill_bytes(&mut nonce);
-        keygen(&mut sk, &mut pka, &nonce, rng);
+        {
+            let Key(ref mut sk) = sk;
+            let (mut pka, mut nonce) = ([0; N], [0; 32]);
+            let mut rng = OsRng::new().unwrap().gen::<ChaChaRng>();
 
-        pk[..POLY_BYTES].clone_from_slice(&poly_tobytes(&pka));
-        pk[POLY_BYTES..].clone_from_slice(&nonce);
+            rng.fill_bytes(&mut nonce);
+            keygen(sk, &mut pka, &nonce, rng);
 
-        (PrivateKey(sk.into()), PublicKey(pk))
+            pk[..POLY_BYTES].clone_from_slice(&poly_tobytes(&pka));
+            pk[POLY_BYTES..].clone_from_slice(&nonce);
+        }
+
+        (PrivateKey(sk), PublicKey(pk))
     }
 
     fn exchange(sharedkey: &mut [u8], &PublicKey(ref pka): &Self::PublicKey) -> Self::Reconciliation {
-        let (mut key, mut pkb, mut rec) = ([0; 32], [0; N], [0; N]);
+        let (Key(mut key), mut pkb, mut rec) = ([0; 32].into(), [0; N], [0; N]);
         let (pk, nonce) = pka.split_at(POLY_BYTES);
 
         sharedb(
@@ -84,11 +88,11 @@ impl KeyExchange for NewHope {
     fn exchange_from(
         sharedkey: &mut [u8],
         &PrivateKey(Key(ref sk)): &Self::PrivateKey,
-        &Reconciliation(ref pkb): &Self::Reconciliation
+        &Reconciliation(ref pk): &Self::Reconciliation
     ) {
-        let mut key = [0; 32];
-        let (pk, rec) = pkb.split_at(POLY_BYTES);
-        shareda(&mut key, &sk[..], &poly_frombytes(pk), &rec_frombytes(rec));
+        let Key(mut key) = [0; 32].into();
+        let (pkb, rec) = pk.split_at(POLY_BYTES);
+        shareda(&mut key, sk, &poly_frombytes(pkb), &rec_frombytes(rec));
 
         sha3_256(sharedkey, &key);
     }
