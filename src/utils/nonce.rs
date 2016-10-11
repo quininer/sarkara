@@ -4,7 +4,7 @@ use byteorder::{ LittleEndian, ByteOrder };
 
 
 /// Nonce Generater trait.
-pub trait Nonce {
+pub trait GenNonce {
     /// fill nonce.
     fn fill(&mut self, nonce: &mut [u8]);
 }
@@ -56,7 +56,7 @@ impl<R> RngCounter<R> where R: Rng {
     }
 }
 
-impl<R> Nonce for RngCounter<R> where R: Rng {
+impl<R> GenNonce for RngCounter<R> where R: Rng {
     fn fill(&mut self, nonce: &mut [u8]) {
         const ONE: Wrapping<u64> = Wrapping(1);
 
@@ -69,7 +69,7 @@ impl<R> Nonce for RngCounter<R> where R: Rng {
     }
 }
 
-impl<T> Nonce for T where T: Rng {
+impl<T> GenNonce for T where T: Rng {
     #[inline]
     fn fill(&mut self, nonce: &mut [u8]) {
         self.fill_bytes(nonce)

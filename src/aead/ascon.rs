@@ -61,7 +61,8 @@ impl AeadCipher for Ascon {
 
     fn decrypt(&mut self, nonce: &[u8], data: &[u8]) -> Result<Vec<u8>, DecryptFail> {
         let (data, tag) = data.split_at(data.len() - Self::tag_length());
-        ::ascon::aead_decrypt(&self.key, nonce, data, &self.aad, tag).map_err(|err| err.into())
+        ::ascon::aead_decrypt(&self.key, nonce, data, &self.aad, tag)
+            .map_err(|err| err.into())
     }
 }
 
