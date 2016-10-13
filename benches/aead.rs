@@ -39,6 +39,6 @@ macro_rules! bench_aead {
 bench_aead!(bench_aead_ascon_10     Ascon,      10);
 bench_aead!(bench_aead_ascon_1k     Ascon,      1024);
 bench_aead!(bench_aead_ascon_64k    Ascon,      65536);
-bench_aead!(bench_aead_hhb_10       HHBB,       10);
-bench_aead!(bench_aead_hhb_1k       HHBB,       1024);
-bench_aead!(bench_aead_hhb_64k      HHBB,       65536);
+bench_aead!(bench_aead_hhbb_10      HHBB,       10);
+bench_aead!(bench_aead_hhbb_1k      HHBB,       1024);
+bench_aead!(bench_aead_hhbb_64k     HHBB,       65536);

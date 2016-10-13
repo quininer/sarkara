@@ -55,13 +55,13 @@ macro_rules! bench_box {
 bench_box!(secretbox bench_secretbox_ascon_10   Ascon,      10);
 bench_box!(secretbox bench_secretbox_ascon_1k   Ascon,      1024);
 bench_box!(secretbox bench_secretbox_ascon_64k  Ascon,      65536);
-bench_box!(secretbox bench_secretbox_hhb_10     HHBB,       10);
-bench_box!(secretbox bench_secretbox_hhb_1k     HHBB,       1024);
-bench_box!(secretbox bench_secretbox_hhb_64k    HHBB,       65536);
+bench_box!(secretbox bench_secretbox_hhbb_10    HHBB,       10);
+bench_box!(secretbox bench_secretbox_hhbb_1k    HHBB,       1024);
+bench_box!(secretbox bench_secretbox_hhbb_64k   HHBB,       65536);
 
 bench_box!(sealedbox bench_sealedbox_ascon_10   NewHope-Ascon,      10);
 bench_box!(sealedbox bench_sealedbox_ascon_1k   NewHope-Ascon,      1024);
 bench_box!(sealedbox bench_sealedbox_ascon_64k  NewHope-Ascon,      65536);
-bench_box!(sealedbox bench_sealedbox_hhb_10     NewHope-HHBB,       10);
-bench_box!(sealedbox bench_sealedbox_hhb_1k     NewHope-HHBB,       1024);
-bench_box!(sealedbox bench_sealedbox_hhb_64k    NewHope-HHBB,       65536);
+bench_box!(sealedbox bench_sealedbox_hhbb_10    NewHope-HHBB,       10);
+bench_box!(sealedbox bench_sealedbox_hhbb_1k    NewHope-HHBB,       1024);
+bench_box!(sealedbox bench_sealedbox_hhbb_64k   NewHope-HHBB,       65536);

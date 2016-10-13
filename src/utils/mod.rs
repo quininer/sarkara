@@ -2,7 +2,7 @@
 
 mod nonce;
 
-pub use self::nonce::{ GenNonce, RngCounter };
+pub use self::nonce::{ GenNonce, RngCounter, NonceCounter };
 
 
 macro_rules! new_type {

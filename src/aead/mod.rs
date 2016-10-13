@@ -1,4 +1,4 @@
-//! Secret-key Authenticated encryption.
+//! Authenticated encryption.
 //!
 //! Sarkara will use [CAESAR competition](http://competitions.cr.yp.to/caesar.html) winner.
 
