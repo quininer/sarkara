@@ -15,9 +15,12 @@ macro_rules! new_type {
         $(#[$note])*
         pub struct $name(pub $typ);
 
-        impl<'a> TryFrom<&'a [u8]> for $name {
+        impl<T> TryFrom<T> for $name where T: AsRef<[u8]> {
             type Err = io::Error;
-            fn try_from($input_from: &[u8]) -> io::Result<Self> $from
+            fn try_from($input_from: T) -> io::Result<Self> {
+                let $input_from = $input_from.as_ref();
+                $from
+            }
         }
 
         impl From<$name> for $output {

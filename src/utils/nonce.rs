@@ -11,6 +11,13 @@ pub trait GenNonce {
     fn fill(&mut self, nonce: &mut [u8]);
 }
 
+impl<T> GenNonce for T where T: Rng {
+    #[inline]
+    fn fill(&mut self, nonce: &mut [u8]) {
+        self.fill_bytes(nonce)
+    }
+}
+
 /// Rng + Counter Nonce Generater.
 ///
 /// ```
@@ -122,18 +129,13 @@ impl<'a> GenNonce for NonceCounter<'a> {
     fn fill(&mut self, nonce: &mut [u8]) {
         let len = nonce.len();
         debug_assert!(len >= 8 && len <= self.fixed.len());
-        LittleEndian::write_u64(&mut nonce[(len - 8)..], self.ctr.0);
+        nonce.clone_from_slice(&self.fixed[..len]);
+        let mut ctr = [0; 8];
+        LittleEndian::write_u64(&mut ctr, self.ctr.0);
         self.ctr |= ONE;
-        for i in 0..len {
-            nonce[i] ^= self.fixed[i];
+        for (n, &c) in nonce.iter_mut().skip(len - 8).zip(&ctr) {
+            *n ^= c;
         }
-    }
-}
-
-impl<T> GenNonce for T where T: Rng {
-    #[inline]
-    fn fill(&mut self, nonce: &mut [u8]) {
-        self.fill_bytes(nonce)
     }
 }
 
