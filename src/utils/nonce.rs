@@ -113,19 +113,19 @@ impl<R> GenNonce for RngCounter<R> where R: Rng {
 /// # assert_eq!(decrypttext, plaintext);
 /// # }
 /// ```
-pub struct NonceCounter<'a> {
-    fixed: &'a [u8],
+pub struct NonceCounter {
+    fixed: Vec<u8>,
     ctr: Wrapping<u64>
 }
 
-impl<'a> NonceCounter<'a> {
+impl NonceCounter {
     /// Create a new NonceCounter.
-    pub fn new(nonce: &'a [u8]) -> NonceCounter<'a> {
-        NonceCounter { fixed: nonce, ctr: Wrapping(0) }
+    pub fn new(nonce: &[u8]) -> NonceCounter {
+        NonceCounter { fixed: nonce.into(), ctr: Wrapping(0) }
     }
 }
 
-impl<'a> GenNonce for NonceCounter<'a> {
+impl GenNonce for NonceCounter {
     fn fill(&mut self, nonce: &mut [u8]) {
         let len = nonce.len();
         debug_assert!(len >= 8 && len <= self.fixed.len());
