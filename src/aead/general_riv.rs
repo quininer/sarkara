@@ -58,7 +58,6 @@ impl<C, H> AeadCipher for GeneralRiv<C, H>
         }
     }
 
-
     #[inline] fn key_length() -> usize { C::key_length() }
     #[inline] fn tag_length() -> usize { C::nonce_length() }
     #[inline] fn nonce_length() -> usize { C::nonce_length() }
@@ -71,11 +70,11 @@ impl<C, H> AeadCipher for GeneralRiv<C, H>
     fn encrypt(&mut self, nonce: &[u8], data: &[u8]) -> Vec<u8> {
         self.hash.with_key(nonce);
 
-        let mut nonce = self.hash.hash::<Vec<u8>>(data);
-        let mut output = self.cipher.process(&nonce, data);
         let mut aad = self.aad.clone();
-        aad.extend_from_slice(&output);
-        let xorkey = self.hash.hash::<Bytes>(&aad);
+        aad.extend_from_slice(data);
+        let mut nonce = self.hash.hash::<Vec<u8>>(&aad);
+        let mut output = self.cipher.process(&nonce, data);
+        let xorkey = self.hash.hash::<Bytes>(&output);
 
         for (b, &x) in nonce.iter_mut().zip(xorkey.iter()) {
             *b ^= x;
@@ -91,16 +90,16 @@ impl<C, H> AeadCipher for GeneralRiv<C, H>
         self.hash.with_key(nonce);
 
         let (data, tag) = data.split_at(data.len() - Self::tag_length());
-        let mut aad = self.aad.clone();
-        aad.extend_from_slice(data);
-        let mut nonce = self.hash.hash::<Bytes>(&aad);
+        let mut nonce = self.hash.hash::<Bytes>(data);
 
         for (b, &x) in nonce.iter_mut().zip(tag) {
             *b ^= x;
         }
 
         let output = self.cipher.process(&nonce, data);
-        if self.hash.hash::<Bytes>(&output) == nonce {
+        let mut aad = self.aad.clone();
+        aad.extend_from_slice(&output);
+        if self.hash.hash::<Bytes>(&aad) == nonce {
             Ok(output)
         } else {
             Err(DecryptFail::AuthenticationFailBut(output))
