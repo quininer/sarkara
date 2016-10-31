@@ -51,3 +51,4 @@ Reference
 * [Post-Quantum Cryptography: NIST's Plan for the Future - PQCrypto 2016](https://pqcrypto2016.jp/data/pqc2016_nist_announcement.pdf)
 * [Experimenting with Post-Quantum Cryptography](https://security.googleblog.com/2016/07/experimenting-with-post-quantum.html)
 * [The BRUTUS automatic cryptanalytic framework](https://link.springer.com/article/10.1007%2Fs13389-015-0114-1)
+* [RIV for Robust Authenticated Encryption](https://fse.rub.de/slides/fse_talk_lucks.pdf)

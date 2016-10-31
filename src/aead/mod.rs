@@ -3,11 +3,13 @@
 //! Sarkara will use [CAESAR competition](http://competitions.cr.yp.to/caesar.html) winner.
 
 mod general;
+mod general_riv;
 mod ascon;
 
 use std::{ io, fmt };
 use std::error::Error;
 pub use self::general::General;
+pub use self::general_riv::GeneralRiv;
 pub use self::ascon::Ascon;
 
 
@@ -18,6 +20,8 @@ pub enum DecryptFail {
     LengthError,
     /// Tag authentication fail.
     AuthenticationFail,
+    /// Tag authentication fail, but
+    AuthenticationFailBut(Vec<u8>),
     /// Other error.
     Other(io::Error)
 }
@@ -60,6 +64,7 @@ impl Error for DecryptFail {
         match *self {
             DecryptFail::LengthError => "Ciphertext length error.",
             DecryptFail::AuthenticationFail => "Tag authentication fail.",
+            DecryptFail::AuthenticationFailBut(_) => "Tag authentication fail, but output.",
             DecryptFail::Other(ref err) => err.description()
         }
     }
