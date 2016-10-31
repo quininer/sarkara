@@ -20,8 +20,6 @@ pub enum DecryptFail {
     LengthError,
     /// Tag authentication fail.
     AuthenticationFail,
-    /// Tag authentication fail, but
-    AuthenticationFailBut(Vec<u8>),
     /// Other error.
     Other(io::Error)
 }
@@ -64,7 +62,6 @@ impl Error for DecryptFail {
         match *self {
             DecryptFail::LengthError => "Ciphertext length error.",
             DecryptFail::AuthenticationFail => "Tag authentication fail.",
-            DecryptFail::AuthenticationFailBut(_) => "Tag authentication fail, but output.",
             DecryptFail::Other(ref err) => err.description()
         }
     }

@@ -102,7 +102,7 @@ impl<C, H> AeadCipher for GeneralRiv<C, H>
         if self.hash.hash::<Bytes>(&aad) == nonce {
             Ok(output)
         } else {
-            Err(DecryptFail::AuthenticationFailBut(output))
+            Err(DecryptFail::AuthenticationFail)
         }
     }
 }
