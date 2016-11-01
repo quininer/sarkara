@@ -12,13 +12,14 @@ use super::{ AeadCipher, DecryptFail };
 /// use rand::{ Rng, thread_rng };
 /// use sarkara::aead::{ Ascon, AeadCipher };
 ///
-/// let mut rng = thread_rng();
-/// let mut pass = vec![0; Ascon::key_length()];
-/// let mut nonce = vec![0; Ascon::nonce_length()];
-/// let mut data = vec![0; 1024];
-/// rng.fill_bytes(&mut pass);
-/// rng.fill_bytes(&mut nonce);
-/// rng.fill_bytes(&mut data);
+/// // ...
+/// # let mut rng = thread_rng();
+/// # let mut pass = vec![0; Ascon::key_length()];
+/// # let mut nonce = vec![0; Ascon::nonce_length()];
+/// # let mut data = vec![0; 1024];
+/// # rng.fill_bytes(&mut pass);
+/// # rng.fill_bytes(&mut nonce);
+/// # rng.fill_bytes(&mut data);
 ///
 /// let ciphertext = Ascon::new(&pass)
 ///     .with_aad(&nonce)
@@ -53,13 +54,13 @@ impl AeadCipher for Ascon {
         self
     }
 
-    fn encrypt(&mut self, nonce: &[u8], data: &[u8]) -> Vec<u8> {
+    fn encrypt(&self, nonce: &[u8], data: &[u8]) -> Vec<u8> {
         let (mut output, tag) = ::ascon::aead_encrypt(&self.key, nonce, data, &self.aad);
         output.extend_from_slice(&tag);
         output
     }
 
-    fn decrypt(&mut self, nonce: &[u8], data: &[u8]) -> Result<Vec<u8>, DecryptFail> {
+    fn decrypt(&self, nonce: &[u8], data: &[u8]) -> Result<Vec<u8>, DecryptFail> {
         let (data, tag) = data.split_at(data.len() - Self::tag_length());
         ::ascon::aead_decrypt(&self.key, nonce, data, &self.aad, tag)
             .map_err(|err| err.into())

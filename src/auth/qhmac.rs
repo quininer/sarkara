@@ -52,7 +52,7 @@ pub struct HMAC<H> {
 }
 
 impl<H> Mac for HMAC<H> where H: Hash {
-    #[inline] fn key_length() -> usize { 16 }
+    #[inline] fn key_length() -> usize { 32 }
     #[inline] fn tag_length() -> usize { H::digest_length() }
 
     fn new(key: &[u8]) -> Self {
@@ -63,9 +63,7 @@ impl<H> Mac for HMAC<H> where H: Hash {
         }
     }
 
-    fn result<T>(&self, data: &[u8]) -> T
-        where T: From<Vec<u8>>
-    {
+    fn result<T>(&self, data: &[u8]) -> T  where T: From<Vec<u8>> {
         let mut ipad = vec![0x36; 64];
         let mut opad = vec![0x5c; 64];
 
@@ -82,7 +80,7 @@ impl<H> Mac for HMAC<H> where H: Hash {
 }
 
 impl<H> NonceMac for HMAC<H> where H: GenericHash {
-    #[inline] fn nonce_length() -> usize { 12 }
+    #[inline] fn nonce_length() -> usize { 32 }
 
     fn with_nonce(&mut self, nonce: &[u8]) -> &mut Self {
         self.ih.with_key(nonce);

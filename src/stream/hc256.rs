@@ -12,13 +12,14 @@ use super::StreamCipher;
 /// use rand::{ Rng, thread_rng };
 /// use sarkara::stream::{ HC256, StreamCipher };
 ///
-/// let mut rng = thread_rng();
-/// let mut pass = vec![0; HC256::key_length()];
-/// let mut nonce = vec![0; HC256::nonce_length()];
-/// let mut data = vec![0; 1024];
-/// rng.fill_bytes(&mut pass);
-/// rng.fill_bytes(&mut nonce);
-/// rng.fill_bytes(&mut data);
+/// // ...
+/// # let mut rng = thread_rng();
+/// # let mut pass = vec![0; HC256::key_length()];
+/// # let mut nonce = vec![0; HC256::nonce_length()];
+/// # let mut data = vec![0; 1024];
+/// # rng.fill_bytes(&mut pass);
+/// # rng.fill_bytes(&mut nonce);
+/// # rng.fill_bytes(&mut data);
 ///
 /// let cipher = HC256::new(&pass);
 /// let ciphertext = cipher.process(&nonce, &data);

@@ -40,7 +40,7 @@ pub trait AeadCipher {
     fn with_aad(&mut self, aad: &[u8]) -> &mut Self;
 
     /// Encryption.
-    fn encrypt(&mut self, nonce: &[u8], data: &[u8]) -> Vec<u8>;
+    fn encrypt(&self, nonce: &[u8], data: &[u8]) -> Vec<u8>;
 
     /// Decryption
     ///
@@ -48,7 +48,7 @@ pub trait AeadCipher {
     /// - Ciphertext length error.
     /// - Tag authentication fail.
     /// - Other error.
-    fn decrypt(&mut self, nonce: &[u8], data: &[u8]) -> Result<Vec<u8>, DecryptFail>;
+    fn decrypt(&self, nonce: &[u8], data: &[u8]) -> Result<Vec<u8>, DecryptFail>;
 }
 
 impl fmt::Display for DecryptFail {

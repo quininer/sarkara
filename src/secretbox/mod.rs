@@ -15,11 +15,12 @@ use ::utils::GenNonce;
 /// # use sarkara::aead::{ Ascon, AeadCipher };
 /// # use sarkara::secretbox::SecretBox;
 /// #
-/// let mut rng = thread_rng();
-/// let mut key = vec![0; Ascon::key_length()];
-/// let mut data = vec![0; 1024];
-/// rng.fill_bytes(&mut key);
-/// rng.fill_bytes(&mut data);
+/// // ...
+/// # let mut rng = thread_rng();
+/// # let mut key = vec![0; Ascon::key_length()];
+/// # let mut data = vec![0; 1024];
+/// # rng.fill_bytes(&mut key);
+/// # rng.fill_bytes(&mut data);
 ///
 /// let mut ciphertext = Ascon::seal(&key, &data);
 /// # assert_eq!(

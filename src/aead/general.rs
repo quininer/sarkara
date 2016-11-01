@@ -20,13 +20,14 @@ use std::marker::PhantomData;
 ///
 /// type HHBB = General<HC256, HMAC<Blake2b>, Blake2b>;
 ///
-/// let mut rng = thread_rng();
-/// let mut pass = vec![0; HHBB::key_length()];
-/// let mut nonce = vec![0; HHBB::nonce_length()];
-/// let mut data = vec![0; 1024];
-/// rng.fill_bytes(&mut pass);
-/// rng.fill_bytes(&mut nonce);
-/// rng.fill_bytes(&mut data);
+/// // ...
+/// # let mut rng = thread_rng();
+/// # let mut pass = vec![0; HHBB::key_length()];
+/// # let mut nonce = vec![0; HHBB::nonce_length()];
+/// # let mut data = vec![0; 1024];
+/// # rng.fill_bytes(&mut pass);
+/// # rng.fill_bytes(&mut nonce);
+/// # rng.fill_bytes(&mut data);
 ///
 /// let ciphertext = HHBB::new(&pass)
 ///     .with_aad(&nonce)
@@ -49,7 +50,7 @@ pub struct General<C, M, H> {
 impl<C, M, H> AeadCipher for General<C, M, H>
     where
         C: StreamCipher,
-        M: NonceMac,
+        M: NonceMac + Clone,
         H: GenericHash
 {
     fn new(key: &[u8]) -> Self {
@@ -73,7 +74,7 @@ impl<C, M, H> AeadCipher for General<C, M, H>
         self
     }
 
-    fn encrypt(&mut self, nonce: &[u8], data: &[u8]) -> Vec<u8> {
+    fn encrypt(&self, nonce: &[u8], data: &[u8]) -> Vec<u8> {
         let mnonce = H::default()
             .with_size(M::nonce_length())
             .hash::<Vec<u8>>(nonce);
@@ -81,14 +82,14 @@ impl<C, M, H> AeadCipher for General<C, M, H>
         let mut aad = self.aad.clone();
         aad.extend_from_slice(&output);
 
-        let mut tag = self.mac
+        let mut tag = self.mac.clone()
             .with_nonce(&mnonce)
             .result::<Vec<u8>>(&aad);
         output.append(&mut tag);
         output
     }
 
-    fn decrypt(&mut self, nonce: &[u8], data: &[u8]) -> Result<Vec<u8>, DecryptFail> {
+    fn decrypt(&self, nonce: &[u8], data: &[u8]) -> Result<Vec<u8>, DecryptFail> {
         if data.len() < Self::tag_length() { Err(DecryptFail::LengthError)? };
 
         let mnonce = H::default()
@@ -98,7 +99,7 @@ impl<C, M, H> AeadCipher for General<C, M, H>
         let mut aad = self.aad.clone();
         aad.extend_from_slice(data);
 
-        if self.mac.with_nonce(&mnonce).verify(&aad, tag) {
+        if self.mac.clone().with_nonce(&mnonce).verify(&aad, tag) {
             Ok(self.cipher.process(nonce, data))
         } else {
             Err(DecryptFail::AuthenticationFail)

@@ -18,9 +18,10 @@ use ::kex::KeyExchange;
 /// # use sarkara::kex::{ NewHope, KeyExchange };
 /// # use sarkara::sealedbox::SealedBox;
 /// #
-/// let mut rng = thread_rng();
-/// let mut data = vec![0; 1024];
-/// rng.fill_bytes(&mut data);
+/// // ...
+/// # let mut rng = thread_rng();
+/// # let mut data = vec![0; 1024];
+/// # rng.fill_bytes(&mut data);
 ///
 /// let (sk, pk) = NewHope::keygen();
 ///

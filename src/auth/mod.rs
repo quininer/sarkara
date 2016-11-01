@@ -20,8 +20,7 @@ pub trait Mac {
     fn new(key: &[u8]) -> Self;
 
     /// Calculate MAC Tag.
-    fn result<T>(&self, data: &[u8]) -> T
-        where T: From<Vec<u8>>;
+    fn result<T>(&self, data: &[u8]) -> T where T: From<Vec<u8>>;
 
     /// Verify MAC Tag.
     fn verify(&self, data: &[u8], tag: &[u8]) -> bool {

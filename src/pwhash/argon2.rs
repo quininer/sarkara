@@ -28,11 +28,12 @@ pub const MEMLIMIT_SENSITIVE: u32 = 536870912;
 /// use seckey::Bytes;
 /// use sarkara::pwhash::{ Argon2i, KeyDerive };
 ///
-/// let mut rng = thread_rng();
-/// let mut pass = [0; 8];
-/// let mut salt = [0; 8];
-/// rng.fill_bytes(&mut pass);
-/// rng.fill_bytes(&mut salt);
+/// // ...
+/// # let mut rng = thread_rng();
+/// # let mut pass = [0; 8];
+/// # let mut salt = [0; 8];
+/// # rng.fill_bytes(&mut pass);
+/// # rng.fill_bytes(&mut salt);
 ///
 /// let key = Argon2i::default()
 ///     .derive::<Bytes>(&pass, &salt)
@@ -51,11 +52,12 @@ pub const MEMLIMIT_SENSITIVE: u32 = 536870912;
 /// use seckey::Bytes;
 /// use sarkara::pwhash::{ Argon2i, KeyDerive, KeyVerify };
 ///
-/// let mut rng = thread_rng();
-/// let mut pass = [0; 8];
-/// let mut salt = [0; 8];
-/// rng.fill_bytes(&mut pass);
-/// rng.fill_bytes(&mut salt);
+/// // ...
+/// # let mut rng = thread_rng();
+/// # let mut pass = [0; 8];
+/// # let mut salt = [0; 8];
+/// # rng.fill_bytes(&mut pass);
+/// # rng.fill_bytes(&mut salt);
 ///
 /// let key = Argon2i::default()
 ///     .derive::<Bytes>(&pass, &salt)
@@ -79,7 +81,7 @@ impl Default for Argon2i {
         Argon2i {
             key: Bytes::empty(),
             aad: Bytes::empty(),
-            outlen: 16,
+            outlen: 32,
             passes: OPSLIMIT_INTERACTIVE,
             lanes: 1,
             kib: MEMLIMIT_INTERACTIVE / 1024
