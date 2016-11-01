@@ -1,6 +1,6 @@
 [package]
 name = "sarkara"
-version = "0.4.6"
+version = "0.5.0"
 authors = ["quininer kel <quininer@live.com>"]
 description = "A Post-Quantum cryptography library."
 repository = "https://github.com/quininer/sarkara"

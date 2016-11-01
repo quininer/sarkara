@@ -33,6 +33,8 @@ pub trait NonceMac: Mac {
     /// Nonce length
     fn nonce_length() -> usize;
 
+    /// Set aad.
+    fn with_aad(&mut self, aad: &[u8]) -> &mut Self;
     /// Set Nonce.
     fn with_nonce(&mut self, nonce: &[u8]) -> &mut Self;
     /// Set MAC code length.

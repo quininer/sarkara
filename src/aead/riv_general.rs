@@ -1,6 +1,6 @@
 use seckey::Bytes;
 use ::stream::StreamCipher;
-use ::hash::GenericHash;
+use ::auth::NonceMac;
 use super::{ AeadCipher, DecryptFail };
 
 
@@ -12,11 +12,12 @@ use super::{ AeadCipher, DecryptFail };
 /// # extern crate sarkara;
 /// # fn main() {
 /// use rand::{ Rng, thread_rng };
-/// use sarkara::aead::{ GeneralRiv, AeadCipher };
+/// use sarkara::aead::{ RivGeneral, AeadCipher };
 /// use sarkara::stream::HC256;
+/// use sarkara::auth::HMAC;
 /// use sarkara::hash::Blake2b;
 ///
-/// type HRB = GeneralRiv<HC256, Blake2b>;
+/// type HRB = RivGeneral<HC256, HMAC<Blake2b>>;
 ///
 /// // ...
 /// # let mut rng = thread_rng();
@@ -38,24 +39,22 @@ use super::{ AeadCipher, DecryptFail };
 /// # }
 /// ```
 #[derive(Debug, Clone)]
-pub struct GeneralRiv<C, H> {
+pub struct RivGeneral<C, M> {
     cipher: C,
-    aad: Vec<u8>,
-    hash: H
+    mac: M
 }
 
-impl<C, H> AeadCipher for GeneralRiv<C, H>
+impl<C, M> AeadCipher for RivGeneral<C, M>
     where
         C: StreamCipher,
-        H: GenericHash + Clone
+        M: NonceMac + Clone
 {
     fn new(key: &[u8]) -> Self {
-        let mut hash = H::default();
-        hash.with_size(C::nonce_length());
-        GeneralRiv {
+        let mut mac = M::new(key);
+        mac.with_size(C::nonce_length());
+        RivGeneral {
             cipher: C::new(key),
-            aad: Vec::new(),
-            hash: hash
+            mac: mac
         }
     }
 
@@ -64,46 +63,42 @@ impl<C, H> AeadCipher for GeneralRiv<C, H>
     #[inline] fn nonce_length() -> usize { C::nonce_length() }
 
     fn with_aad(&mut self, aad: &[u8]) -> &mut Self {
-        self.aad = aad.into();
+        self.mac.with_aad(aad);
         self
     }
 
     fn encrypt(&self, nonce: &[u8], data: &[u8]) -> Vec<u8> {
-        let mut hash = self.hash.clone();
+        let mut mac = self.mac.clone();
 
-        hash.with_key(nonce);
+        mac.with_nonce(nonce);
 
-        let mut aad = self.aad.clone();
-        aad.extend_from_slice(data);
-        let mut nonce = hash.hash::<Vec<u8>>(&aad);
-        let mut output = self.cipher.process(&nonce, data);
-        let xorkey = hash.hash::<Bytes>(&output);
+        let mut tag = mac.result::<Vec<u8>>(data);
+        let mut output = self.cipher.process(&tag, data);
+        let xorkey = mac.result::<Bytes>(&output);
 
-        for (b, &x) in nonce.iter_mut().zip(xorkey.iter()) {
+        for (b, &x) in tag.iter_mut().zip(xorkey.iter()) {
             *b ^= x;
         }
 
-        output.append(&mut nonce);
+        output.append(&mut tag);
         output
     }
 
     fn decrypt(&self, nonce: &[u8], data: &[u8]) -> Result<Vec<u8>, DecryptFail> {
         if data.len() < Self::tag_length() { Err(DecryptFail::LengthError)? };
 
-        let mut hash = self.hash.clone();
-        hash.with_key(nonce);
+        let mut mac = self.mac.clone();
+        mac.with_nonce(nonce);
 
         let (data, tag) = data.split_at(data.len() - Self::tag_length());
-        let mut nonce = hash.hash::<Bytes>(data);
+        let mut xorkey = mac.result::<Bytes>(data);
 
-        for (b, &x) in nonce.iter_mut().zip(tag) {
+        for (b, &x) in xorkey.iter_mut().zip(tag) {
             *b ^= x;
         }
 
-        let output = self.cipher.process(&nonce, data);
-        let mut aad = self.aad.clone();
-        aad.extend_from_slice(&output);
-        if hash.hash::<Bytes>(&aad) == nonce {
+        let output = self.cipher.process(&xorkey, data);
+        if mac.result::<Bytes>(&output) == xorkey {
             Ok(output)
         } else {
             Err(DecryptFail::AuthenticationFail)

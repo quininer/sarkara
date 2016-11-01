@@ -3,13 +3,13 @@
 //! Sarkara will use [CAESAR competition](http://competitions.cr.yp.to/caesar.html) winner.
 
 mod general;
-mod general_riv;
+mod riv_general;
 mod ascon;
 
 use std::{ io, fmt };
 use std::error::Error;
 pub use self::general::General;
-pub use self::general_riv::GeneralRiv;
+pub use self::riv_general::RivGeneral;
 pub use self::ascon::Ascon;
 
 

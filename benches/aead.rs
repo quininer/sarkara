@@ -6,13 +6,13 @@ extern crate sarkara;
 
 use test::Bencher;
 use rand::{ Rng, thread_rng };
-use sarkara::aead::{ Ascon, General, GeneralRiv, AeadCipher };
+use sarkara::aead::{ Ascon, General, RivGeneral, AeadCipher };
 use sarkara::stream::HC256;
 use sarkara::auth::HMAC;
 use sarkara::hash::Blake2b;
 
-type HHBB = General<HC256, HMAC<Blake2b>, Blake2b>;
-type HRB = GeneralRiv<HC256, Blake2b>;
+type HHB = General<HC256, HMAC<Blake2b>>;
+type HRHB = RivGeneral<HC256, HMAC<Blake2b>>;
 
 
 macro_rules! bench_aead {
@@ -40,9 +40,9 @@ macro_rules! bench_aead {
 bench_aead!(bench_aead_ascon_10     Ascon,      10);
 bench_aead!(bench_aead_ascon_1k     Ascon,      1024);
 bench_aead!(bench_aead_ascon_64k    Ascon,      65536);
-bench_aead!(bench_aead_hhbb_10      HHBB,       10);
-bench_aead!(bench_aead_hhbb_1k      HHBB,       1024);
-bench_aead!(bench_aead_hhbb_64k     HHBB,       65536);
-bench_aead!(bench_aead_hrb_10       HRB,        10);
-bench_aead!(bench_aead_hrb_1k       HRB,        1024);
-bench_aead!(bench_aead_hrb_64k      HRB,        65536);
+bench_aead!(bench_aead_hhb_10       HHB,        10);
+bench_aead!(bench_aead_hhb_1k       HHB,        1024);
+bench_aead!(bench_aead_hhb_64k      HHB,        65536);
+bench_aead!(bench_aead_hrhb_10      HRHB,       10);
+bench_aead!(bench_aead_hrhb_1k      HRHB,       1024);
+bench_aead!(bench_aead_hrhb_64k     HRHB,       65536);
