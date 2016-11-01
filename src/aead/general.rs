@@ -79,10 +79,7 @@ impl<C, M> AeadCipher for General<C, M>
 
         let (data, tag) = data.split_at(data.len() - Self::tag_length());
 
-        if self.mac.clone()
-            .with_nonce(nonce)
-            .verify(data, tag)
-        {
+        if self.mac.clone().with_nonce(nonce).verify(data, tag) {
             Ok(self.cipher.process(nonce, data))
         } else {
             Err(DecryptFail::AuthenticationFail)

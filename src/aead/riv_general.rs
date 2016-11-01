@@ -17,21 +17,21 @@ use super::{ AeadCipher, DecryptFail };
 /// use sarkara::auth::HMAC;
 /// use sarkara::hash::Blake2b;
 ///
-/// type HRB = RivGeneral<HC256, HMAC<Blake2b>>;
+/// type HRHB = RivGeneral<HC256, HMAC<Blake2b>>;
 ///
 /// // ...
 /// # let mut rng = thread_rng();
-/// # let mut pass = vec![0; HRB::key_length()];
-/// # let mut nonce = vec![0; HRB::nonce_length()];
+/// # let mut pass = vec![0; HRHB::key_length()];
+/// # let mut nonce = vec![0; HRHB::nonce_length()];
 /// # let mut data = vec![0; 1024];
 /// # rng.fill_bytes(&mut pass);
 /// # rng.fill_bytes(&mut nonce);
 /// # rng.fill_bytes(&mut data);
 ///
-/// let ciphertext = HRB::new(&pass)
+/// let ciphertext = HRHB::new(&pass)
 ///     .with_aad(&nonce)
 ///     .encrypt(&nonce, &data);
-/// let plaintext = HRB::new(&pass)
+/// let plaintext = HRHB::new(&pass)
 ///     .with_aad(&nonce)
 ///     .decrypt(&nonce, &ciphertext)
 ///     .unwrap();
@@ -69,7 +69,6 @@ impl<C, M> AeadCipher for RivGeneral<C, M>
 
     fn encrypt(&self, nonce: &[u8], data: &[u8]) -> Vec<u8> {
         let mut mac = self.mac.clone();
-
         mac.with_nonce(nonce);
 
         let mut tag = mac.result::<Vec<u8>>(data);
@@ -98,7 +97,7 @@ impl<C, M> AeadCipher for RivGeneral<C, M>
         }
 
         let output = self.cipher.process(&xorkey, data);
-        if mac.result::<Bytes>(&output) == xorkey {
+        if mac.verify(&output, &xorkey) {
             Ok(output)
         } else {
             Err(DecryptFail::AuthenticationFail)
