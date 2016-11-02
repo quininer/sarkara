@@ -47,7 +47,6 @@ use super::{ Mac, NonceMac };
 #[derive(Debug, Clone)]
 pub struct HMAC<H> {
     key: Bytes,
-    aad: Vec<u8>,
     ih: H,
     oh: H
 }
@@ -59,7 +58,6 @@ impl<H> Mac for HMAC<H> where H: Hash {
     fn new(key: &[u8]) -> Self {
         HMAC {
             key: Bytes::new(key),
-            aad: Vec::new(),
             ih: H::default(),
             oh: H::default()
         }
@@ -76,7 +74,6 @@ impl<H> Mac for HMAC<H> where H: Hash {
 
         ipad.extend_from_slice(data);
         opad.append(&mut self.ih.hash::<Vec<u8>>(&ipad));
-        opad.extend_from_slice(&self.aad);
 
         self.oh.hash(&opad)
     }
@@ -85,17 +82,14 @@ impl<H> Mac for HMAC<H> where H: Hash {
 impl<H> NonceMac for HMAC<H> where H: GenericHash {
     #[inline] fn nonce_length() -> usize { 32 }
 
-    fn with_aad(&mut self, aad: &[u8]) -> &mut Self {
-        self.aad = aad.into();
-        self
-    }
-
+    #[inline]
     fn with_nonce(&mut self, nonce: &[u8]) -> &mut Self {
         self.ih.with_key(nonce);
         self.oh.with_key(nonce);
         self
     }
 
+    #[inline]
     fn with_size(&mut self, len: usize) -> &mut Self {
         self.oh.with_size(len);
         self

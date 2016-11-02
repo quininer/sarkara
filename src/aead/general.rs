@@ -40,7 +40,8 @@ use super::{ AeadCipher, DecryptFail };
 #[derive(Debug, Clone)]
 pub struct General<C, M> {
     cipher: C,
-    mac: M
+    mac: M,
+    aad: Vec<u8>
 }
 
 impl<C, M> AeadCipher for General<C, M>
@@ -51,7 +52,8 @@ impl<C, M> AeadCipher for General<C, M>
     fn new(key: &[u8]) -> Self {
         General {
             cipher: C::new(key),
-            mac: M::new(key)
+            mac: M::new(key),
+            aad: Vec::new()
         }
     }
 
@@ -59,17 +61,20 @@ impl<C, M> AeadCipher for General<C, M>
     #[inline] fn tag_length() -> usize { M::tag_length() }
     #[inline] fn nonce_length() -> usize { C::nonce_length() }
 
+    #[inline]
     fn with_aad(&mut self, aad: &[u8]) -> &mut Self {
-        self.mac.with_aad(aad);
+        self.aad = aad.into();
         self
     }
 
     fn encrypt(&self, nonce: &[u8], data: &[u8]) -> Vec<u8> {
         let mut output = self.cipher.process(nonce, data);
 
+        let mut aad = self.aad.clone();
+        aad.extend_from_slice(&output);
         let mut tag = self.mac.clone()
             .with_nonce(nonce)
-            .result::<Vec<u8>>(&output);
+            .result::<Vec<u8>>(&aad);
         output.append(&mut tag);
         output
     }
@@ -79,7 +84,9 @@ impl<C, M> AeadCipher for General<C, M>
 
         let (data, tag) = data.split_at(data.len() - Self::tag_length());
 
-        if self.mac.clone().with_nonce(nonce).verify(data, tag) {
+        let mut aad = self.aad.clone();
+        aad.extend_from_slice(data);
+        if self.mac.clone().with_nonce(nonce).verify(&aad, tag) {
             Ok(self.cipher.process(nonce, data))
         } else {
             Err(DecryptFail::AuthenticationFail)

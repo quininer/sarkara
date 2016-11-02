@@ -20,6 +20,6 @@ pub mod auth;
 pub mod stream;
 pub mod aead;
 pub mod kex;
+pub mod sign;
 pub mod secretbox;
 pub mod sealedbox;
-pub mod sign;

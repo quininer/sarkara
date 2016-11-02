@@ -63,11 +63,13 @@ impl Hash for Blake2b {
 }
 
 impl GenericHash for Blake2b {
+    #[inline]
     fn with_size(&mut self, outlen: usize) -> &mut Self {
         self.outlen = outlen;
         self
     }
 
+    #[inline]
     fn with_key(&mut self, key: &[u8]) -> &mut Self {
         self.key = Bytes::new(key);
         self

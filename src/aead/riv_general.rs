@@ -41,7 +41,8 @@ use super::{ AeadCipher, DecryptFail };
 #[derive(Debug, Clone)]
 pub struct RivGeneral<C, M> {
     cipher: C,
-    mac: M
+    mac: M,
+    aad: Vec<u8>
 }
 
 impl<C, M> AeadCipher for RivGeneral<C, M>
@@ -54,7 +55,8 @@ impl<C, M> AeadCipher for RivGeneral<C, M>
         mac.with_size(C::nonce_length());
         RivGeneral {
             cipher: C::new(key),
-            mac: mac
+            mac: mac,
+            aad: Vec::new()
         }
     }
 
@@ -62,8 +64,9 @@ impl<C, M> AeadCipher for RivGeneral<C, M>
     #[inline] fn tag_length() -> usize { C::nonce_length() }
     #[inline] fn nonce_length() -> usize { C::nonce_length() }
 
+    #[inline]
     fn with_aad(&mut self, aad: &[u8]) -> &mut Self {
-        self.mac.with_aad(aad);
+        self.aad = aad.into();
         self
     }
 
@@ -71,7 +74,9 @@ impl<C, M> AeadCipher for RivGeneral<C, M>
         let mut mac = self.mac.clone();
         mac.with_nonce(nonce);
 
-        let mut tag = mac.result::<Vec<u8>>(data);
+        let mut aad = self.aad.clone();
+        aad.extend_from_slice(data);
+        let mut tag = mac.result::<Vec<u8>>(&aad);
         let mut output = self.cipher.process(&tag, data);
         let xorkey = mac.result::<Bytes>(&output);
 
@@ -97,7 +102,9 @@ impl<C, M> AeadCipher for RivGeneral<C, M>
         }
 
         let output = self.cipher.process(&xorkey, data);
-        if mac.verify(&output, &xorkey) {
+        let mut aad = self.aad.clone();
+        aad.extend_from_slice(&output);
+        if mac.verify(&aad, &xorkey) {
             Ok(output)
         } else {
             Err(DecryptFail::AuthenticationFail)
