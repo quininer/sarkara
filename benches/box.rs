@@ -12,8 +12,8 @@ use sarkara::stream::HC256;
 use sarkara::auth::HMAC;
 use sarkara::hash::Blake2b;
 
-type HHB = General<HC256, HMAC<Blake2b>>;
-type HRHB = RivGeneral<HC256, HMAC<Blake2b>>;
+type HHBB = General<HC256, HMAC<Blake2b>, Blake2b>;
+type HRHB = RivGeneral<HC256, HMAC<Blake2b>, Blake2b>;
 
 
 macro_rules! bench_box {
@@ -56,9 +56,9 @@ macro_rules! bench_box {
 bench_box!(secretbox bench_secretbox_ascon_10   Ascon,      10);
 bench_box!(secretbox bench_secretbox_ascon_1k   Ascon,      1024);
 bench_box!(secretbox bench_secretbox_ascon_64k  Ascon,      65536);
-bench_box!(secretbox bench_secretbox_hhb_10     HHB,        10);
-bench_box!(secretbox bench_secretbox_hhb_1k     HHB,        1024);
-bench_box!(secretbox bench_secretbox_hhb_64k    HHB,        65536);
+bench_box!(secretbox bench_secretbox_hhbb_10    HHBB,       10);
+bench_box!(secretbox bench_secretbox_hhbb_1k    HHBB,       1024);
+bench_box!(secretbox bench_secretbox_hhbb_64k   HHBB,       65536);
 bench_box!(secretbox bench_secretbox_hrhb_10    HRHB,       10);
 bench_box!(secretbox bench_secretbox_hrhb_1k    HRHB,       1024);
 bench_box!(secretbox bench_secretbox_hrhb_64k   HRHB,       65536);
@@ -66,9 +66,9 @@ bench_box!(secretbox bench_secretbox_hrhb_64k   HRHB,       65536);
 bench_box!(sealedbox bench_sealedbox_ascon_10   NewHope-Ascon,      10);
 bench_box!(sealedbox bench_sealedbox_ascon_1k   NewHope-Ascon,      1024);
 bench_box!(sealedbox bench_sealedbox_ascon_64k  NewHope-Ascon,      65536);
-bench_box!(sealedbox bench_sealedbox_hhb_10     NewHope-HHB,        10);
-bench_box!(sealedbox bench_sealedbox_hhb_1k     NewHope-HHB,        1024);
-bench_box!(sealedbox bench_sealedbox_hhb_64k    NewHope-HHB,        65536);
+bench_box!(sealedbox bench_sealedbox_hhbb_10    NewHope-HHBB,       10);
+bench_box!(sealedbox bench_sealedbox_hhbb_1k    NewHope-HHBB,       1024);
+bench_box!(sealedbox bench_sealedbox_hhbb_64k   NewHope-HHBB,       65536);
 bench_box!(sealedbox bench_sealedbox_hrhb_10    NewHope-HRHB,       10);
 bench_box!(sealedbox bench_sealedbox_hrhb_1k    NewHope-HRHB,       1024);
 bench_box!(sealedbox bench_sealedbox_hrhb_64k   NewHope-HRHB,       65536);

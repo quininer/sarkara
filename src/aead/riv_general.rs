@@ -1,6 +1,8 @@
+use std::marker::PhantomData;
 use seckey::Bytes;
 use ::stream::StreamCipher;
 use ::auth::NonceMac;
+use ::hash::GenericHash;
 use super::{ AeadCipher, DecryptFail };
 
 
@@ -17,7 +19,7 @@ use super::{ AeadCipher, DecryptFail };
 /// use sarkara::auth::HMAC;
 /// use sarkara::hash::Blake2b;
 ///
-/// type HRHB = RivGeneral<HC256, HMAC<Blake2b>>;
+/// type HRHB = RivGeneral<HC256, HMAC<Blake2b>, Blake2b>;
 ///
 /// // ...
 /// # let mut rng = thread_rng();
@@ -39,30 +41,36 @@ use super::{ AeadCipher, DecryptFail };
 /// # }
 /// ```
 #[derive(Debug, Clone)]
-pub struct RivGeneral<C, M> {
+pub struct RivGeneral<C, M, H> {
     cipher: C,
     mac: M,
+    hash: PhantomData<H>,
     aad: Vec<u8>
 }
 
-impl<C, M> AeadCipher for RivGeneral<C, M>
+impl<C, M, H> AeadCipher for RivGeneral<C, M, H>
     where
         C: StreamCipher,
-        M: NonceMac + Clone
+        M: NonceMac + Clone,
+        H: GenericHash
 {
     fn new(key: &[u8]) -> Self {
-        let mut mac = M::new(key);
+        let mkey = H::default()
+            .with_size(M::key_length())
+            .hash::<Bytes>(key);
+        let mut mac = M::new(&mkey);
         mac.with_size(C::nonce_length());
         RivGeneral {
             cipher: C::new(key),
             mac: mac,
+            hash: PhantomData,
             aad: Vec::new()
         }
     }
 
     #[inline] fn key_length() -> usize { C::key_length() }
     #[inline] fn tag_length() -> usize { C::nonce_length() }
-    #[inline] fn nonce_length() -> usize { C::nonce_length() }
+    #[inline] fn nonce_length() -> usize { M::nonce_length() }
 
     #[inline]
     fn with_aad(&mut self, aad: &[u8]) -> &mut Self {

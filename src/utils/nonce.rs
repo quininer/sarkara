@@ -32,21 +32,21 @@ impl<T> GenNonce for T where T: Rng {
 /// # use sarkara::hash::Blake2b;
 /// # use sarkara::utils::RngCounter;
 /// #
-/// # type HHB = General<HC256, HMAC<Blake2b>>;
+/// # type HHBB = General<HC256, HMAC<Blake2b>, Blake2b>;
 /// #
 /// # let mut rng = OsRng::new().unwrap();
-/// # let mut key = vec![0; HHB::key_length()];
+/// # let mut key = vec![0; HHBB::key_length()];
 /// # let mut plaintext = vec![0; 1024];
 /// # rng.fill_bytes(&mut key);
 /// # rng.fill_bytes(&mut plaintext);
 /// #
 /// let mut nonce = RngCounter::new(OsRng::new().unwrap().gen::<ChaChaRng>());
 ///
-/// let ciphertext = HHB::seal_with_nonce(&mut nonce, &key, &plaintext);
-/// # assert_eq!(HHB::open(&key, &ciphertext).unwrap(), &plaintext[..]);
+/// let ciphertext = HHBB::seal_with_nonce(&mut nonce, &key, &plaintext);
+/// # assert_eq!(HHBB::open(&key, &ciphertext).unwrap(), &plaintext[..]);
 /// #
-/// # let ciphertext = HHB::seal_with_nonce(&mut nonce, &key, &plaintext);
-/// # assert_eq!(HHB::open(&key, &ciphertext).unwrap(), &plaintext[..]);
+/// # let ciphertext = HHBB::seal_with_nonce(&mut nonce, &key, &plaintext);
+/// # assert_eq!(HHBB::open(&key, &ciphertext).unwrap(), &plaintext[..]);
 /// # }
 /// ```
 #[derive(Debug, Clone)]
@@ -86,11 +86,11 @@ impl<R> GenNonce for RngCounter<R> where R: Rng {
 /// # use sarkara::hash::Blake2b;
 /// # use sarkara::utils::{ NonceCounter, GenNonce };
 /// #
-/// # type HHB = General<HC256, HMAC<Blake2b>>;
+/// # type HHBB = General<HC256, HMAC<Blake2b>, Blake2b>;
 /// #
 /// # let mut rng = OsRng::new().unwrap();
-/// # let mut key = vec![0; HHB::key_length()];
-/// # let mut fixed_nonce = vec![0; HHB::nonce_length()];
+/// # let mut key = vec![0; HHBB::key_length()];
+/// # let mut fixed_nonce = vec![0; HHBB::nonce_length()];
 /// # let mut plaintext = vec![0; 1024];
 /// # rng.fill_bytes(&mut key);
 /// # rng.fill_bytes(&mut plaintext);
@@ -99,15 +99,15 @@ impl<R> GenNonce for RngCounter<R> where R: Rng {
 /// let mut nonce1 = NonceCounter::new(&fixed_nonce);
 /// let mut nonce2 = NonceCounter::new(&fixed_nonce);
 ///
-/// let mut tmp_nonce = vec![0; HHB::nonce_length()];
+/// let mut tmp_nonce = vec![0; HHBB::nonce_length()];
 /// nonce1.fill(&mut tmp_nonce);
-/// let ciphertext = HHB::new(&key)
+/// let ciphertext = HHBB::new(&key)
 ///     .with_aad(&tmp_nonce)
 ///     .encrypt(&mut tmp_nonce, &plaintext);
 ///
-/// let mut tmp_nonce = vec![0; HHB::nonce_length()];
+/// let mut tmp_nonce = vec![0; HHBB::nonce_length()];
 /// nonce2.fill(&mut tmp_nonce);
-/// let decrypttext = HHB::new(&key)
+/// let decrypttext = HHBB::new(&key)
 ///     .with_aad(&tmp_nonce)
 ///     .decrypt(&tmp_nonce, &ciphertext).unwrap();
 /// # assert_eq!(decrypttext, plaintext);
