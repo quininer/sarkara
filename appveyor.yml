@@ -1,0 +1,14 @@
+environment:
+  PATH: '%PATH%;C:\Program Files (x86)\Rust\bin;C:\MinGW\bin'
+platform:
+  - x64
+install:
+  - ps: Start-FileDownload "https://static.rust-lang.org/dist/rust-nightly-x86_64-pc-windows-gnu.exe"
+  - rust-nightly-x86_64-pc-windows-gnu.exe /VERYSILENT /NORESTART /DIR="C:\Program Files (x86)\Rust"
+  - rustc -V
+  - cargo -V
+
+build: false
+
+test_script:
+  - 'cargo test --verbose'
