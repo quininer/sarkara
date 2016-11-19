@@ -38,16 +38,16 @@ pub struct Ascon {
 }
 
 impl AeadCipher for Ascon {
-    fn new(key: &[u8]) -> Self {
+    fn new(key: &[u8]) -> Self where Self: Sized {
         Ascon {
             key: Bytes::new(key),
             aad: Vec::new()
         }
     }
 
-    #[inline] fn key_length() -> usize { 16 }
-    #[inline] fn tag_length() -> usize { Self::key_length() }
-    #[inline] fn nonce_length() -> usize { Self::key_length() }
+    #[inline] fn key_length() -> usize where Self: Sized { 16 }
+    #[inline] fn tag_length() -> usize where Self: Sized { Self::key_length() }
+    #[inline] fn nonce_length() -> usize where Self: Sized { Self::key_length() }
 
     fn with_aad(&mut self, aad: &[u8]) -> &mut Self {
         self.aad = aad.into();

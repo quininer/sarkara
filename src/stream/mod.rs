@@ -12,12 +12,12 @@ pub use self::hc256::HC256;
 /// `StreamCipher` trait.
 pub trait StreamCipher {
     /// Create a new StreamCipher.
-    fn new(key: &[u8]) -> Self;
+    fn new(key: &[u8]) -> Self where Self: Sized;
 
     /// Key length.
-    fn key_length() -> usize;
+    fn key_length() -> usize where Self: Sized;
     /// Nonce length.
-    fn nonce_length() -> usize;
+    fn nonce_length() -> usize where Self: Sized;
 
     /// Process data.
     fn process(&self, nonce: &[u8], data: &[u8]) -> Vec<u8>;

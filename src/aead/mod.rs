@@ -27,14 +27,14 @@ pub enum DecryptFail {
 /// `AeadCipher` trait.
 pub trait AeadCipher {
     /// Create a new AeadCipher.
-    fn new(key: &[u8]) -> Self;
+    fn new(key: &[u8]) -> Self where Self: Sized;
 
     /// Key length.
-    fn key_length() -> usize;
+    fn key_length() -> usize where Self: Sized;
     /// Tag length.
-    fn tag_length() -> usize;
+    fn tag_length() -> usize where Self: Sized;
     /// Nonce length.
-    fn nonce_length() -> usize;
+    fn nonce_length() -> usize where Self: Sized;
 
     /// Set associated data.
     fn with_aad(&mut self, aad: &[u8]) -> &mut Self;

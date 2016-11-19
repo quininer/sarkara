@@ -54,7 +54,7 @@ impl<C, M, H> AeadCipher for RivGeneral<C, M, H>
         M: NonceMac + Clone,
         H: GenericHash
 {
-    fn new(key: &[u8]) -> Self {
+    fn new(key: &[u8]) -> Self where Self: Sized {
         let mkey = H::default()
             .with_size(M::key_length())
             .hash::<Bytes>(key);
@@ -68,9 +68,9 @@ impl<C, M, H> AeadCipher for RivGeneral<C, M, H>
         }
     }
 
-    #[inline] fn key_length() -> usize { C::key_length() }
-    #[inline] fn tag_length() -> usize { C::nonce_length() }
-    #[inline] fn nonce_length() -> usize { M::nonce_length() }
+    #[inline] fn key_length() -> usize where Self: Sized { C::key_length() }
+    #[inline] fn tag_length() -> usize where Self: Sized { C::nonce_length() }
+    #[inline] fn nonce_length() -> usize where Self: Sized { M::nonce_length() }
 
     #[inline]
     fn with_aad(&mut self, aad: &[u8]) -> &mut Self {

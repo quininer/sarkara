@@ -12,7 +12,7 @@ pub use self::blake2::Blake2b;
 /// `Hash` trait.
 pub trait Hash: Default {
     /// Digest length.
-    fn digest_length() -> usize;
+    fn digest_length() -> usize where Self: Sized;
 
     /// Calculate hash.
     fn hash<D>(&self, data: &[u8]) -> D where D: From<Vec<u8>>;

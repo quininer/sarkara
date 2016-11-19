@@ -33,12 +33,12 @@ pub struct HC256 {
 }
 
 impl StreamCipher for HC256 {
-    fn new(key: &[u8]) -> Self {
+    fn new(key: &[u8]) -> Self where Self: Sized {
         HC256 { key: Bytes::new(key) }
     }
 
-    #[inline] fn key_length() -> usize { 32 }
-    #[inline] fn nonce_length() -> usize { 32 }
+    #[inline] fn key_length() -> usize where Self: Sized { 32 }
+    #[inline] fn nonce_length() -> usize where Self: Sized { 32 }
 
     fn process(&self, nonce: &[u8], data: &[u8]) -> Vec<u8> {
         let mut output = vec![0; data.len()];

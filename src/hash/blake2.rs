@@ -55,7 +55,7 @@ impl Default for Blake2b {
 }
 
 impl Hash for Blake2b {
-    #[inline] fn digest_length() -> usize { 64 }
+    #[inline] fn digest_length() -> usize where Self: Sized { 64 }
 
     fn hash<D>(&self, data: &[u8]) -> D where D: From<Vec<u8>> {
         D::from(blake2b(self.outlen, &self.key, data).as_bytes().into())
