@@ -3,12 +3,12 @@ environment:
 platform:
   - x64
 install:
-  - ps: Start-FileDownload "https://static.rust-lang.org/dist/rust-nightly-x86_64-pc-windows-gnu.exe"
-  - rust-nightly-x86_64-pc-windows-gnu.exe /VERYSILENT /NORESTART /DIR="C:\Program Files (x86)\Rust"
-  - rustc -V
-  - cargo -V
+  - ps: Start-FileDownload "https://static.rust-lang.org/dist/rust-nightly-x86_64-pc-windows-msvc.exe"
+  - rust-nightly-x86_64-pc-windows-msvc.exe /VERYSILENT /NORESTART /DIR="C:\Program Files (x86)\Rust"
+  - rustc --version
+  - cargo --version
 
 build: false
 
 test_script:
-  - 'cargo test --verbose'
+  - 'cargo test --verbose --release'
