@@ -34,6 +34,7 @@ pub struct HC256 {
 
 impl StreamCipher for HC256 {
     fn new(key: &[u8]) -> Self where Self: Sized {
+        debug_assert_eq!(key.len(), Self::key_length());
         HC256 { key: Bytes::new(key) }
     }
 
@@ -41,6 +42,7 @@ impl StreamCipher for HC256 {
     #[inline] fn nonce_length() -> usize where Self: Sized { 32 }
 
     fn process(&self, nonce: &[u8], data: &[u8]) -> Vec<u8> {
+        debug_assert_eq!(nonce.len(), Self::nonce_length());
         let mut output = vec![0; data.len()];
         ::hc256::HC256::new(&self.key, nonce)
             .process(data, &mut output);

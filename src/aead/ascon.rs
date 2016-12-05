@@ -39,6 +39,7 @@ pub struct Ascon {
 
 impl AeadCipher for Ascon {
     fn new(key: &[u8]) -> Self where Self: Sized {
+        debug_assert_eq!(key.len(), Self::key_length());
         Ascon {
             key: Bytes::new(key),
             aad: Vec::new()
@@ -55,13 +56,17 @@ impl AeadCipher for Ascon {
     }
 
     fn encrypt(&self, nonce: &[u8], data: &[u8]) -> Vec<u8> {
+        debug_assert_eq!(nonce.len(), Self::nonce_length());
         let (mut output, tag) = ::ascon::aead_encrypt(&self.key, nonce, data, &self.aad);
         output.extend_from_slice(&tag);
         output
     }
 
     fn decrypt(&self, nonce: &[u8], data: &[u8]) -> Result<Vec<u8>, DecryptFail> {
+        debug_assert_eq!(nonce.len(), Self::nonce_length());
+        if data.len() < Self::tag_length() { Err(DecryptFail::LengthError)? };
         let (data, tag) = data.split_at(data.len() - Self::tag_length());
+
         ::ascon::aead_decrypt(&self.key, nonce, data, &self.aad, tag)
             .map_err(|err| err.into())
     }

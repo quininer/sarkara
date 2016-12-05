@@ -14,16 +14,16 @@ use super::{ Mac, NonceMac };
 /// use sarkara::hash::Blake2b;
 ///
 /// assert_eq!(
-///     HMAC::<Blake2b>::new(&[5; 16]).result::<Vec<u8>>(&[]),
+///     HMAC::<Blake2b>::new(&[5; 32]).result::<Vec<u8>>(&[]),
 ///     &[
-///         103, 94, 237, 110, 44, 95, 234, 140,
-///         231, 34, 21, 54, 134, 161, 118, 37,
-///         36, 117, 44, 209, 164, 126, 32, 1,
-///         117, 64, 234, 107, 194, 131, 210, 93,
-///         95, 127, 126, 222, 45, 114, 152, 82,
-///         129, 175, 78, 62, 31, 20, 128, 255,
-///         47, 203, 122, 70, 202, 200, 33, 75,
-///         253, 132, 234, 116, 220, 81, 39, 182
+///         194, 146, 2, 54, 145, 176, 76, 56,
+///         71, 226, 163, 78, 115, 255, 194, 236,
+///         97, 247, 113, 31, 27, 97, 130, 65,
+///         159, 245, 153, 168, 253, 62, 35, 36,
+///         21, 99, 142, 146, 89, 45, 34, 157,
+///         59, 93, 191, 9, 78, 149, 97, 232,
+///         59, 119, 148, 57, 70, 50, 233, 84,
+///         22, 255, 81, 102, 20, 137, 181, 124
 ///     ][..]
 /// );
 /// ```
@@ -34,13 +34,13 @@ use super::{ Mac, NonceMac };
 /// use sarkara::hash::Blake2b;
 ///
 /// assert_eq!(
-///     HMAC::<Blake2b>::new(&[5; 16])
+///     HMAC::<Blake2b>::new(&[5; 32])
 ///         .with_size(16)
-///         .with_nonce(&[1; 12])
+///         .with_nonce(&[1; 32])
 ///         .result::<Vec<u8>>(&[]),
 ///     &[
-///         119, 177, 186, 169, 58, 108, 163, 90,
-///         181, 106, 35, 221, 75, 209, 183, 35
+///         179, 8, 125, 182, 165, 35, 131, 1,
+///         242, 7, 138, 85, 27, 77, 214, 216
 ///     ]
 /// );
 /// ```
@@ -56,6 +56,7 @@ impl<H> Mac for HMAC<H> where H: Hash {
     #[inline] fn tag_length() -> usize where Self: Sized { H::digest_length() }
 
     fn new(key: &[u8]) -> Self where Self: Sized {
+        debug_assert_eq!(key.len(), Self::key_length());
         HMAC {
             key: Bytes::new(key),
             ih: H::default(),
@@ -84,6 +85,7 @@ impl<H> NonceMac for HMAC<H> where H: GenericHash {
 
     #[inline]
     fn with_nonce(&mut self, nonce: &[u8]) -> &mut Self {
+        debug_assert_eq!(nonce.len(), Self::nonce_length());
         self.ih.with_key(nonce);
         self.oh.with_key(nonce);
         self

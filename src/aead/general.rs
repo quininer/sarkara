@@ -55,6 +55,7 @@ impl<C, M, H> AeadCipher for General<C, M, H>
         H: GenericHash
 {
     fn new(key: &[u8]) -> Self where Self: Sized {
+        debug_assert_eq!(key.len(), Self::key_length());
         let mkey = H::default()
             .with_size(M::key_length())
             .hash::<Bytes>(key);
@@ -77,6 +78,7 @@ impl<C, M, H> AeadCipher for General<C, M, H>
     }
 
     fn encrypt(&self, nonce: &[u8], data: &[u8]) -> Vec<u8> {
+        debug_assert_eq!(nonce.len(), Self::nonce_length());
         let mnonce = H::default()
             .with_size(M::nonce_length())
             .hash::<Bytes>(nonce);
@@ -93,6 +95,7 @@ impl<C, M, H> AeadCipher for General<C, M, H>
     }
 
     fn decrypt(&self, nonce: &[u8], data: &[u8]) -> Result<Vec<u8>, DecryptFail> {
+        debug_assert_eq!(nonce.len(), Self::nonce_length());
         if data.len() < Self::tag_length() { Err(DecryptFail::LengthError)? };
 
         let mnonce = H::default()
