@@ -23,20 +23,17 @@ use blissb::param::{ PRIVATEKEY_LENGTH, PUBLICKEY_LENGTH, SIGNATURE_LENGTH };
 /// ```
 /// #![feature(try_from)]
 /// # use std::convert::TryFrom;
-/// # use sarkara::sign::{
-/// #     Bliss, Signature,
-/// #     PrivateKey, PublicKey, SignatureData
-/// # };
+/// # use sarkara::sign::{ Bliss, Signature };
 /// #
 /// # let data = [9; 64];
 /// # let (sk, pk) = Bliss::keygen();
 /// let sk_bytes: Vec<u8> = sk.into();
 /// let pk_bytes: Vec<u8> = pk.into();
-/// let sk = PrivateKey::try_from(&sk_bytes[..]).unwrap();
-/// let pk = PublicKey::try_from(&pk_bytes[..]).unwrap();
+/// let sk = <Bliss as Signature>::PrivateKey::try_from(&sk_bytes[..]).unwrap();
+/// let pk = <Bliss as Signature>::PublicKey::try_from(&pk_bytes[..]).unwrap();
 /// # let sign = Bliss::signature(&sk, &data);
 /// let sign_bytes: Vec<u8> = sign.into();
-/// let sign = SignatureData::try_from(&sign_bytes[..]).unwrap();
+/// let sign = <Bliss as Signature>::Signature::try_from(&sign_bytes[..]).unwrap();
 /// # assert!(Bliss::verify(&pk, &sign, &data));
 /// # assert!(!Bliss::verify(&pk, &sign, &data[1..]));
 /// ```

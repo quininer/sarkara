@@ -4,7 +4,7 @@
 
 mod bliss;
 
-pub use self::bliss::{ Bliss, PrivateKey, PublicKey, SignatureData };
+pub use self::bliss::Bliss;
 
 
 /// `Signature` trait.

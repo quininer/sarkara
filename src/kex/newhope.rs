@@ -30,11 +30,11 @@ use super::KeyExchange;
 /// ```
 /// # #![feature(try_from)]
 /// # use std::convert::TryFrom;
-/// # use sarkara::kex::{ KeyExchange, PrivateKey, NewHope };
+/// # use sarkara::kex::{ KeyExchange, NewHope };
 /// # let (mut keya, mut keyb) = ([0; 32], [0; 32]);
 /// # let (sk, pk) = NewHope::keygen();
 /// let sk_bytes: Vec<u8> = sk.into();
-/// let sk = PrivateKey::try_from(&sk_bytes[..]).unwrap();
+/// let sk = <NewHope as KeyExchange>::PrivateKey::try_from(&sk_bytes[..]).unwrap();
 /// # let rec = NewHope::exchange(&mut keyb, &pk);
 /// # NewHope::exchange_from(&mut keya, &sk, &rec);
 /// # assert_eq!(keya, keyb);
