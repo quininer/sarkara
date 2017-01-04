@@ -4,6 +4,7 @@
 
 mod bliss;
 
+use rand::{ Rand, Rng };
 pub use self::bliss::Bliss;
 
 
@@ -24,9 +25,9 @@ pub trait Signature {
     fn sign_length() -> usize;
 
     /// Generate keypair.
-    fn keygen() -> (Self::PrivateKey, Self::PublicKey);
+    fn keygen<R: Rand + Rng>() -> (Self::PrivateKey, Self::PublicKey);
     /// Signature.
-    fn signature(sk: &Self::PrivateKey, data: &[u8]) -> Self::Signature;
+    fn signature<R: Rand + Rng>(sk: &Self::PrivateKey, data: &[u8]) -> Self::Signature;
     /// Verify.
     fn verify(pk: &Self::PublicKey, sign: &Self::Signature, data: &[u8]) -> bool;
 }

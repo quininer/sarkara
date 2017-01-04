@@ -1,7 +1,7 @@
 use std::io;
 use std::convert::TryFrom;
 use seckey::Key;
-use rand::{ Rng, OsRng, ChaChaRng };
+use rand::{ Rand, Rng, OsRng };
 use newhope::{
     N, POLY_BYTES, SENDABYTES, SENDBBYTES,
     poly_frombytes, poly_tobytes,
@@ -16,28 +16,38 @@ use super::KeyExchange;
 ///
 /// # Example(exchange)
 /// ```
+/// # extern crate rand;
+/// # extern crate sarkara;
+/// # fn main() {
+/// use rand::ChaChaRng;
 /// use sarkara::kex::{ KeyExchange, NewHope };
 ///
 /// let (mut keya, mut keyb) = ([0; 32], [0; 32]);
-/// let (sk, pk) = NewHope::keygen();
-/// let rec = NewHope::exchange(&mut keyb, &pk);
+/// let (sk, pk) = NewHope::keygen::<ChaChaRng>();
+/// let rec = NewHope::exchange::<ChaChaRng>(&mut keyb, &pk);
 /// NewHope::exchange_from(&mut keya, &sk, &rec);
 ///
 /// assert_eq!(keya, keyb);
+/// # }
 /// ```
 ///
 /// # Example(import/export)
 /// ```
 /// # #![feature(try_from)]
+/// # extern crate rand;
+/// # extern crate sarkara;
+/// # fn main() {
 /// # use std::convert::TryFrom;
+/// # use rand::ChaChaRng;
 /// # use sarkara::kex::{ KeyExchange, NewHope };
 /// # let (mut keya, mut keyb) = ([0; 32], [0; 32]);
-/// # let (sk, pk) = NewHope::keygen();
+/// # let (sk, pk) = NewHope::keygen::<ChaChaRng>();
 /// let sk_bytes: Vec<u8> = sk.into();
 /// let sk = <NewHope as KeyExchange>::PrivateKey::try_from(&sk_bytes[..]).unwrap();
-/// # let rec = NewHope::exchange(&mut keyb, &pk);
+/// # let rec = NewHope::exchange::<ChaChaRng>(&mut keyb, &pk);
 /// # NewHope::exchange_from(&mut keya, &sk, &rec);
 /// # assert_eq!(keya, keyb);
+/// # }
 /// ```
 pub struct NewHope;
 
@@ -50,13 +60,13 @@ impl KeyExchange for NewHope {
     #[inline] fn pk_length() -> usize { SENDABYTES }
     #[inline] fn rec_length() -> usize { SENDBBYTES }
 
-    fn keygen() -> (Self::PrivateKey, Self::PublicKey) {
+    fn keygen<R: Rand + Rng>() -> (Self::PrivateKey, Self::PublicKey) {
         let (mut sk, mut pk) = ([0; N].into(), [0; SENDABYTES]);
 
         {
             let Key(ref mut sk) = sk;
             let (mut pka, mut nonce) = ([0; N], [0; 32]);
-            let mut rng = OsRng::new().unwrap().gen::<ChaChaRng>();
+            let mut rng = OsRng::new().unwrap().gen::<R>();
 
             rng.fill_bytes(&mut nonce);
             keygen(sk, &mut pka, &nonce, rng);
@@ -68,13 +78,13 @@ impl KeyExchange for NewHope {
         (PrivateKey(sk), PublicKey(pk))
     }
 
-    fn exchange(sharedkey: &mut [u8], &PublicKey(ref pka): &Self::PublicKey) -> Self::Reconciliation {
+    fn exchange<R: Rand + Rng>(sharedkey: &mut [u8], &PublicKey(ref pka): &Self::PublicKey) -> Self::Reconciliation {
         let (Key(mut key), mut pkb, mut rec) = ([0; 32].into(), [0; N], [0; N]);
         let (pk, nonce) = pka.split_at(POLY_BYTES);
 
         sharedb(
             &mut key, &mut pkb, &mut rec,
-            &poly_frombytes(pk), nonce, OsRng::new().unwrap().gen::<ChaChaRng>()
+            &poly_frombytes(pk), nonce, OsRng::new().unwrap().gen::<R>()
         );
 
         sha3_256(sharedkey, &key);

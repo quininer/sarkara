@@ -1,5 +1,6 @@
 use std::io;
 use std::convert::TryFrom;
+use rand::{ Rand, Rng };
 use seckey::Key;
 use super::Signature;
 
@@ -10,32 +11,42 @@ use blissb::param::{ PRIVATEKEY_LENGTH, PUBLICKEY_LENGTH, SIGNATURE_LENGTH };
 ///
 /// # Example(signature)
 /// ```
+/// # extern crate rand;
+/// # extern crate sarkara;
+/// # fn main() {
+/// use rand::ChaChaRng;
 /// use sarkara::sign::{ Bliss, Signature };
 ///
 /// let data = [9; 64];
-/// let (sk, pk) = Bliss::keygen();
-/// let sign = Bliss::signature(&sk, &data);
+/// let (sk, pk) = Bliss::keygen::<ChaChaRng>();
+/// let sign = Bliss::signature::<ChaChaRng>(&sk, &data);
 /// assert!(Bliss::verify(&pk, &sign, &data));
 /// assert!(!Bliss::verify(&pk, &sign, &data[1..]));
+/// # }
 /// ```
 ///
 /// # Example(import/export)
 /// ```
 /// #![feature(try_from)]
+/// # extern crate rand;
+/// # extern crate sarkara;
+/// # fn main() {
 /// # use std::convert::TryFrom;
+/// # use rand::ChaChaRng;
 /// # use sarkara::sign::{ Bliss, Signature };
 /// #
 /// # let data = [9; 64];
-/// # let (sk, pk) = Bliss::keygen();
+/// # let (sk, pk) = Bliss::keygen::<ChaChaRng>();
 /// let sk_bytes: Vec<u8> = sk.into();
 /// let pk_bytes: Vec<u8> = pk.into();
 /// let sk = <Bliss as Signature>::PrivateKey::try_from(&sk_bytes[..]).unwrap();
 /// let pk = <Bliss as Signature>::PublicKey::try_from(&pk_bytes[..]).unwrap();
-/// # let sign = Bliss::signature(&sk, &data);
+/// # let sign = Bliss::signature::<ChaChaRng>(&sk, &data);
 /// let sign_bytes: Vec<u8> = sign.into();
 /// let sign = <Bliss as Signature>::Signature::try_from(&sign_bytes[..]).unwrap();
 /// # assert!(Bliss::verify(&pk, &sign, &data));
 /// # assert!(!Bliss::verify(&pk, &sign, &data[1..]));
+/// # }
 /// ```
 pub struct Bliss;
 
@@ -48,14 +59,14 @@ impl Signature for Bliss {
     #[inline] fn pk_length() -> usize { PUBLICKEY_LENGTH }
     #[inline] fn sign_length() -> usize { SIGNATURE_LENGTH }
 
-    fn keygen() -> (Self::PrivateKey, Self::PublicKey) {
-        let sk = ::blissb::PrivateKey::new().unwrap();
+    fn keygen<R: Rand + Rng>() -> (Self::PrivateKey, Self::PublicKey) {
+        let sk = ::blissb::PrivateKey::new::<R>().unwrap();
         let pk = sk.public();
         (PrivateKey(sk.into()), PublicKey(pk))
     }
 
-    fn signature(&PrivateKey(Key(ref sk)): &Self::PrivateKey, data: &[u8]) -> Self::Signature {
-        SignatureData(sk.signature(data).unwrap())
+    fn signature<R: Rand + Rng>(&PrivateKey(Key(ref sk)): &Self::PrivateKey, data: &[u8]) -> Self::Signature {
+        SignatureData(sk.signature::<R>(data).unwrap())
     }
 
     fn verify(

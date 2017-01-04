@@ -5,6 +5,7 @@
 
 mod newhope;
 
+use rand::{ Rand, Rng };
 pub use self::newhope::NewHope;
 
 
@@ -25,9 +26,9 @@ pub trait KeyExchange {
     fn rec_length() -> usize;
 
     /// Generate keypair.
-    fn keygen() -> (Self::PrivateKey, Self::PublicKey);
+    fn keygen<R: Rand + Rng>() -> (Self::PrivateKey, Self::PublicKey);
     /// Key exchange, from Public key.
-    fn exchange(sharedkey: &mut [u8], pk: &Self::PublicKey) -> Self::Reconciliation;
+    fn exchange<R: Rand + Rng>(sharedkey: &mut [u8], pk: &Self::PublicKey) -> Self::Reconciliation;
     /// key exchange, from Reconciliation data.
     fn exchange_from(sharedkey: &mut [u8], sk: &Self::PrivateKey, rec: &Self::Reconciliation);
 }

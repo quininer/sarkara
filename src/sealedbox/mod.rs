@@ -2,6 +2,7 @@
 
 use std::io;
 use std::convert::TryFrom;
+use rand::{ Rand, Rng };
 use seckey::Bytes;
 use ::aead::{ AeadCipher, DecryptFail };
 use ::kex::KeyExchange;
@@ -13,7 +14,7 @@ use ::kex::KeyExchange;
 /// # extern crate rand;
 /// # extern crate sarkara;
 /// # fn main() {
-/// # use rand::{ Rng, thread_rng };
+/// # use rand::{ Rng, thread_rng, ChaChaRng };
 /// # use sarkara::aead::{ Ascon, AeadCipher };
 /// # use sarkara::kex::{ NewHope, KeyExchange };
 /// # use sarkara::sealedbox::SealedBox;
@@ -23,9 +24,9 @@ use ::kex::KeyExchange;
 /// # let mut data = vec![0; 1024];
 /// # rng.fill_bytes(&mut data);
 ///
-/// let (sk, pk) = NewHope::keygen();
+/// let (sk, pk) = NewHope::keygen::<ChaChaRng>();
 ///
-/// let mut ciphertext = Ascon::seal::<NewHope>(&pk, &data);
+/// let mut ciphertext = Ascon::seal::<NewHope, ChaChaRng>(&pk, &data);
 /// # assert_eq!(
 /// #     ciphertext.len(),
 /// #     data.len() + Ascon::tag_length() + NewHope::rec_length()
@@ -43,11 +44,12 @@ use ::kex::KeyExchange;
 /// ```
 pub trait SealedBox {
     /// Seal SecretBox.
-    fn seal<K>(pka: &K::PublicKey, data: &[u8])
+    fn seal<K, R>(pka: &K::PublicKey, data: &[u8])
         -> Vec<u8>
         where
             K: KeyExchange,
-            K::Reconciliation: Into<Vec<u8>>;
+            K::Reconciliation: Into<Vec<u8>>,
+            R: Rand + Rng;
 
     /// Open SecretBox.
     fn open<'a, K>(ska: &K::PrivateKey, data: &'a [u8])
@@ -58,14 +60,15 @@ pub trait SealedBox {
 }
 
 impl<T> SealedBox for T where T: AeadCipher {
-    fn seal<K>(pka: &K::PublicKey, data: &[u8])
+    fn seal<K, R>(pka: &K::PublicKey, data: &[u8])
         -> Vec<u8>
         where
             K: KeyExchange,
-            K::Reconciliation: Into<Vec<u8>>
+            K::Reconciliation: Into<Vec<u8>>,
+            R: Rand + Rng
     {
         let mut key = Bytes::from(vec![0; Self::key_length() + Self::nonce_length()]);
-        let mut rec = K::exchange(&mut key, pka).into();
+        let mut rec = K::exchange::<R>(&mut key, pka).into();
         let (key, nonce) = key.split_at(Self::key_length());
 
         let mut output = Self::new(key)
