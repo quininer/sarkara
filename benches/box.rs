@@ -5,7 +5,7 @@ extern crate rand;
 extern crate sarkara;
 
 use test::Bencher;
-use rand::{ Rng, thread_rng };
+use rand::{ Rng, thread_rng, ChaChaRng };
 use sarkara::kex::{ NewHope, KeyExchange };
 use sarkara::aead::{ Ascon, General, RivGeneral, AeadCipher };
 use sarkara::stream::HC256;
@@ -40,13 +40,13 @@ macro_rules! bench_box {
         fn $name(b: &mut Bencher) {
             use sarkara::sealedbox::SealedBox;
 
-            let (sk, pk) = $kty::keygen();
+            let (sk, pk) = $kty::keygen::<ChaChaRng>();
             let mut data = [0; $len];
             thread_rng().fill_bytes(&mut data);
 
             b.bytes = data.len() as u64;
             b.iter(|| {
-                let ciphertext = $cty::seal::<$kty>(&pk, &data);
+                let ciphertext = $cty::seal::<$kty, ChaChaRng>(&pk, &data);
                 $cty::open::<$kty>(&sk, &ciphertext)
             });
         }
