@@ -3,7 +3,6 @@
 [![appveyor](https://ci.appveyor.com/api/projects/status/8daadka3u64177gp?svg=true)](https://ci.appveyor.com/project/quininer/sarkara)
 [![crates](https://img.shields.io/crates/v/sarkara.svg)](https://crates.io/crates/sarkara)
 [![license](https://img.shields.io/github/license/quininer/sarkara.svg)](https://github.com/quininer/sarkara/blob/master/LICENSE)
-[![clippy](https://clippy.bashy.io/github/quininer/sarkara/master/badge.svg)](https://clippy.bashy.io/github/quininer/sarkara/master/log)
 [![docs.rs](https://docs.rs/sarkara/badge.svg)](https://docs.rs/sarkara/)
 
 Sarkara is a Post-Quantum cryptography library.

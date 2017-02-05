@@ -85,11 +85,12 @@ impl<C, M, H> AeadCipher for General<C, M, H>
 
         let mut output = self.cipher.process(nonce, data);
 
-        let mut aad = self.aad.clone();
-        aad.extend_from_slice(&output);
+        let mut aad_and_data = Vec::with_capacity(self.aad.len() + output.len());
+        aad_and_data.extend_from_slice(&self.aad);
+        aad_and_data.extend_from_slice(&output);
         let mut tag = self.mac.clone()
             .with_nonce(&mnonce)
-            .result::<Vec<u8>>(&aad);
+            .result::<Vec<u8>>(&aad_and_data);
         output.append(&mut tag);
         output
     }
@@ -104,9 +105,10 @@ impl<C, M, H> AeadCipher for General<C, M, H>
 
         let (data, tag) = data.split_at(data.len() - Self::tag_length());
 
-        let mut aad = self.aad.clone();
-        aad.extend_from_slice(data);
-        if self.mac.clone().with_nonce(&mnonce).verify(&aad, tag) {
+        let mut aad_and_data = Vec::with_capacity(self.aad.len() + data.len());
+        aad_and_data.extend_from_slice(&self.aad);
+        aad_and_data.extend_from_slice(data);
+        if self.mac.clone().with_nonce(&mnonce).verify(&aad_and_data, tag) {
             Ok(self.cipher.process(nonce, data))
         } else {
             Err(DecryptFail::AuthenticationFail)

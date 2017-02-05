@@ -12,3 +12,4 @@ build: false
 
 test_script:
   - 'cargo test --verbose --release'
+  - 'cargo bench'

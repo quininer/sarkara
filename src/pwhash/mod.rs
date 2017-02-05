@@ -70,7 +70,7 @@ impl<T> KeyVerify for T where T: KeyDerive {}
 
 impl fmt::Display for KeyDerivationFail {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.description())
+        write!(f, "Key Derivation fail: {}", self.description())
     }
 }
 

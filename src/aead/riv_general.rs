@@ -84,9 +84,10 @@ impl<C, M, H> AeadCipher for RivGeneral<C, M, H>
         let mut mac = self.mac.clone();
         mac.with_nonce(nonce);
 
-        let mut aad = self.aad.clone();
-        aad.extend_from_slice(data);
-        let mut tag = mac.result::<Vec<u8>>(&aad);
+        let mut aad_and_data = Vec::with_capacity(self.aad.len() + data.len());
+        aad_and_data.extend_from_slice(&self.aad);
+        aad_and_data.extend_from_slice(data);
+        let mut tag = mac.result::<Vec<u8>>(&aad_and_data);
         let mut output = self.cipher.process(&tag, data);
         let xorkey = mac.result::<Bytes>(&output);
 
@@ -113,9 +114,10 @@ impl<C, M, H> AeadCipher for RivGeneral<C, M, H>
         }
 
         let output = self.cipher.process(&xorkey, data);
-        let mut aad = self.aad.clone();
-        aad.extend_from_slice(&output);
-        if mac.verify(&aad, &xorkey) {
+        let mut aad_and_data = Vec::with_capacity(self.aad.len() + output.len());
+        aad_and_data.extend_from_slice(&self.aad);
+        aad_and_data.extend_from_slice(&output);
+        if mac.verify(&aad_and_data, &xorkey) {
             Ok(output)
         } else {
             Err(DecryptFail::AuthenticationFail)

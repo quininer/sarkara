@@ -65,14 +65,13 @@ impl KeyExchange for NewHope {
 
         {
             let Key(ref mut sk) = sk;
-            let (mut pka, mut nonce) = ([0; N], [0; 32]);
+            let mut pka = [0; N];
             let mut rng = OsRng::new().unwrap().gen::<R>();
 
-            rng.fill_bytes(&mut nonce);
-            keygen(sk, &mut pka, &nonce, rng);
+            rng.fill_bytes(&mut pk[POLY_BYTES..]);
+            keygen(sk, &mut pka, &pk[POLY_BYTES..], rng);
 
             pk[..POLY_BYTES].clone_from_slice(&poly_tobytes(&pka));
-            pk[POLY_BYTES..].clone_from_slice(&nonce);
         }
 
         (PrivateKey(sk), PublicKey(pk))
