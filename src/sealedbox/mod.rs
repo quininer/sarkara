@@ -52,11 +52,11 @@ pub trait SealedBox {
             R: Rand + Rng;
 
     /// Open SecretBox.
-    fn open<'a, K>(ska: &K::PrivateKey, data: &'a [u8])
+    fn open<K>(ska: &K::PrivateKey, data: &[u8])
         -> Result<Vec<u8>, DecryptFail>
         where
             K: KeyExchange,
-            K::Reconciliation: TryFrom<&'a [u8], Err=io::Error>;
+            for<'a> K::Reconciliation: TryFrom<&'a [u8], Err=io::Error>;
 }
 
 impl<T> SealedBox for T where T: AeadCipher {
@@ -78,11 +78,11 @@ impl<T> SealedBox for T where T: AeadCipher {
         output
     }
 
-    fn open<'a, K>(ska: &K::PrivateKey, data: &'a [u8])
+    fn open<K>(ska: &K::PrivateKey, data: &[u8])
         -> Result<Vec<u8>, DecryptFail>
         where
             K: KeyExchange,
-            K::Reconciliation: TryFrom<&'a [u8], Err=io::Error>
+            for<'a> K::Reconciliation: TryFrom<&'a [u8], Err=io::Error>
     {
         if data.len() < K::rec_length() { Err(DecryptFail::LengthError)? };
 
