@@ -5,17 +5,12 @@
 //! is [Password Hashing Competition](https://password-hashing.net/) winner.
 
 
-mod argon2;
+pub mod argon2;
 
 use std::fmt;
 use std::error::Error;
 use seckey::Bytes;
-pub use self::argon2::{
-    Argon2i,
-    OPSLIMIT_INTERACTIVE, MEMLIMIT_INTERACTIVE,
-    OPSLIMIT_MODERATE, MEMLIMIT_MODERATE,
-    OPSLIMIT_SENSITIVE, MEMLIMIT_SENSITIVE
-};
+pub use self::argon2::Argon2i;
 
 
 /// Key derivation error.

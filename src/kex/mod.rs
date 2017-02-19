@@ -3,7 +3,7 @@
 //! Sarkara use [`NewHope`](https://eprint.iacr.org/2015/1092).
 
 
-mod newhope;
+pub mod newhope;
 
 use rand::{ Rand, Rng };
 pub use self::newhope::NewHope;

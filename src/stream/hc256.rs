@@ -1,3 +1,5 @@
+//! [hc256](http://www.ecrypt.eu.org/stream/hcpf.html).
+
 use seckey::Bytes;
 use super::StreamCipher;
 

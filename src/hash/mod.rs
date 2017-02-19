@@ -4,7 +4,7 @@
 //! it based on [`ChaCha`](https://en.wikipedia.org/wiki/ChaCha_(cipher)) stream cipher,
 //! have good performance and security.
 
-mod blake2;
+pub mod blake2;
 
 pub use self::blake2::Blake2b;
 

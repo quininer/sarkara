@@ -1,3 +1,5 @@
+//! HMAC, nonce variant.
+
 use seckey::Bytes;
 use ::hash::{ Hash, GenericHash };
 use super::{ Mac, NonceMac };

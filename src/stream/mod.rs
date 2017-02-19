@@ -4,7 +4,7 @@
 //! it is one of [`eSTREAM`](http://www.ecrypt.eu.org/stream/) portfolio,
 //! have good design and performance.
 
-mod hc256;
+pub mod hc256;
 
 pub use self::hc256::HC256;
 

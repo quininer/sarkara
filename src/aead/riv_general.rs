@@ -1,3 +1,5 @@
+//! General RIV Authenticated Encryption.
+
 use std::marker::PhantomData;
 use seckey::Bytes;
 use ::stream::StreamCipher;

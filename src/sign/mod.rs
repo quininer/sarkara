@@ -2,7 +2,7 @@
 //!
 //! Sarkara use [`BLISS`](http://bliss.di.ens.fr/).
 
-mod bliss;
+pub mod bliss;
 
 use rand::{ Rand, Rng };
 pub use self::bliss::Bliss;

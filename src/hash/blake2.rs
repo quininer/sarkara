@@ -1,3 +1,5 @@
+//! [blake2](https://blake2.net/).
+
 use blake2_rfc::blake2b::blake2b;
 use seckey::Bytes;
 use super::{ GenericHash, Hash };

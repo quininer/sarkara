@@ -23,8 +23,8 @@ macro_rules! new_type {
             }
         }
 
-        impl From<$name> for $output {
-            fn from($input_into: $name) -> $output $into
+        impl Into<$output> for $name {
+            fn into($input_into) -> $output $into
         }
     }
 }

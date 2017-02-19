@@ -2,9 +2,9 @@
 //!
 //! Sarkara will use [CAESAR competition](http://competitions.cr.yp.to/caesar.html) winner.
 
-mod general;
-mod riv_general;
-mod ascon;
+pub mod general;
+pub mod riv_general;
+pub mod ascon;
 
 use std::{ io, fmt };
 use std::error::Error;
@@ -63,6 +63,13 @@ impl Error for DecryptFail {
             DecryptFail::LengthError => "Ciphertext length error.",
             DecryptFail::AuthenticationFail => "Tag authentication fail.",
             DecryptFail::Other(ref err) => err.description()
+        }
+    }
+
+    fn cause(&self) -> Option<&Error> {
+        match *self {
+            DecryptFail::Other(ref err) => Some(err),
+            _ => None
         }
     }
 }

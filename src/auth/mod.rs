@@ -3,7 +3,7 @@
 //! Sarkara use [`HMAC`](https://tools.ietf.org/html/rfc2104) nonce variant,
 //! in order to better Post-Quantum security.
 
-mod qhmac;
+pub mod qhmac;
 
 use seckey::Bytes;
 pub use self::qhmac::HMAC;

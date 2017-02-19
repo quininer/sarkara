@@ -1,3 +1,5 @@
+//! [ascon](http://ascon.iaik.tugraz.at/).
+
 use seckey::Bytes;
 use super::{ AeadCipher, DecryptFail };
 

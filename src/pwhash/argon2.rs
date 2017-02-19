@@ -1,3 +1,5 @@
+//! [argon2](https://password-hashing.net/).
+
 use argon2rs::{ Argon2, Variant, ParamErr };
 use seckey::Bytes;
 use super::{ KeyDerive, KeyDerivationFail };

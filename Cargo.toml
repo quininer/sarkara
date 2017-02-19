@@ -9,7 +9,7 @@ keywords = [ "post-quantum", "cryptography" ]
 license = "MIT"
 
 [dependencies]
-seckey = "0.2"
+seckey = "0.4"
 rand = "0.3"
 hc256 = "0.1"
 blake2-rfc = "0.2"

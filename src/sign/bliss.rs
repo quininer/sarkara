@@ -1,3 +1,5 @@
+//! [bliss](http://bliss.di.ens.fr/).
+
 use std::io;
 use std::convert::TryFrom;
 use rand::{ Rand, Rng };
@@ -95,8 +97,8 @@ new_type!(
             err!(InvalidInput, "PrivateKey: invalid input length.")
         }
     },
-    into: (input) -> Vec<u8> {
-        let PrivateKey(Key(ref input)) = input;
+    into: (self) -> Vec<u8> {
+        let PrivateKey(Key(ref input)) = self;
         Vec::from(&input.export().unwrap()[..])
     }
 );
@@ -116,8 +118,8 @@ new_type!(
             err!(InvalidInput, "PublicKey: invalid input length.")
         }
     },
-    into: (input) -> Vec<u8> {
-        let PublicKey(ref input) = input;
+    into: (self) -> Vec<u8> {
+        let PublicKey(ref input) = self;
         Vec::from(&input.export().unwrap()[..])
     }
 );
@@ -137,8 +139,8 @@ new_type!(
             err!(InvalidInput, "Signature: invalid input length.")
         }
     },
-    into: (input) -> Vec<u8> {
-        let SignatureData(ref input) = input;
+    into: (self) -> Vec<u8> {
+        let SignatureData(ref input) = self;
         Vec::from(&input.export().unwrap()[..])
     }
 );
