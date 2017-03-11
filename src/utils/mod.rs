@@ -1,8 +1,8 @@
 //! Sarkara utils.
 
-mod nonce;
+pub mod nonce;
 
-pub use self::nonce::{ GenNonce, Counter };
+pub use self::nonce::GenNonce;
 
 
 macro_rules! new_type {

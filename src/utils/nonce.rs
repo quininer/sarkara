@@ -1,3 +1,5 @@
+//! Nonce Generater.
+
 use std::mem::size_of_val;
 use rand::Rng;
 use byteorder::{ BigEndian, ByteOrder };
@@ -7,9 +9,16 @@ use byteorder::{ BigEndian, ByteOrder };
 pub trait GenNonce {
     /// fill nonce.
     fn fill(&mut self, nonce: &mut [u8]);
+
+    /// generate nonce.
+    fn gen(&mut self, len: usize) -> Vec<u8> {
+        let mut output = vec![0; len];
+        self.fill(&mut output);
+        output
+    }
 }
 
-impl<T> GenNonce for T where T: Rng {
+impl<T: Rng> GenNonce for T {
     #[inline]
     fn fill(&mut self, nonce: &mut [u8]) {
         self.fill_bytes(nonce)
@@ -28,7 +37,7 @@ impl<T> GenNonce for T where T: Rng {
 /// # use sarkara::stream::HC256;
 /// # use sarkara::auth::HMAC;
 /// # use sarkara::hash::Blake2b;
-/// # use sarkara::utils::{ GenNonce, Counter };
+/// # use sarkara::utils::nonce::{ GenNonce, Counter };
 /// #
 /// # type HHBB = General<HC256, HMAC<Blake2b>, Blake2b>;
 /// #
@@ -58,6 +67,7 @@ impl<T> GenNonce for T where T: Rng {
 ///
 /// ## Panic When:
 /// - Counter overflow.
+/// - nonce length < `size_of::<u64>()`.
 #[derive(Debug, Clone)]
 pub struct Counter(pub u64);
 
@@ -71,7 +81,7 @@ impl GenNonce for Counter {
     fn fill(&mut self, nonce: &mut [u8]) {
         let nonce_len = nonce.len();
         let ctr_len = size_of_val(&self.0);
-        debug_assert!(nonce_len >= ctr_len);
+        assert!(nonce_len >= ctr_len);
 
         let (_, ctr) = nonce.split_at_mut(nonce_len - ctr_len);
         BigEndian::write_u64(ctr, self.0);

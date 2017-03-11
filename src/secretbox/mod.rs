@@ -55,8 +55,7 @@ pub trait SecretBox {
 
 impl<T> SecretBox for T where T: AeadCipher {
     fn seal_with_nonce(rng: &mut GenNonce, key: &[u8], data: &[u8]) -> Vec<u8> {
-        let mut nonce = vec![0; Self::nonce_length()];
-        rng.fill(&mut nonce);
+        let nonce = rng.gen(Self::nonce_length());
         let output = Self::new(key)
             .with_aad(&nonce)
             .encrypt(&nonce, data);
