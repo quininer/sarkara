@@ -58,10 +58,10 @@ impl<C, M, H> AeadCipher for RivGeneral<C, M, H>
 {
     fn new(key: &[u8]) -> Self where Self: Sized {
         debug_assert_eq!(key.len(), Self::key_length());
-        let mkey = H::default()
+        let mac_key = H::default()
             .with_size(M::key_length())
             .hash::<Bytes>(key);
-        let mut mac = M::new(&mkey);
+        let mut mac = M::new(&mac_key);
         mac.with_size(C::nonce_length());
         RivGeneral {
             cipher: C::new(key),
