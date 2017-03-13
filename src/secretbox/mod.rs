@@ -41,15 +41,26 @@ use ::utils::GenNonce;
 /// ```
 pub trait SecretBox {
     /// Seal SecretBox.
+    ///
+    /// ## Panic When:
+    /// - key length not equal `AeadCipher::key_length()`.
     #[inline]
     fn seal(key: &[u8], data: &[u8]) -> Vec<u8> {
         Self::seal_with_nonce(&mut OsRng::new().unwrap(), key, data)
     }
 
     /// Seal SecretBox with Nonce.
+    ///
+    /// ## Panic When:
+    /// - key length not equal `AeadCipher::key_length()`.
     fn seal_with_nonce(rng: &mut GenNonce, key: &[u8], data: &[u8]) -> Vec<u8>;
 
     /// Open SecretBox.
+    ///
+    /// ## Fail When:
+    /// - Ciphertext length error.
+    /// - Tag authentication fail.
+    /// - Other error.
     fn open(key: &[u8], data: &[u8]) -> Result<Vec<u8>, DecryptFail>;
 }
 

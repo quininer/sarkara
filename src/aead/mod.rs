@@ -27,6 +27,9 @@ pub enum DecryptFail {
 /// `AeadCipher` trait.
 pub trait AeadCipher {
     /// Create a new AeadCipher.
+    ///
+    /// ## Panic When:
+    /// - key length not equal `AeadCipher::key_length()`.
     fn new(key: &[u8]) -> Self where Self: Sized;
 
     /// Key length.
@@ -40,6 +43,9 @@ pub trait AeadCipher {
     fn with_aad(&mut self, aad: &[u8]) -> &mut Self;
 
     /// Encryption.
+    ///
+    /// ## Panic When:
+    /// - nonce length not equal `AeadCipher::nonce_length()`.
     fn encrypt(&self, nonce: &[u8], data: &[u8]) -> Vec<u8>;
 
     /// Decryption

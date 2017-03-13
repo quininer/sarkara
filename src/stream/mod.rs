@@ -12,6 +12,9 @@ pub use self::hc256::HC256;
 /// `StreamCipher` trait.
 pub trait StreamCipher {
     /// Create a new StreamCipher.
+    ///
+    /// ## Panic When:
+    /// - key length not equal `StreamCipher::key_length()`.
     fn new(key: &[u8]) -> Self where Self: Sized;
 
     /// Key length.
@@ -20,5 +23,8 @@ pub trait StreamCipher {
     fn nonce_length() -> usize where Self: Sized;
 
     /// Process data.
+    ///
+    /// ## Panic When:
+    /// - nonce length not equal `StreamCipher::nonce_length()`.
     fn process(&self, nonce: &[u8], data: &[u8]) -> Vec<u8>;
 }

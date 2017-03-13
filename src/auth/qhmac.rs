@@ -58,7 +58,7 @@ impl<H> Mac for HMAC<H> where H: Hash {
     #[inline] fn tag_length() -> usize where Self: Sized { H::digest_length() }
 
     fn new(key: &[u8]) -> Self where Self: Sized {
-        debug_assert_eq!(key.len(), Self::key_length());
+        assert_eq!(key.len(), Self::key_length());
         HMAC {
             key: Bytes::new(key),
             ih: H::default(),
@@ -87,7 +87,7 @@ impl<H> NonceMac for HMAC<H> where H: GenericHash {
 
     #[inline]
     fn with_nonce(&mut self, nonce: &[u8]) -> &mut Self {
-        debug_assert_eq!(nonce.len(), Self::nonce_length());
+        assert_eq!(nonce.len(), Self::nonce_length());
         self.ih.with_key(nonce);
         self.oh.with_key(nonce);
         self

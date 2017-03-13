@@ -17,6 +17,9 @@ pub trait Mac {
     fn tag_length() -> usize where Self: Sized;
 
     /// Create a new MAC.
+    ///
+    /// ## Panic When:
+    /// - key length not equal `Mac::key_length()`.
     fn new(key: &[u8]) -> Self where Self: Sized;
 
     /// Calculate MAC Tag.
@@ -34,7 +37,10 @@ pub trait NonceMac: Mac {
     fn nonce_length() -> usize where Self: Sized;
 
     /// Set Nonce.
+    ///
+    /// ## Panic When:
+    /// - nonce length not equal `NonceMac::nonce_length()`.
     fn with_nonce(&mut self, nonce: &[u8]) -> &mut Self;
-    /// Set MAC code length.
+    /// Set MAC output length.
     fn with_size(&mut self, len: usize) -> &mut Self;
 }
