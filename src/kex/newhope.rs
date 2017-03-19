@@ -63,7 +63,7 @@ impl KeyExchange for NewHope {
     #[inline] fn rec_length() -> usize { SENDBBYTES }
 
     fn keygen<R: Rand + Rng>() -> (Self::PrivateKey, Self::PublicKey) {
-        let (mut sk, mut pk) = ([0; N].into(), [0; SENDABYTES]);
+        let (mut sk, mut pk) = (unsafe { Key::from([0; N]) }, [0; SENDABYTES]);
 
         {
             let Key(ref mut sk) = sk;
@@ -80,7 +80,7 @@ impl KeyExchange for NewHope {
     }
 
     fn exchange<R: Rand + Rng>(sharedkey: &mut [u8], &PublicKey(ref pka): &Self::PublicKey) -> Self::Reconciliation {
-        let (Key(mut key), mut pkb, mut rec) = ([0; 32].into(), [0; N], [0; N]);
+        let (Key(mut key), mut pkb, mut rec) = (unsafe { Key::from([0; 32]) }, [0; N], [0; N]);
         let (pk, nonce) = pka.split_at(POLY_BYTES);
 
         sharedb(
@@ -101,7 +101,7 @@ impl KeyExchange for NewHope {
         &PrivateKey(Key(ref sk)): &Self::PrivateKey,
         &Reconciliation(ref pk): &Self::Reconciliation
     ) {
-        let Key(mut key) = [0; 32].into();
+        let Key(mut key) = unsafe { Key::from([0; 32]) };
         let (pkb, rec) = pk.split_at(POLY_BYTES);
         shareda(&mut key, sk, &poly_frombytes(pkb), &rec_frombytes(rec));
 
@@ -115,14 +115,14 @@ new_type!(
     pub struct PrivateKey(pub Key<[u16; N]>);
     from: (input) {
         if input.len() == POLY_BYTES {
-            Ok(PrivateKey(poly_frombytes(input).into()))
+            Ok(PrivateKey(unsafe { Key::from(poly_frombytes(input)) }))
         } else {
             err!(InvalidInput, "PrivateKey: invalid input length.")
         }
     },
     into: (self) -> Vec<u8> {
         let PrivateKey(Key(ref input)) = self;
-        Vec::from(&poly_tobytes(input)[..])
+        Vec::from(&poly_tobytes(input) as &[u8])
     }
 );
 
@@ -140,7 +140,7 @@ new_type!(
     },
     into: (self) -> Vec<u8> {
         let PublicKey(ref input) = self;
-        Vec::from(&input[..])
+        Vec::from(input as &[u8])
     }
 );
 
@@ -158,6 +158,6 @@ new_type!(
     },
     into: (self) -> Vec<u8> {
         let Reconciliation(ref input) = self;
-        Vec::from(&input[..])
+        Vec::from(input as &[u8])
     }
 );
