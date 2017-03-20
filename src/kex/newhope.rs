@@ -2,6 +2,7 @@
 
 use std::io;
 use std::convert::TryFrom;
+use std::borrow::{ Borrow, BorrowMut };
 use seckey::Key;
 use rand::{ Rand, Rng, OsRng };
 use newhope::{
@@ -63,15 +64,14 @@ impl KeyExchange for NewHope {
     #[inline] fn rec_length() -> usize { SENDBBYTES }
 
     fn keygen<R: Rand + Rng>() -> (Self::PrivateKey, Self::PublicKey) {
-        let (mut sk, mut pk) = (unsafe { Key::from([0; N]) }, [0; SENDABYTES]);
+        let (mut sk, mut pk) = (Key::from([0; N]), [0; SENDABYTES]);
 
         {
-            let Key(ref mut sk) = sk;
             let mut pka = [0; N];
             let mut rng = OsRng::new().unwrap().gen::<R>();
 
             rng.fill_bytes(&mut pk[POLY_BYTES..]);
-            keygen(sk, &mut pka, &pk[POLY_BYTES..], rng);
+            keygen(sk.borrow_mut() as &mut [u16; N], &mut pka, &pk[POLY_BYTES..], rng);
 
             pk[..POLY_BYTES].clone_from_slice(&poly_tobytes(&pka));
         }
@@ -80,15 +80,15 @@ impl KeyExchange for NewHope {
     }
 
     fn exchange<R: Rand + Rng>(sharedkey: &mut [u8], &PublicKey(ref pka): &Self::PublicKey) -> Self::Reconciliation {
-        let (Key(mut key), mut pkb, mut rec) = (unsafe { Key::from([0; 32]) }, [0; N], [0; N]);
+        let (mut key, mut pkb, mut rec) = (Key::from([0u8; 32]), [0; N], [0; N]);
         let (pk, nonce) = pka.split_at(POLY_BYTES);
 
         sharedb(
-            &mut key, &mut pkb, &mut rec,
+            key.borrow_mut() as &mut [u8; 32], &mut pkb, &mut rec,
             &poly_frombytes(pk), nonce, OsRng::new().unwrap().gen::<R>()
         );
 
-        sha3_256(sharedkey, &key);
+        sha3_256(sharedkey, key.borrow() as &[u8; 32]);
 
         let mut output = [0; SENDBBYTES];
         output[..POLY_BYTES].clone_from_slice(&poly_tobytes(&pkb));
@@ -98,14 +98,19 @@ impl KeyExchange for NewHope {
 
     fn exchange_from(
         sharedkey: &mut [u8],
-        &PrivateKey(Key(ref sk)): &Self::PrivateKey,
+        &PrivateKey(ref sk): &Self::PrivateKey,
         &Reconciliation(ref pk): &Self::Reconciliation
     ) {
-        let Key(mut key) = unsafe { Key::from([0; 32]) };
+        let mut key = Key::from([0u8; 32]);
         let (pkb, rec) = pk.split_at(POLY_BYTES);
-        shareda(&mut key, sk, &poly_frombytes(pkb), &rec_frombytes(rec));
+        shareda(
+            key.borrow_mut() as &mut [u8; 32],
+            sk.borrow() as &[u16; N],
+            &poly_frombytes(pkb),
+            &rec_frombytes(rec)
+        );
 
-        sha3_256(sharedkey, &key);
+        sha3_256(sharedkey, key.borrow() as &[u8; 32]);
     }
 }
 
@@ -115,7 +120,7 @@ new_type!(
     pub struct PrivateKey(pub Key<[u16; N]>);
     from: (input) {
         if input.len() == POLY_BYTES {
-            Ok(PrivateKey(unsafe { Key::from(poly_frombytes(input)) }))
+            Ok(PrivateKey(Key::from(poly_frombytes(input))))
         } else {
             err!(InvalidInput, "PrivateKey: invalid input length.")
         }

@@ -1,6 +1,7 @@
 //! [bliss](http://bliss.di.ens.fr/).
 
 use std::io;
+use std::borrow::Borrow;
 use std::convert::TryFrom;
 use rand::{ Rand, Rng };
 use seckey::Key;
@@ -64,10 +65,11 @@ impl Signature for Bliss {
     fn keygen<R: Rand + Rng>() -> (Self::PrivateKey, Self::PublicKey) {
         let sk = ::blissb::PrivateKey::new::<R>().unwrap();
         let pk = sk.public();
-        (PrivateKey(unsafe { Key::from(sk) }), PublicKey(pk))
+        (PrivateKey(Key::from(sk)), PublicKey(pk))
     }
 
-    fn signature<R: Rand + Rng>(&PrivateKey(Key(ref sk)): &Self::PrivateKey, data: &[u8]) -> Self::Signature {
+    fn signature<R: Rand + Rng>(&PrivateKey(ref sk): &Self::PrivateKey, data: &[u8]) -> Self::Signature {
+        let sk = sk.borrow() as &::blissb::PrivateKey;
         SignatureData(sk.signature::<R>(data).unwrap())
     }
 
@@ -88,10 +90,10 @@ new_type!(
         if input.len() == PRIVATEKEY_LENGTH {
             let mut sk = [0; PRIVATEKEY_LENGTH];
             sk.clone_from_slice(input);
-            Ok(PrivateKey(unsafe { Key::from(
+            Ok(PrivateKey(Key::from(
                 ::blissb::PrivateKey::import(&sk)
                     .or(err!(InvalidInput, "PrivateKey: invalid input data."))?
-            ) }))
+            )))
         } else {
             err!(InvalidInput, "PrivateKey: invalid input length.")
         }
