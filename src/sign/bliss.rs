@@ -99,7 +99,8 @@ new_type!(
         }
     },
     into: (self) -> Vec<u8> {
-        let PrivateKey(Key(ref input)) = self;
+        let PrivateKey(ref input) = self;
+        let input = input.borrow() as &::blissb::PrivateKey;
         Vec::from(&input.export().unwrap() as &[u8])
     }
 );

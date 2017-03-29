@@ -126,8 +126,8 @@ new_type!(
         }
     },
     into: (self) -> Vec<u8> {
-        let PrivateKey(Key(ref input)) = self;
-        Vec::from(&poly_tobytes(input) as &[u8])
+        let PrivateKey(ref input) = self;
+        Vec::from(&poly_tobytes(input.borrow()) as &[u8])
     }
 );
 
