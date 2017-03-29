@@ -16,7 +16,7 @@ macro_rules! new_type {
         pub struct $name(pub $typ);
 
         impl<T> TryFrom<T> for $name where T: AsRef<[u8]> {
-            type Err = io::Error;
+            type Error = io::Error;
             fn try_from($input_from: T) -> io::Result<Self> {
                 let $input_from = $input_from.as_ref();
                 $from

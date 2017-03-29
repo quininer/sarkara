@@ -56,7 +56,7 @@ pub trait SealedBox {
         -> Result<Vec<u8>, DecryptFail>
         where
             K: KeyExchange,
-            for<'a> K::Reconciliation: TryFrom<&'a [u8], Err=io::Error>;
+            for<'a> K::Reconciliation: TryFrom<&'a [u8], Error=io::Error>;
 }
 
 impl<T> SealedBox for T where T: AeadCipher {
@@ -82,7 +82,7 @@ impl<T> SealedBox for T where T: AeadCipher {
         -> Result<Vec<u8>, DecryptFail>
         where
             K: KeyExchange,
-            for<'a> K::Reconciliation: TryFrom<&'a [u8], Err=io::Error>
+            for<'a> K::Reconciliation: TryFrom<&'a [u8], Error=io::Error>
     {
         if data.len() < K::rec_length() { Err(DecryptFail::LengthError)? };
 
