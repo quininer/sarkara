@@ -111,7 +111,7 @@ impl<C, M, H> AeadCipher for General<C, M, H>
 
         let (data, tag) = data.split_at(data.len() - Self::tag_length());
 
-        if self.mac.clone().with_nonce(&mac_nonce).verify(&data, tag) {
+        if self.mac.clone().with_nonce(&mac_nonce).verify(data, tag) {
             Ok(self.cipher.process(nonce, data))
         } else {
             Err(DecryptFail::AuthenticationFail)

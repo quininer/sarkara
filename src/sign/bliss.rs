@@ -92,7 +92,7 @@ new_type!(
             sk.clone_from_slice(input);
             Ok(PrivateKey(Key::from(
                 ::blissb::PrivateKey::import(&sk)
-                    .or(err!(InvalidInput, "PrivateKey: invalid input data."))?
+                    .or_else(|_| err!(InvalidInput, "PrivateKey: invalid input data."))?
             )))
         } else {
             err!(InvalidInput, "PrivateKey: invalid input length.")
@@ -114,7 +114,7 @@ new_type!(
             pk.clone_from_slice(input);
             Ok(PublicKey(
                 ::blissb::PublicKey::import(&pk)
-                    .or(err!(InvalidInput, "PublicKey: invalid input data."))?
+                    .or_else(|_| err!(InvalidInput, "PublicKey: invalid input data."))?
             ))
         } else {
             err!(InvalidInput, "PublicKey: invalid input length.")
@@ -135,7 +135,7 @@ new_type!(
             sign.clone_from_slice(input);
             Ok(SignatureData(
                 ::blissb::Signature::import(&sign)
-                    .or(err!(InvalidInput, "Signature: invalid input data."))?
+                    .or_else(|_| err!(InvalidInput, "Signature: invalid input data."))?
             ))
         } else {
             err!(InvalidInput, "Signature: invalid input length.")
