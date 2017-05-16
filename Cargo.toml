@@ -14,7 +14,7 @@ travis-ci = { repository = "quininer/sarkara" }
 appveyor = { repository = "quininer/sarkara" }
 
 [dependencies]
-seckey = "0.5"
+seckey = { version = "0.6", default-features = false }
 rand = "0.3"
 hc256 = "0.1"
 blake2-rfc = "0.2"

@@ -1,7 +1,6 @@
 //! [bliss](http://bliss.di.ens.fr/).
 
 use std::io;
-use std::borrow::Borrow;
 use std::convert::TryFrom;
 use rand::{ Rand, Rng };
 use seckey::Key;
@@ -69,7 +68,6 @@ impl Signature for Bliss {
     }
 
     fn signature<R: Rand + Rng>(&PrivateKey(ref sk): &Self::PrivateKey, data: &[u8]) -> Self::Signature {
-        let sk = sk.borrow() as &::blissb::PrivateKey;
         SignatureData(sk.signature::<R>(data).unwrap())
     }
 
@@ -100,7 +98,6 @@ new_type!(
     },
     into: (self) -> Vec<u8> {
         let PrivateKey(ref input) = self;
-        let input = input.borrow() as &::blissb::PrivateKey;
         Vec::from(&input.export().unwrap() as &[u8])
     }
 );

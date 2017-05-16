@@ -2,7 +2,6 @@
 
 use std::io;
 use std::convert::TryFrom;
-use std::borrow::{ Borrow, BorrowMut };
 use seckey::Key;
 use rand::{ Rand, Rng, OsRng };
 use newhope::{
@@ -71,7 +70,7 @@ impl KeyExchange for NewHope {
             let mut rng = OsRng::new().unwrap().gen::<R>();
 
             rng.fill_bytes(&mut pk[POLY_BYTES..]);
-            keygen(sk.borrow_mut() as &mut [u16; N], &mut pka, &pk[POLY_BYTES..], rng);
+            keygen(&mut *sk, &mut pka, &pk[POLY_BYTES..], rng);
 
             pk[..POLY_BYTES].clone_from_slice(&poly_tobytes(&pka));
         }
@@ -84,11 +83,11 @@ impl KeyExchange for NewHope {
         let (pk, nonce) = pka.split_at(POLY_BYTES);
 
         sharedb(
-            key.borrow_mut() as &mut [u8; 32], &mut pkb, &mut rec,
+            &mut *key, &mut pkb, &mut rec,
             &poly_frombytes(pk), nonce, OsRng::new().unwrap().gen::<R>()
         );
 
-        sha3_256(sharedkey, key.borrow() as &[u8; 32]);
+        sha3_256(sharedkey, &*key);
 
         let mut output = [0; SENDBBYTES];
         output[..POLY_BYTES].clone_from_slice(&poly_tobytes(&pkb));
@@ -104,13 +103,12 @@ impl KeyExchange for NewHope {
         let mut key = Key::from([0u8; 32]);
         let (pkb, rec) = pk.split_at(POLY_BYTES);
         shareda(
-            key.borrow_mut() as &mut [u8; 32],
-            sk.borrow() as &[u16; N],
+            &mut *key, &sk[..],
             &poly_frombytes(pkb),
             &rec_frombytes(rec)
         );
 
-        sha3_256(sharedkey, key.borrow() as &[u8; 32]);
+        sha3_256(sharedkey, &key[..]);
     }
 }
 
@@ -127,7 +125,7 @@ new_type!(
     },
     into: (self) -> Vec<u8> {
         let PrivateKey(ref input) = self;
-        Vec::from(&poly_tobytes(input.borrow()) as &[u8])
+        Vec::from(&poly_tobytes(input) as &[u8])
     }
 );
 
