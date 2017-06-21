@@ -42,7 +42,7 @@ impl<T: Rng> GenNonce for T {
 /// # type HHBB = General<HC256, HMAC<Blake2b>, Blake2b>;
 /// #
 /// # let mut rng = OsRng::new().unwrap();
-/// # let mut key = vec![0; HHBB::key_length()];
+/// # let mut key = vec![0; HHBB::KEY_LENGTH];
 /// # let mut plaintext = vec![0; 1024];
 /// # rng.fill_bytes(&mut key);
 /// # rng.fill_bytes(&mut plaintext);
@@ -50,13 +50,13 @@ impl<T: Rng> GenNonce for T {
 /// let mut ctr1 = Counter::default();
 /// let mut ctr2 = Counter::default();
 ///
-/// let mut nonce = vec![0; HHBB::nonce_length()];
+/// let mut nonce = vec![0; HHBB::NONCE_LENGTH];
 /// ctr1.fill(&mut nonce);
 /// let ciphertext = HHBB::new(&key)
 ///     .with_aad(&nonce)
 ///     .encrypt(&mut nonce, &plaintext);
 ///
-/// let mut nonce = vec![0; HHBB::nonce_length()];
+/// let mut nonce = vec![0; HHBB::NONCE_LENGTH];
 /// ctr2.fill(&mut nonce);
 /// let decrypttext = HHBB::new(&key)
 ///     .with_aad(&nonce)

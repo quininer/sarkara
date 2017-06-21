@@ -17,7 +17,7 @@ use ::utils::GenNonce;
 /// #
 /// // ...
 /// # let mut rng = thread_rng();
-/// # let mut key = vec![0; Ascon::key_length()];
+/// # let mut key = vec![0; Ascon::KEY_LENGTH];
 /// # let mut data = vec![0; 1024];
 /// # rng.fill_bytes(&mut key);
 /// # rng.fill_bytes(&mut data);
@@ -25,7 +25,7 @@ use ::utils::GenNonce;
 /// let mut ciphertext = Ascon::seal(&key, &data);
 /// # assert_eq!(
 /// #     ciphertext.len(),
-/// #     data.len() + Ascon::tag_length() + Ascon::nonce_length()
+/// #     data.len() + Ascon::TAG_LENGTH + Ascon::NONCE_LENGTH
 /// # );
 /// #
 /// let plaintext = Ascon::open(&key, &ciphertext).unwrap();
@@ -43,7 +43,7 @@ pub trait SecretBox {
     /// Seal SecretBox.
     ///
     /// ## Panic When:
-    /// - key length not equal `AeadCipher::key_length()`.
+    /// - key length not equal `AeadCipher::KEY_LENGTH`.
     #[inline]
     fn seal(key: &[u8], data: &[u8]) -> Vec<u8> {
         Self::seal_with_nonce(&mut OsRng::new().unwrap(), key, data)
@@ -52,7 +52,7 @@ pub trait SecretBox {
     /// Seal SecretBox with Nonce.
     ///
     /// ## Panic When:
-    /// - key length not equal `AeadCipher::key_length()`.
+    /// - key length not equal `AeadCipher::KEY_LENGTH`.
     fn seal_with_nonce(rng: &mut GenNonce, key: &[u8], data: &[u8]) -> Vec<u8>;
 
     /// Open SecretBox.
@@ -66,7 +66,7 @@ pub trait SecretBox {
 
 impl<T> SecretBox for T where T: AeadCipher {
     fn seal_with_nonce(rng: &mut GenNonce, key: &[u8], data: &[u8]) -> Vec<u8> {
-        let nonce = rng.gen(Self::nonce_length());
+        let nonce = rng.gen(Self::NONCE_LENGTH);
         let output = Self::new(key)
             .with_aad(&nonce)
             .encrypt(&nonce, data);
@@ -75,11 +75,11 @@ impl<T> SecretBox for T where T: AeadCipher {
     }
 
     fn open(key: &[u8], data: &[u8]) -> Result<Vec<u8>, DecryptFail> {
-        if data.len() < Self::tag_length() + Self::nonce_length() {
+        if data.len() < Self::TAG_LENGTH + Self::NONCE_LENGTH {
             Err(DecryptFail::LengthError)?
         };
 
-        let (nonce, data) = data.split_at(Self::nonce_length());
+        let (nonce, data) = data.split_at(Self::NONCE_LENGTH);
         Self::new(key)
             .with_aad(nonce)
             .decrypt(nonce, data)

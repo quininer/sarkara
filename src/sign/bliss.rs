@@ -57,9 +57,9 @@ impl Signature for Bliss {
     type PublicKey = PublicKey;
     type Signature = SignatureData;
 
-    #[inline] fn sk_length() -> usize { PRIVATEKEY_LENGTH }
-    #[inline] fn pk_length() -> usize { PUBLICKEY_LENGTH }
-    #[inline] fn sign_length() -> usize { SIGNATURE_LENGTH }
+    const SK_LENGTH: usize = PRIVATEKEY_LENGTH;
+    const PK_LENGTH: usize = PUBLICKEY_LENGTH;
+    const SIGN_LENGTH: usize = SIGNATURE_LENGTH;
 
     fn keygen<R: Rand + Rng>() -> (Self::PrivateKey, Self::PublicKey) {
         let sk = ::blissb::PrivateKey::new::<R>().unwrap();

@@ -16,8 +16,8 @@ use super::StreamCipher;
 ///
 /// // ...
 /// # let mut rng = thread_rng();
-/// # let mut pass = vec![0; HC256::key_length()];
-/// # let mut nonce = vec![0; HC256::nonce_length()];
+/// # let mut pass = vec![0; HC256::KEY_LENGTH];
+/// # let mut nonce = vec![0; HC256::NONCE_LENGTH];
 /// # let mut data = vec![0; 1024];
 /// # rng.fill_bytes(&mut pass);
 /// # rng.fill_bytes(&mut nonce);
@@ -36,15 +36,15 @@ pub struct HC256 {
 
 impl StreamCipher for HC256 {
     fn new(key: &[u8]) -> Self where Self: Sized {
-        assert_eq!(key.len(), Self::key_length());
+        assert_eq!(key.len(), Self::KEY_LENGTH);
         HC256 { key: Bytes::new(key) }
     }
 
-    #[inline] fn key_length() -> usize where Self: Sized { 32 }
-    #[inline] fn nonce_length() -> usize where Self: Sized { 32 }
+    const KEY_LENGTH: usize = 32;
+    const NONCE_LENGTH: usize = 32;
 
     fn process(&self, nonce: &[u8], data: &[u8]) -> Vec<u8> {
-        assert_eq!(nonce.len(), Self::nonce_length());
+        assert_eq!(nonce.len(), Self::NONCE_LENGTH);
         let mut output = vec![0; data.len()];
         ::hc256::HC256::new(&self.key, nonce)
             .process(data, &mut output);

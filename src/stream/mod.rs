@@ -14,17 +14,17 @@ pub trait StreamCipher {
     /// Create a new StreamCipher.
     ///
     /// ## Panic When:
-    /// - key length not equal `StreamCipher::key_length()`.
+    /// - key length not equal `StreamCipher::KEY_LENGTH`.
     fn new(key: &[u8]) -> Self where Self: Sized;
 
     /// Key length.
-    fn key_length() -> usize where Self: Sized;
+    const KEY_LENGTH: usize;
     /// Nonce length.
-    fn nonce_length() -> usize where Self: Sized;
+    const NONCE_LENGTH: usize;
 
     /// Process data.
     ///
     /// ## Panic When:
-    /// - nonce length not equal `StreamCipher::nonce_length()`.
+    /// - nonce length not equal `StreamCipher::NONCE_LENGTH`.
     fn process(&self, nonce: &[u8], data: &[u8]) -> Vec<u8>;
 }

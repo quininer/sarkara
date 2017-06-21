@@ -29,15 +29,16 @@ pub trait AeadCipher {
     /// Create a new AeadCipher.
     ///
     /// ## Panic When:
-    /// - key length not equal `AeadCipher::key_length()`.
+    /// - key length not equal `AeadCipher::KEY_LENGTH`.
     fn new(key: &[u8]) -> Self where Self: Sized;
 
+
     /// Key length.
-    fn key_length() -> usize where Self: Sized;
+    const KEY_LENGTH: usize;
     /// Tag length.
-    fn tag_length() -> usize where Self: Sized;
+    const TAG_LENGTH: usize;
     /// Nonce length.
-    fn nonce_length() -> usize where Self: Sized;
+    const NONCE_LENGTH: usize;
 
     /// Set associated data.
     fn with_aad(&mut self, aad: &[u8]) -> &mut Self;
@@ -45,7 +46,7 @@ pub trait AeadCipher {
     /// Encryption.
     ///
     /// ## Panic When:
-    /// - nonce length not equal `AeadCipher::nonce_length()`.
+    /// - nonce length not equal `AeadCipher::NONCE_LENGTH`.
     fn encrypt(&self, nonce: &[u8], data: &[u8]) -> Vec<u8>;
 
     /// Decryption

@@ -16,8 +16,8 @@ use super::{ AeadCipher, DecryptFail };
 ///
 /// // ...
 /// # let mut rng = thread_rng();
-/// # let mut pass = vec![0; Ascon::key_length()];
-/// # let mut nonce = vec![0; Ascon::nonce_length()];
+/// # let mut pass = vec![0; Ascon::KEY_LENGTH];
+/// # let mut nonce = vec![0; Ascon::NONCE_LENGTH];
 /// # let mut data = vec![0; 1024];
 /// # rng.fill_bytes(&mut pass);
 /// # rng.fill_bytes(&mut nonce);
@@ -41,16 +41,16 @@ pub struct Ascon {
 
 impl AeadCipher for Ascon {
     fn new(key: &[u8]) -> Self where Self: Sized {
-        assert_eq!(key.len(), Self::key_length());
+        assert_eq!(key.len(), Self::KEY_LENGTH);
         Ascon {
             key: Bytes::new(key),
             aad: Vec::new()
         }
     }
 
-    #[inline] fn key_length() -> usize where Self: Sized { 16 }
-    #[inline] fn tag_length() -> usize where Self: Sized { Self::key_length() }
-    #[inline] fn nonce_length() -> usize where Self: Sized { Self::key_length() }
+    const KEY_LENGTH: usize = 16;
+    const TAG_LENGTH: usize = Self::KEY_LENGTH;
+    const NONCE_LENGTH: usize = Self::KEY_LENGTH;
 
     fn with_aad(&mut self, aad: &[u8]) -> &mut Self {
         self.aad = aad.into();
@@ -58,16 +58,16 @@ impl AeadCipher for Ascon {
     }
 
     fn encrypt(&self, nonce: &[u8], data: &[u8]) -> Vec<u8> {
-        assert_eq!(nonce.len(), Self::nonce_length());
+        assert_eq!(nonce.len(), Self::NONCE_LENGTH);
         let (mut output, tag) = ::ascon::aead_encrypt(&self.key, nonce, data, &self.aad);
         output.extend_from_slice(&tag);
         output
     }
 
     fn decrypt(&self, nonce: &[u8], data: &[u8]) -> Result<Vec<u8>, DecryptFail> {
-        assert_eq!(nonce.len(), Self::nonce_length());
-        if data.len() < Self::tag_length() { Err(DecryptFail::LengthError)? };
-        let (data, tag) = data.split_at(data.len() - Self::tag_length());
+        assert_eq!(nonce.len(), Self::NONCE_LENGTH);
+        if data.len() < Self::TAG_LENGTH { Err(DecryptFail::LengthError)? };
+        let (data, tag) = data.split_at(data.len() - Self::TAG_LENGTH);
 
         ::ascon::aead_decrypt(&self.key, nonce, data, &self.aad, tag)
             .map_err(|err| err.into())

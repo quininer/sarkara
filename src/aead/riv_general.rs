@@ -25,8 +25,8 @@ use super::{ AeadCipher, DecryptFail };
 ///
 /// // ...
 /// # let mut rng = thread_rng();
-/// # let mut pass = vec![0; HRHB::key_length()];
-/// # let mut nonce = vec![0; HRHB::nonce_length()];
+/// # let mut pass = vec![0; HRHB::KEY_LENGTH];
+/// # let mut nonce = vec![0; HRHB::NONCE_LENGTH];
 /// # let mut data = vec![0; 1024];
 /// # rng.fill_bytes(&mut pass);
 /// # rng.fill_bytes(&mut nonce);
@@ -57,12 +57,12 @@ impl<C, M, H> AeadCipher for RivGeneral<C, M, H>
         H: GenericHash
 {
     fn new(key: &[u8]) -> Self where Self: Sized {
-        assert_eq!(key.len(), Self::key_length());
+        assert_eq!(key.len(), Self::KEY_LENGTH);
         let mac_key = H::default()
-            .with_size(M::key_length())
+            .with_size(M::KEY_LENGTH)
             .hash::<Bytes>(key);
         let mut mac = M::new(&mac_key);
-        mac.with_size(C::nonce_length());
+        mac.with_size(C::NONCE_LENGTH);
         RivGeneral {
             cipher: C::new(key),
             mac: mac,
@@ -71,9 +71,9 @@ impl<C, M, H> AeadCipher for RivGeneral<C, M, H>
         }
     }
 
-    #[inline] fn key_length() -> usize where Self: Sized { C::key_length() }
-    #[inline] fn tag_length() -> usize where Self: Sized { C::nonce_length() }
-    #[inline] fn nonce_length() -> usize where Self: Sized { M::nonce_length() }
+    const KEY_LENGTH: usize = C::KEY_LENGTH;
+    const TAG_LENGTH: usize = C::NONCE_LENGTH;
+    const NONCE_LENGTH: usize = M::NONCE_LENGTH;
 
     #[inline]
     fn with_aad(&mut self, aad: &[u8]) -> &mut Self {
@@ -82,7 +82,7 @@ impl<C, M, H> AeadCipher for RivGeneral<C, M, H>
     }
 
     fn encrypt(&self, nonce: &[u8], data: &[u8]) -> Vec<u8> {
-        assert_eq!(nonce.len(), Self::nonce_length());
+        assert_eq!(nonce.len(), Self::NONCE_LENGTH);
         let mut mac = self.mac.clone();
         mac.with_nonce(nonce);
 
@@ -102,13 +102,13 @@ impl<C, M, H> AeadCipher for RivGeneral<C, M, H>
     }
 
     fn decrypt(&self, nonce: &[u8], data: &[u8]) -> Result<Vec<u8>, DecryptFail> {
-        assert_eq!(nonce.len(), Self::nonce_length());
-        if data.len() < Self::tag_length() { Err(DecryptFail::LengthError)? };
+        assert_eq!(nonce.len(), Self::NONCE_LENGTH);
+        if data.len() < Self::TAG_LENGTH { Err(DecryptFail::LengthError)? };
 
         let mut mac = self.mac.clone();
         mac.with_nonce(nonce);
 
-        let (data, tag) = data.split_at(data.len() - Self::tag_length());
+        let (data, tag) = data.split_at(data.len() - Self::TAG_LENGTH);
         let mut xorkey = mac.result::<Bytes>(data);
 
         for (b, &x) in xorkey.iter_mut().zip(tag) {

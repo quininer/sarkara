@@ -13,8 +13,8 @@ macro_rules! bench_stream {
         #[bench]
         fn $name(b: &mut Bencher) {
             let mut rng = thread_rng();
-            let mut key = vec![0; $ty::key_length()];
-            let mut nonce = vec![0; $ty::nonce_length()];
+            let mut key = vec![0; $ty::KEY_LENGTH];
+            let mut nonce = vec![0; $ty::NONCE_LENGTH];
             let mut data = [0; $len];
             rng.fill_bytes(&mut key);
             rng.fill_bytes(&mut nonce);

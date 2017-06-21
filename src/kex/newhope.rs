@@ -58,9 +58,9 @@ impl KeyExchange for NewHope {
     type PublicKey = PublicKey;
     type Reconciliation = Reconciliation;
 
-    #[inline] fn sk_length() -> usize { POLY_BYTES }
-    #[inline] fn pk_length() -> usize { SENDABYTES }
-    #[inline] fn rec_length() -> usize { SENDBBYTES }
+    const SK_LENGTH: usize = POLY_BYTES;
+    const PK_LENGTH: usize = SENDABYTES;
+    const REC_LENGTH: usize = SENDBBYTES;
 
     fn keygen<R: Rand + Rng>() -> (Self::PrivateKey, Self::PublicKey) {
         let (mut sk, mut pk) = (Key::from([0; N]), [0; SENDABYTES]);

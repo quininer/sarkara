@@ -25,8 +25,8 @@ use super::{ AeadCipher, DecryptFail };
 ///
 /// // ...
 /// # let mut rng = thread_rng();
-/// # let mut pass = vec![0; HHBB::key_length()];
-/// # let mut nonce = vec![0; HHBB::nonce_length()];
+/// # let mut pass = vec![0; HHBB::KEY_LENGTH];
+/// # let mut nonce = vec![0; HHBB::NONCE_LENGTH];
 /// # let mut data = vec![0; 1024];
 /// # rng.fill_bytes(&mut pass);
 /// # rng.fill_bytes(&mut nonce);
@@ -57,9 +57,9 @@ impl<C, M, H> AeadCipher for General<C, M, H>
         H: GenericHash
 {
     fn new(key: &[u8]) -> Self where Self: Sized {
-        assert_eq!(key.len(), Self::key_length());
+        assert_eq!(key.len(), Self::KEY_LENGTH);
         let mkey = H::default()
-            .with_size(M::key_length())
+            .with_size(M::KEY_LENGTH)
             .hash::<Bytes>(key);
         General {
             cipher: C::new(key),
@@ -69,9 +69,9 @@ impl<C, M, H> AeadCipher for General<C, M, H>
         }
     }
 
-    #[inline] fn key_length() -> usize where Self: Sized { C::key_length() }
-    #[inline] fn tag_length() -> usize where Self: Sized { M::tag_length() }
-    #[inline] fn nonce_length() -> usize where Self: Sized { C::nonce_length() }
+    const KEY_LENGTH: usize = C::KEY_LENGTH;
+    const TAG_LENGTH: usize = M::TAG_LENGTH;
+    const NONCE_LENGTH: usize = C::NONCE_LENGTH;
 
     #[inline]
     fn with_aad(&mut self, aad: &[u8]) -> &mut Self {
@@ -80,13 +80,13 @@ impl<C, M, H> AeadCipher for General<C, M, H>
     }
 
     fn encrypt(&self, nonce: &[u8], data: &[u8]) -> Vec<u8> {
-        assert_eq!(nonce.len(), Self::nonce_length());
-        let mut nonce_and_aad = Vec::with_capacity(Self::nonce_length() + self.aad.len());
+        assert_eq!(nonce.len(), Self::NONCE_LENGTH);
+        let mut nonce_and_aad = Vec::with_capacity(Self::NONCE_LENGTH + self.aad.len());
         nonce_and_aad.extend_from_slice(nonce);
         nonce_and_aad.extend_from_slice(&self.aad);
 
         let mac_nonce = H::default()
-            .with_size(M::nonce_length())
+            .with_size(M::NONCE_LENGTH)
             .hash::<Bytes>(&nonce_and_aad);
 
         let mut output = self.cipher.process(nonce, data);
@@ -98,18 +98,18 @@ impl<C, M, H> AeadCipher for General<C, M, H>
     }
 
     fn decrypt(&self, nonce: &[u8], data: &[u8]) -> Result<Vec<u8>, DecryptFail> {
-        assert_eq!(nonce.len(), Self::nonce_length());
-        if data.len() < Self::tag_length() { Err(DecryptFail::LengthError)? };
+        assert_eq!(nonce.len(), Self::NONCE_LENGTH);
+        if data.len() < Self::TAG_LENGTH { Err(DecryptFail::LengthError)? };
 
-        let mut nonce_and_aad = Vec::with_capacity(Self::nonce_length() + self.aad.len());
+        let mut nonce_and_aad = Vec::with_capacity(Self::NONCE_LENGTH + self.aad.len());
         nonce_and_aad.extend_from_slice(nonce);
         nonce_and_aad.extend_from_slice(&self.aad);
 
         let mac_nonce = H::default()
-            .with_size(M::nonce_length())
+            .with_size(M::NONCE_LENGTH)
             .hash::<Bytes>(&nonce_and_aad);
 
-        let (data, tag) = data.split_at(data.len() - Self::tag_length());
+        let (data, tag) = data.split_at(data.len() - Self::TAG_LENGTH);
 
         if self.mac.clone().with_nonce(&mac_nonce).verify(data, tag) {
             Ok(self.cipher.process(nonce, data))

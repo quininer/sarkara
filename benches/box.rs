@@ -23,7 +23,7 @@ macro_rules! bench_box {
             use sarkara::secretbox::SecretBox;
 
             let mut rng = thread_rng();
-            let mut key = vec![0; $ty::key_length()];
+            let mut key = vec![0; $ty::KEY_LENGTH];
             let mut data = [0; $len];
             rng.fill_bytes(&mut key);
             rng.fill_bytes(&mut data);

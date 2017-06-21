@@ -19,11 +19,11 @@ pub trait KeyExchange {
     type Reconciliation;
 
     /// Secret key length.
-    fn sk_length() -> usize;
+    const SK_LENGTH: usize;
     /// Public key length.
-    fn pk_length() -> usize;
+    const PK_LENGTH: usize;
     /// Reconciliation data length.
-    fn rec_length() -> usize;
+    const REC_LENGTH: usize;
 
     /// Generate keypair.
     fn keygen<R: Rand + Rng>() -> (Self::PrivateKey, Self::PublicKey);

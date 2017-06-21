@@ -29,7 +29,7 @@ use ::kex::KeyExchange;
 /// let mut ciphertext = Ascon::seal::<NewHope, ChaChaRng>(&pk, &data);
 /// # assert_eq!(
 /// #     ciphertext.len(),
-/// #     data.len() + Ascon::tag_length() + NewHope::rec_length()
+/// #     data.len() + Ascon::TAG_LENGTH + NewHope::REC_LENGTH
 /// # );
 /// let plaintext = Ascon::open::<NewHope>(&sk, &ciphertext).unwrap();
 /// assert_eq!(plaintext, data);
@@ -67,9 +67,9 @@ impl<T> SealedBox for T where T: AeadCipher {
             K::Reconciliation: Into<Vec<u8>>,
             R: Rand + Rng
     {
-        let mut key = Bytes::from(vec![0; Self::key_length() + Self::nonce_length()]);
+        let mut key = Bytes::from(vec![0; Self::KEY_LENGTH + Self::NONCE_LENGTH]);
         let mut rec = K::exchange::<R>(&mut key, pka).into();
-        let (key, nonce) = key.split_at(Self::key_length());
+        let (key, nonce) = key.split_at(Self::KEY_LENGTH);
 
         let mut output = Self::new(key)
             .with_aad(&rec)
@@ -84,12 +84,12 @@ impl<T> SealedBox for T where T: AeadCipher {
             K: KeyExchange,
             for<'a> K::Reconciliation: TryFrom<&'a [u8], Error=io::Error>
     {
-        if data.len() < K::rec_length() { Err(DecryptFail::LengthError)? };
+        if data.len() < K::REC_LENGTH { Err(DecryptFail::LengthError)? };
 
-        let mut key = Bytes::from(vec![0; Self::key_length() + Self::nonce_length()]);
-        let (data, rec) = data.split_at(data.len() - K::rec_length());
+        let mut key = Bytes::from(vec![0; Self::KEY_LENGTH + Self::NONCE_LENGTH]);
+        let (data, rec) = data.split_at(data.len() - K::REC_LENGTH);
         K::exchange_from(&mut key, ska, &K::Reconciliation::try_from(rec)?);
-        let (key, nonce) = key.split_at(Self::key_length());
+        let (key, nonce) = key.split_at(Self::KEY_LENGTH);
 
         Self::new(key)
             .with_aad(rec)

@@ -18,11 +18,11 @@ pub trait Signature {
     type Signature;
 
     /// Secret key length.
-    fn sk_length() -> usize;
+    const SK_LENGTH: usize;
     /// Public key length.
-    fn pk_length() -> usize;
+    const PK_LENGTH: usize;
     /// Signature length.
-    fn sign_length() -> usize;
+    const SIGN_LENGTH: usize;
 
     /// Generate keypair.
     fn keygen<R: Rand + Rng>() -> (Self::PrivateKey, Self::PublicKey);

@@ -12,14 +12,14 @@ pub use self::qhmac::HMAC;
 /// `Mac` trait.
 pub trait Mac {
     /// Key length.
-    fn key_length() -> usize where Self: Sized;
+    const KEY_LENGTH: usize;
     /// Tag length.
-    fn tag_length() -> usize where Self: Sized;
+    const TAG_LENGTH: usize;
 
     /// Create a new MAC.
     ///
     /// ## Panic When:
-    /// - key length not equal `Mac::key_length()`.
+    /// - key length not equal `Mac::KEY_LENGTH`.
     fn new(key: &[u8]) -> Self where Self: Sized;
 
     /// Calculate MAC Tag.
@@ -34,12 +34,12 @@ pub trait Mac {
 /// `NonceMac` trait.
 pub trait NonceMac: Mac {
     /// Nonce length
-    fn nonce_length() -> usize where Self: Sized;
+    const NONCE_LENGTH: usize;
 
     /// Set Nonce.
     ///
     /// ## Panic When:
-    /// - nonce length not equal `NonceMac::nonce_length()`.
+    /// - nonce length not equal `NonceMac::NONCE_LENGTH`.
     fn with_nonce(&mut self, nonce: &[u8]) -> &mut Self;
     /// Set MAC output length.
     fn with_size(&mut self, len: usize) -> &mut Self;

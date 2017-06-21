@@ -54,11 +54,11 @@ pub struct HMAC<H> {
 }
 
 impl<H> Mac for HMAC<H> where H: Hash {
-    #[inline] fn key_length() -> usize where Self: Sized { 32 }
-    #[inline] fn tag_length() -> usize where Self: Sized { H::digest_length() }
+    const KEY_LENGTH: usize = 32;
+    const TAG_LENGTH: usize = H::DIGEST_LENGTH;
 
     fn new(key: &[u8]) -> Self where Self: Sized {
-        assert_eq!(key.len(), Self::key_length());
+        assert_eq!(key.len(), Self::KEY_LENGTH);
         HMAC {
             key: Bytes::new(key),
             ih: H::default(),
@@ -83,11 +83,11 @@ impl<H> Mac for HMAC<H> where H: Hash {
 }
 
 impl<H> NonceMac for HMAC<H> where H: GenericHash {
-    #[inline] fn nonce_length() -> usize where Self: Sized { 32 }
+    const NONCE_LENGTH: usize = 32;
 
     #[inline]
     fn with_nonce(&mut self, nonce: &[u8]) -> &mut Self {
-        assert_eq!(nonce.len(), Self::nonce_length());
+        assert_eq!(nonce.len(), Self::NONCE_LENGTH);
         self.ih.with_key(nonce);
         self.oh.with_key(nonce);
         self
