@@ -10,6 +10,7 @@ extern crate argon2rs;
 extern crate hc256;
 extern crate ascon;
 extern crate newhope;
+extern crate kyber;
 extern crate blissb;
 extern crate byteorder;
 

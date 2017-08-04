@@ -4,9 +4,11 @@
 
 
 pub mod newhope;
+pub mod kyber;
 
 use rand::{ Rand, Rng };
 pub use self::newhope::NewHope;
+pub use self::kyber::Kyber;
 
 
 /// `KeyExchange` trait.
