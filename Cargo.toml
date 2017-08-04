@@ -21,6 +21,7 @@ blake2-rfc = "0.2"
 argon2rs = "0.2"
 ascon = "0.1"
 newhope = { version = "0.2", default-features = false }
+kyber = "0.1"
 blissb = "0.2"
 byteorder = "1.0"
 
