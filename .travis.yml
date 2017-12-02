@@ -7,4 +7,3 @@ os:
     - osx
 script:
     - cargo test --release
-    - cargo bench
