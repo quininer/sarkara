@@ -16,6 +16,7 @@ impl Signature for Dilithium {
     type Signature = SignatureData;
 
     fn keypair<R: Rng>(mut r: R) -> (Self::PrivateKey, Self::PublicKey) {
+        // TODO use `SecKey::with_default()`
         let mut sk = SecKey::new([0; params::SECRETKEYBYTES]).ok().expect("memsec malloc fail.");
         let mut pk = [0; params::PUBLICKEYBYTES];
         sign::keypair(&mut r, &mut pk, &mut sk.write());
@@ -25,7 +26,7 @@ impl Signature for Dilithium {
     fn signature<R: Rng>(_r: R, sk: &Self::PrivateKey, data: &[u8]) -> Self::Signature {
         let mut sig = [0; params::BYTES];
 
-        sign::sign(&mut sig, data, &*sk.0.read());
+        sign::sign(&mut sig, data, &sk.0.read());
 
         SignatureData(sig)
     }
@@ -44,12 +45,8 @@ impl Packing for PrivateKey {
 
     fn from_bytes(buf: &[u8]) -> Option<Self> {
         if buf.len() != Self::LENGTH {
-            SecKey::new([0; params::SECRETKEYBYTES])
-                .map(|mut sk| {
-                    sk.write().copy_from_slice(buf);
-                    PrivateKey(sk)
-                })
-                .ok()
+            let buf = array_ref!(buf, 0, params::SECRETKEYBYTES);
+            SecKey::from_ref(buf).map(PrivateKey)
         } else {
             None
         }

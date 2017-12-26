@@ -18,7 +18,9 @@ impl KeyExchange for Kyber {
     const SHARED_LENGTH: usize = params::SYMBYTES;
 
     fn kerpair<R: Rng>(mut r: R) -> (Self::PrivateKey, Self::PublicKey) {
+        // TODO use `SecKey::with_default()`
         let mut sk = SecKey::new([0; params::SECRETKEYBYTES]).ok().expect("memsec malloc fail.");
+
         let mut pk = [0; params::PUBLICKEYBYTES];
         kem::keypair(&mut r, &mut pk, &mut sk.write());
         (PrivateKey(sk), PublicKey(pk))
@@ -46,12 +48,8 @@ impl Packing for PrivateKey {
 
     fn from_bytes(buf: &[u8]) -> Option<Self> {
         if buf.len() != Self::LENGTH {
-            SecKey::new([0; params::SECRETKEYBYTES])
-                .map(|mut sk| {
-                    sk.write().copy_from_slice(buf);
-                    PrivateKey(sk)
-                })
-                .ok()
+            let buf = array_ref!(buf, 0, params::SECRETKEYBYTES);
+            SecKey::from_ref(buf).map(PrivateKey)
         } else {
             None
         }
