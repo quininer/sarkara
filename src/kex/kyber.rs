@@ -1,7 +1,7 @@
 use rand::Rng;
 use seckey::SecKey;
 use kyber::{ params, kem };
-use super::KeyExchange;
+use super::{ KeyExchange, CheckedExchange };
 use ::Packing;
 
 
@@ -33,7 +33,13 @@ impl KeyExchange for Kyber {
         Message(c)
     }
 
-    fn exchange_from(sharedkey: &mut [u8], sk: &Self::PrivateKey, m: &Self::Message) -> bool {
+    fn exchange_from(sharedkey: &mut [u8], sk: &Self::PrivateKey, m: &Self::Message) {
+        <Kyber as CheckedExchange>::checked_exchange_from(sharedkey, sk, m);
+    }
+}
+
+impl CheckedExchange for Kyber {
+    fn checked_exchange_from(sharedkey: &mut [u8], sk: &Self::PrivateKey, m: &Self::Message) -> bool {
         let sharedkey = array_mut_ref!(sharedkey, 0, params::SYMBYTES);
         kem::dec(sharedkey, &m.0, &sk.0.read())
     }

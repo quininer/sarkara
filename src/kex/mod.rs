@@ -17,5 +17,9 @@ pub trait KeyExchange {
     fn exchange_to<R: Rng>(r: R, sharedkey: &mut [u8], pk: &Self::PublicKey) -> Self::Message;
 
     /// TODO shouldbe `sharedkey: &mut [u8; Self::SHARED_LENGTH]`
-    fn exchange_from(sharedkey: &mut [u8], sk: &Self::PrivateKey, m: &Self::Message) -> bool;
+    fn exchange_from(sharedkey: &mut [u8], sk: &Self::PrivateKey, m: &Self::Message);
+}
+
+pub trait CheckedExchange: KeyExchange {
+    fn checked_exchange_from(sharedkey: &mut [u8], sk: &Self::PrivateKey, m: &Self::Message) -> bool;
 }
