@@ -19,17 +19,17 @@ impl KeyExchange for Kyber {
 
     fn kerpair<R: Rng>(mut r: R) -> (Self::PrivateKey, Self::PublicKey) {
         // TODO use `SecKey::with_default()`
-        let mut sk = SecKey::new([0; params::SECRETKEYBYTES]).ok().expect("memsec malloc fail.");
+        let mut sk = SecKey::new([0; params::SECRETKEYBYTES]).ok().expect("memsec malloc failed");
 
         let mut pk = [0; params::PUBLICKEYBYTES];
         kem::keypair(&mut r, &mut pk, &mut sk.write());
         (PrivateKey(sk), PublicKey(pk))
     }
 
-    fn exchange_to<R: Rng>(mut r: R, sharedkey: &mut [u8], pk: &Self::PublicKey) -> Self::Message {
+    fn exchange_to<R: Rng>(mut r: R, sharedkey: &mut [u8], &PublicKey(ref pk): &Self::PublicKey) -> Self::Message {
         let sharedkey = array_mut_ref!(sharedkey, 0, params::SYMBYTES);
         let mut c = [0; params::CIPHERTEXTBYTES];
-        kem::enc(&mut r, &mut c, sharedkey, &pk.0);
+        kem::enc(&mut r, &mut c, sharedkey, pk);
         Message(c)
     }
 
@@ -39,61 +39,55 @@ impl KeyExchange for Kyber {
 }
 
 impl CheckedExchange for Kyber {
-    fn checked_exchange_from(sharedkey: &mut [u8], sk: &Self::PrivateKey, m: &Self::Message) -> bool {
+    fn checked_exchange_from(sharedkey: &mut [u8], &PrivateKey(ref sk): &Self::PrivateKey, m: &Self::Message) -> bool {
         let sharedkey = array_mut_ref!(sharedkey, 0, params::SYMBYTES);
-        kem::dec(sharedkey, &m.0, &sk.0.read())
+        kem::dec(sharedkey, &m.0, &sk.read())
     }
 }
 
 impl Packing for PrivateKey {
-    const LENGTH: usize = params::SECRETKEYBYTES;
+    const BYTES_LENGTH: usize = params::SECRETKEYBYTES;
 
     fn read_bytes(&self, buf: &mut [u8]) {
-        buf.copy_from_slice(&*self.0.read())
+        let buf = array_mut_ref!(buf, 0, params::SECRETKEYBYTES);
+        buf.clone_from(&*self.0.read())
     }
 
-    fn from_bytes(buf: &[u8]) -> Option<Self> {
-        if buf.len() != Self::LENGTH {
-            let buf = array_ref!(buf, 0, params::SECRETKEYBYTES);
-            SecKey::from_ref(buf).map(PrivateKey)
-        } else {
-            None
-        }
+    fn from_bytes(buf: &[u8]) -> Self {
+        let buf = array_ref!(buf, 0, params::SECRETKEYBYTES);
+        SecKey::from_ref(buf).map(PrivateKey)
+            .expect("memsec malloc failed")
     }
 }
 
 impl Packing for PublicKey {
-    const LENGTH: usize = params::PUBLICKEYBYTES;
+    const BYTES_LENGTH: usize = params::PUBLICKEYBYTES;
 
     fn read_bytes(&self, buf: &mut [u8]) {
-        buf.copy_from_slice(&self.0)
+        let buf = array_mut_ref!(buf, 0, params::PUBLICKEYBYTES);
+        buf.clone_from(&self.0)
     }
 
-    fn from_bytes(buf: &[u8]) -> Option<Self> {
-        if buf.len() != Self::LENGTH {
-            let mut pk = [0; params::PUBLICKEYBYTES];
-            pk.copy_from_slice(buf);
-            Some(PublicKey(pk))
-        } else {
-            None
-        }
+    fn from_bytes(buf: &[u8]) -> Self {
+        let buf = array_ref!(buf, 0, params::PUBLICKEYBYTES);
+        let mut pk = [0; params::PUBLICKEYBYTES];
+        pk.clone_from(buf);
+        PublicKey(pk)
     }
 }
 
 impl Packing for Message {
-    const LENGTH: usize = params::CIPHERTEXTBYTES;
+    const BYTES_LENGTH: usize = params::CIPHERTEXTBYTES;
 
     fn read_bytes(&self, buf: &mut [u8]) {
-        buf.copy_from_slice(&self.0)
+        let buf = array_mut_ref!(buf, 0, params::CIPHERTEXTBYTES);
+        buf.clone_from(&self.0)
     }
 
-    fn from_bytes(buf: &[u8]) -> Option<Self> {
-        if buf.len() != Self::LENGTH {
-            let mut sig = [0; params::CIPHERTEXTBYTES];
-            sig.copy_from_slice(buf);
-            Some(Message(sig))
-        } else {
-            None
-        }
+    fn from_bytes(buf: &[u8]) -> Self {
+        let buf = array_ref!(buf, 0, params::CIPHERTEXTBYTES);
+        let mut sig = [0; params::CIPHERTEXTBYTES];
+        sig.clone_from(buf);
+        Message(sig)
     }
 }

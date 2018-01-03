@@ -11,11 +11,11 @@ pub mod kex;
 
 
 pub trait Packing: Sized {
-    const LENGTH: usize;
+    const BYTES_LENGTH: usize;
 
     /// TODO shouldbe `as_bytes(&self, buf: &[u8; Self::LENGTH])`
     fn read_bytes(&self, buf: &mut [u8]);
 
     /// TODO shouldbe `from_bytes(buf: &[u8; Self::LENGTH]) -> Self`
-    fn from_bytes(buf: &[u8]) -> Option<Self>;
+    fn from_bytes(buf: &[u8]) -> Self;
 }
