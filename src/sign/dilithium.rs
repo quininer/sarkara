@@ -1,14 +1,14 @@
 use rand::Rng;
 use seckey::SecKey;
 use dilithium::{ params, sign };
-use super::Signature;
+use super::{ Signature, DeterministicSignature };
 use ::Packing;
 
 
 pub struct Dilithium;
-pub struct PrivateKey(SecKey<[u8; params::SECRETKEYBYTES]>);
-pub struct PublicKey([u8; params::PUBLICKEYBYTES]);
-pub struct SignatureData([u8; params::BYTES]);
+pub struct PrivateKey(pub SecKey<[u8; params::SECRETKEYBYTES]>);
+pub struct PublicKey(pub [u8; params::PUBLICKEYBYTES]);
+pub struct SignatureData(pub [u8; params::BYTES]);
 
 impl Signature for Dilithium {
     type PrivateKey = PrivateKey;
@@ -23,12 +23,8 @@ impl Signature for Dilithium {
         (PrivateKey(sk), PublicKey(pk))
     }
 
-    fn signature<R: Rng>(_r: R, &PrivateKey(ref sk): &Self::PrivateKey, data: &[u8]) -> Self::Signature {
-        let mut sig = [0; params::BYTES];
-
-        sign::sign(&mut sig, data, &sk.read());
-
-        SignatureData(sig)
+    fn signature<R: Rng>(_: R, sk: &Self::PrivateKey, data: &[u8]) -> Self::Signature {
+        <Dilithium as DeterministicSignature>::signature(sk, data)
     }
 
     fn verify(
@@ -37,6 +33,14 @@ impl Signature for Dilithium {
         data: &[u8]
     ) -> bool {
         sign::verify(data, sig, pk)
+    }
+}
+
+impl DeterministicSignature for Dilithium {
+    fn signature(&PrivateKey(ref sk): &Self::PrivateKey, data: &[u8]) -> Self::Signature {
+        let mut sig = [0; params::BYTES];
+        sign::sign(&mut sig, data, &sk.read());
+        SignatureData(sig)
     }
 }
 

@@ -6,9 +6,9 @@ use ::Packing;
 
 
 pub struct Kyber;
-pub struct PrivateKey(SecKey<[u8; params::SECRETKEYBYTES]>);
-pub struct PublicKey([u8; params::PUBLICKEYBYTES]);
-pub struct Message([u8; params::CIPHERTEXTBYTES]);
+pub struct PrivateKey(pub SecKey<[u8; params::SECRETKEYBYTES]>);
+pub struct PublicKey(pub [u8; params::PUBLICKEYBYTES]);
+pub struct Message(pub [u8; params::CIPHERTEXTBYTES]);
 
 impl KeyExchange for Kyber {
     type PrivateKey = PrivateKey;
@@ -34,14 +34,18 @@ impl KeyExchange for Kyber {
     }
 
     fn exchange_from(sharedkey: &mut [u8], sk: &Self::PrivateKey, m: &Self::Message) {
-        <Kyber as CheckedExchange>::checked_exchange_from(sharedkey, sk, m);
+        <Kyber as CheckedExchange>::exchange_from(sharedkey, sk, m);
     }
 }
 
 impl CheckedExchange for Kyber {
-    fn checked_exchange_from(sharedkey: &mut [u8], &PrivateKey(ref sk): &Self::PrivateKey, m: &Self::Message) -> bool {
+    fn exchange_from(
+        sharedkey: &mut [u8],
+        &PrivateKey(ref sk): &Self::PrivateKey,
+        &Message(ref m): &Self::Message
+    ) -> bool {
         let sharedkey = array_mut_ref!(sharedkey, 0, params::SYMBYTES);
-        kem::dec(sharedkey, &m.0, &sk.read())
+        kem::dec(sharedkey, &m, &sk.read())
     }
 }
 

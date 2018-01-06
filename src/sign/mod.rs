@@ -15,3 +15,7 @@ pub trait Signature {
 
     fn verify(pk: &Self::PublicKey, sig: &Self::Signature, data: &[u8]) -> bool;
 }
+
+pub trait DeterministicSignature: Signature {
+    fn signature(sk: &Self::PrivateKey, data: &[u8]) -> Self::Signature;
+}
