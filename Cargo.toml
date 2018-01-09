@@ -17,5 +17,9 @@ appveyor = { repository = "quininer/sarkara" }
 rand = "*"
 arrayref = "*"
 seckey = "*"
+failure = "*"
+failure_derive = "*"
 kyber = { git = "https://github.com/quininer/kyber" }
 dilithium = { git = "https://github.com/quininer/dilithium" }
+sparx-cipher = { version = "*", default-features = false, features = [ "x128_256" ] }
+colm = { version = "*", default-features = false, features = [ "x32" ] }

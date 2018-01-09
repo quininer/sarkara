@@ -1,10 +1,11 @@
 environment:
-  PATH: '%PATH%;C:\Program Files (x86)\Rust\bin;C:\MinGW\bin'
-platform:
-  - x64
+  matrix:
+    - TARGET: x86_64-pc-windows-msvc
+
 install:
-  - ps: Start-FileDownload "https://static.rust-lang.org/dist/rust-nightly-x86_64-pc-windows-msvc.exe"
-  - rust-nightly-x86_64-pc-windows-msvc.exe /VERYSILENT /NORESTART /DIR="C:\Program Files (x86)\Rust"
+  - appveyor-retry appveyor DownloadFile https://win.rustup.rs/ -FileName rustup-init.exe
+  - rustup-init.exe -y --default-host %TARGET%
+  - set PATH=%PATH%;C:\Users\appveyor\.cargo\bin
   - rustc --version
   - cargo --version
 

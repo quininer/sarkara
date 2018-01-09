@@ -1,21 +1,25 @@
 //! Sarkara is a Post-Quantum cryptography library.
 
 #[macro_use] extern crate arrayref;
+#[macro_use] extern crate failure;
 extern crate rand;
 extern crate seckey;
 extern crate dilithium;
 extern crate kyber;
+extern crate sparx_cipher;
+extern crate colm;
 
 pub mod sign;
 pub mod kex;
+pub mod aead;
 
 
 pub trait Packing: Sized {
     const BYTES_LENGTH: usize;
 
-    /// TODO shouldbe `as_bytes(&self, buf: &[u8; Self::LENGTH])`
+    /// TODO should be `as_bytes(&self, buf: &[u8; Self::LENGTH])`
     fn read_bytes(&self, buf: &mut [u8]);
 
-    /// TODO shouldbe `from_bytes(buf: &[u8; Self::LENGTH]) -> Self`
+    /// TODO should be `from_bytes(buf: &[u8; Self::LENGTH]) -> Self`
     fn from_bytes(buf: &[u8]) -> Self;
 }

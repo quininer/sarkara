@@ -13,10 +13,10 @@ pub trait KeyExchange {
 
     fn kerpair<R: Rng>(r: R) -> (Self::PrivateKey, Self::PublicKey);
 
-    /// TODO shouldbe `sharedkey: &mut [u8; Self::SHARED_LENGTH]`
+    /// TODO should be `sharedkey: &mut [u8; Self::SHARED_LENGTH]`
     fn exchange_to<R: Rng>(r: R, sharedkey: &mut [u8], pk: &Self::PublicKey) -> Self::Message;
 
-    /// TODO shouldbe `sharedkey: &mut [u8; Self::SHARED_LENGTH]`
+    /// TODO should be `sharedkey: &mut [u8; Self::SHARED_LENGTH]`
     fn exchange_from(sharedkey: &mut [u8], sk: &Self::PrivateKey, m: &Self::Message);
 }
 
