@@ -6,4 +6,4 @@ os:
     - linux
     - osx
 script:
-    - cargo build
+    - cargo test
