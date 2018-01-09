@@ -1,7 +1,7 @@
 use failure::Fail;
 
 
-mod sparx256colm0;
+pub mod sparx256colm0;
 
 
 pub trait AeadCipher {
@@ -20,7 +20,7 @@ pub trait AeadCipher {
 
 
 /// TODO https://github.com/rust-lang/rust/issues/44265
-pub trait Online<'a>: AeadCipher {
+pub trait OnlineAE<'a>: AeadCipher {
     type Encryption: Encryption<'a, Self::Error>;
     type Decryption: Decryption<'a, Self::Error>;
 

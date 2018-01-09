@@ -3,13 +3,13 @@ use sparx_cipher::Sparx;
 use sparx_cipher::params::{ KEY_BYTES, BLOCK_BYTES };
 use colm::{ NONCE_LENGTH, Colm, E, D, Process0 };
 use colm::traits::BlockCipher;
-use super::{ AeadCipher, Online, Encryption, Decryption };
+use super::{ AeadCipher, OnlineAE, Encryption, Decryption };
 
 
 
-pub type Sparx256Colm0 = Colm<Sparx256>;
-pub type EncryptProcess<'a> = Process0<'a, Sparx256, E>;
-pub type DecryptProcess<'a> = Process0<'a, Sparx256, D>;
+pub struct Sparx256Colm0(Colm<Sparx256>);
+pub struct EncryptProcess<'a>(Process0<'a, Sparx256, E>);
+pub struct DecryptProcess<'a>(Process0<'a, Sparx256, D>);
 
 #[derive(Debug, Fail)]
 pub enum Error {
@@ -24,39 +24,32 @@ impl AeadCipher for Sparx256Colm0 {
 
     type Error = Error;
 
-    /// TODO should be `Self::KEY_LENGTH`
     fn new(key: &[u8]) -> Self {
         let key = array_ref!(key, 0, KEY_BYTES);
-        Sparx256Colm0::new(key)
+        Sparx256Colm0(Colm::new(key))
     }
 
     fn seal(&self, nonce: &[u8], aad: &[u8], input: &[u8], output: &mut [u8]) -> Result<(), Self::Error> {
-        let process = <Self as Online>::encrypt(self, nonce, aad);
-
-        <<Self as Online>::Encryption as Encryption<_>>::finalize(process, input, output)
+        self.encrypt(nonce, aad).finalize(input, output)
     }
 
     fn open(&self, nonce: &[u8], aad: &[u8], input: &[u8], output: &mut [u8]) -> Result<bool, Self::Error> {
-        let process = <Self as Online>::decrypt(self, nonce, aad);
-
-        <<Self as Online>::Decryption as Decryption<_>>::finalize(process, input, output)
+        self.decrypt(nonce, aad).finalize(input, output)
     }
 }
 
-impl<'a> Online<'a> for Sparx256Colm0 {
+impl<'a> OnlineAE<'a> for Sparx256Colm0 {
     type Encryption = EncryptProcess<'a>;
     type Decryption = DecryptProcess<'a>;
 
-    /// TODO should be `Self::NONCE_LENGTH`
     fn encrypt(&'a self, nonce: &[u8], aad: &[u8]) -> Self::Encryption {
         let nonce = array_ref!(nonce, 0, NONCE_LENGTH);
-        Sparx256Colm0::encrypt(self, nonce, aad)
+        EncryptProcess(self.0.encrypt(nonce, aad))
     }
 
-    /// TODO should be `Self::NONCE_LENGTH`
     fn decrypt(&'a self, nonce: &[u8], aad: &[u8]) -> Self::Decryption {
         let nonce = array_ref!(nonce, 0, NONCE_LENGTH);
-        Sparx256Colm0::decrypt(self, nonce, aad)
+        DecryptProcess(self.0.decrypt(nonce, aad))
     }
 }
 
@@ -79,7 +72,7 @@ impl<'a> Encryption<'a, Error> for EncryptProcess<'a> {
             let input = array_ref!(input, 0, BLOCK_BYTES);
             let output = array_mut_ref!(output, 0, BLOCK_BYTES);
 
-            Self::process(self, input, output);
+            self.0.process(input, output);
         }
 
         Err(remaining)
@@ -92,7 +85,7 @@ impl<'a> Encryption<'a, Error> for EncryptProcess<'a> {
 
         if let Err(buf) = <Self as Encryption<_>>::process(&mut self, input, output) {
             let (_, output) = output.split_at_mut(input.len() - buf.len());
-            Self::finalize(self, buf, output);
+            self.0.finalize(buf, output);
         } else {
             unreachable!()
         }
@@ -103,10 +96,10 @@ impl<'a> Encryption<'a, Error> for EncryptProcess<'a> {
 
 impl<'a> Decryption<'a, Error> for DecryptProcess<'a> {
     fn process<'b>(&mut self, input: &'b [u8], output: &mut [u8]) -> Result<(), &'b [u8]> {
-        let len = cmp::min(input.len(), output.len());
+        let len = cmp::min(input.len(), output.len() + BLOCK_BYTES);
 
         let take =
-            if len == 0 { 0 }
+            if len <= BLOCK_BYTES { 0 }
             else if len % BLOCK_BYTES == 0 { (len / BLOCK_BYTES - 2) * BLOCK_BYTES }
             else { (len / BLOCK_BYTES - 1) * BLOCK_BYTES };
 
@@ -119,7 +112,7 @@ impl<'a> Decryption<'a, Error> for DecryptProcess<'a> {
             let input = array_ref!(input, 0, BLOCK_BYTES);
             let output = array_mut_ref!(output, 0, BLOCK_BYTES);
 
-            Self::process(self, input, output);
+            self.0.process(input, output);
         }
 
         Err(remaining)
@@ -134,9 +127,9 @@ impl<'a> Decryption<'a, Error> for DecryptProcess<'a> {
             return Err(Error::Length);
         }
 
-        if let Err(buf) = <Self as Decryption<_>>::process(&mut self, input, output) {
+        if let Err(buf) = <Self as Decryption<_>>::process(&mut self, &input, output) {
             let (_, output) = output.split_at_mut(input.len() - buf.len());
-            Ok(Self::finalize(self, buf, output))
+            Ok(self.0.finalize(buf, output))
         } else {
             unreachable!()
         }
@@ -145,7 +138,7 @@ impl<'a> Decryption<'a, Error> for DecryptProcess<'a> {
 
 
 
-pub struct Sparx256(pub Sparx);
+pub struct Sparx256(Sparx);
 
 impl BlockCipher for Sparx256 {
     const KEY_LENGTH: usize = KEY_BYTES;
