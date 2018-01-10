@@ -12,6 +12,7 @@ extern crate colm;
 pub mod sign;
 pub mod kex;
 pub mod aead;
+pub mod sealedbox;
 
 
 pub trait Packing: Sized {

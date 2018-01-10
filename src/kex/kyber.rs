@@ -45,7 +45,7 @@ impl CheckedExchange for Kyber {
         &Message(ref m): &Self::Message
     ) -> bool {
         let sharedkey = array_mut_ref!(sharedkey, 0, params::SYMBYTES);
-        kem::dec(sharedkey, &m, &sk.read())
+        kem::dec(sharedkey, m, &sk.read())
     }
 }
 

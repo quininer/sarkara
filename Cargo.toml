@@ -13,6 +13,9 @@ categories = [ "cryptography" ]
 travis-ci = { repository = "quininer/sarkara" }
 appveyor = { repository = "quininer/sarkara" }
 
+[badges.maintenance]
+status = "experimental"
+
 [dependencies]
 rand = "*"
 arrayref = "*"
