@@ -19,7 +19,7 @@ status = "experimental"
 [dependencies]
 rand = "0.4"
 arrayref = "0.3"
-seckey = "0.7"
+seckey = { version = "0.7", features = [ "nightly" ] }
 failure = "0.1"
 kyber = "0.2.0-alpha.1"
 dilithium = "0.1.1"

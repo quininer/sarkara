@@ -1,5 +1,5 @@
 use rand::Rng;
-use seckey::zero_slice;
+use seckey::TempKey;
 use ::kex::KeyExchange;
 use ::aead::AeadCipher;
 
@@ -23,13 +23,11 @@ impl<T> SealedBox for T where T: KeyExchange {
     fn send<R: Rng, AE: AeadCipher>(r: R, pk: &Self::PublicKey) -> (Self::Message, AE) {
         // TODO static assert
         assert_eq!(Self::SHARED_LENGTH, AE::KEY_LENGTH);
-        // TODO use `seckey::TempKey`
         let mut sharedkey = vec![0; Self::SHARED_LENGTH];
+        let mut sharedkey = TempKey::from_slice(&mut sharedkey);
 
         let m = Self::exchange_to(r, &mut sharedkey, pk);
         let ae = AE::new(&sharedkey);
-
-        zero_slice(&mut sharedkey);
 
         (m, ae)
     }
@@ -37,13 +35,11 @@ impl<T> SealedBox for T where T: KeyExchange {
     fn recv<AE: AeadCipher>(sk: &Self::PrivateKey, m: &Self::Message) -> AE {
         // TODO static assert
         assert_eq!(Self::SHARED_LENGTH, AE::KEY_LENGTH);
-        // TODO use `seckey::TempKey`
         let mut sharedkey = vec![0; Self::SHARED_LENGTH];
+        let mut sharedkey = TempKey::from_slice(&mut sharedkey);
 
         Self::exchange_from(&mut sharedkey, sk, m);
         let ae = AE::new(&sharedkey);
-
-        zero_slice(&mut sharedkey);
 
         ae
     }
