@@ -17,7 +17,7 @@ impl KeyExchange for Kyber {
 
     const SHARED_LENGTH: usize = params::SYMBYTES;
 
-    fn kerpair<R: Rng>(mut r: R) -> (Self::PrivateKey, Self::PublicKey) {
+    fn keypair<R: Rng>(mut r: R) -> (Self::PrivateKey, Self::PublicKey) {
         // TODO use `SecKey::with_default()`
         let mut sk = SecKey::new([0; params::SECRETKEYBYTES]).ok().expect("memsec malloc failed");
 
