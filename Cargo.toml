@@ -25,3 +25,7 @@ kyber = "0.2.0-alpha.1"
 dilithium = "0.1.1"
 sparx-cipher = { version = "0.1", default-features = false, features = [ "x128_256" ] }
 colm = { version = "0.1", default-features = false, features = [ "x32" ] }
+norx = { version = "0.1", default-features = false, features = [ "W64", "L4", "P1" ] }
+
+[features]
+simd = [ "norx/simd" ]

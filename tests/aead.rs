@@ -6,6 +6,7 @@ use std::sync::mpsc::channel;
 use rand::{ Rng, thread_rng };
 use sarkara::aead::{ AeadCipher, Online, Encryption, Decryption };
 use sarkara::aead::sparx256colm0::Sparx256Colm0;
+use sarkara::aead::norx6441::Norx;
 
 
 fn test_aead<AE: AeadCipher>() {
@@ -109,4 +110,10 @@ fn test_onlineae<AE>()
 fn test_sparx256colm0() {
     test_aead::<Sparx256Colm0>();
     test_onlineae::<Sparx256Colm0>();
+}
+
+#[test]
+fn test_norx6441() {
+    test_aead::<Norx>();
+    test_onlineae::<Norx>();
 }

@@ -8,6 +8,7 @@ extern crate dilithium;
 extern crate kyber;
 extern crate sparx_cipher;
 extern crate colm;
+extern crate norx;
 
 pub mod sign;
 pub mod kex;

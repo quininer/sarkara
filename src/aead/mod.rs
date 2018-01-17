@@ -1,6 +1,7 @@
 use failure::Fail;
 
 pub mod sparx256colm0;
+pub mod norx6441;
 
 
 pub trait AeadCipher {
