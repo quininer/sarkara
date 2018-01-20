@@ -52,7 +52,7 @@ impl<'a> Online<'a> for Sparx256Colm0 {
 
 
 impl<'a> Encryption<'a, LengthError> for EncryptProcess<'a> {
-    fn process<'b>(&mut self, input: &'b [u8], output: &mut [u8]) -> Result<(), &'b [u8]> {
+    fn process<'b>(&mut self, input: &[u8], output: &'b mut [u8]) -> &'b [u8] {
         let len = cmp::min(input.len(), output.len());
 
         let take =
@@ -60,7 +60,7 @@ impl<'a> Encryption<'a, LengthError> for EncryptProcess<'a> {
             else if len % BLOCK_BYTES == 0 { (len / BLOCK_BYTES - 1) * BLOCK_BYTES }
             else { len / BLOCK_BYTES * BLOCK_BYTES };
 
-        let (input, remaining) = input.split_at(take);
+        let (input, _) = input.split_at(take);
         let (output, _) = output.split_at_mut(take);
 
         for (input, output) in input.chunks(BLOCK_BYTES)
@@ -72,7 +72,7 @@ impl<'a> Encryption<'a, LengthError> for EncryptProcess<'a> {
             self.0.process(input, output);
         }
 
-        Err(remaining)
+        output
     }
 
     fn finalize(mut self, input: &[u8], output: &mut [u8]) -> Result<(), LengthError> {
@@ -80,19 +80,17 @@ impl<'a> Encryption<'a, LengthError> for EncryptProcess<'a> {
             return Err(LengthError);
         }
 
-        if let Err(buf) = <Self as Encryption<_>>::process(&mut self, input, output) {
-            let (_, output) = output.split_at_mut(input.len() - buf.len());
-            self.0.finalize(buf, output);
-        } else {
-            unreachable!()
-        }
+        let take = self.process(input, output).len();
+        let (_, input) = input.split_at(take);
+        let (_, output) = output.split_at_mut(take);
+        self.0.finalize(input, output);
 
         Ok(())
     }
 }
 
 impl<'a> Decryption<'a, LengthError> for DecryptProcess<'a> {
-    fn process<'b>(&mut self, input: &'b [u8], output: &mut [u8]) -> Result<(), &'b [u8]> {
+    fn process<'b>(&mut self, input: &[u8], output: &'b mut [u8]) -> &'b [u8] {
         let len = cmp::min(input.len(), output.len() + BLOCK_BYTES);
 
         let take =
@@ -100,7 +98,7 @@ impl<'a> Decryption<'a, LengthError> for DecryptProcess<'a> {
             else if len % BLOCK_BYTES == 0 { (len / BLOCK_BYTES - 2) * BLOCK_BYTES }
             else { (len / BLOCK_BYTES - 1) * BLOCK_BYTES };
 
-        let (input, remaining) = input.split_at(take);
+        let (input, _) = input.split_at(take);
         let (output, _) = output.split_at_mut(take);
 
         for (input, output) in input.chunks(BLOCK_BYTES)
@@ -112,7 +110,7 @@ impl<'a> Decryption<'a, LengthError> for DecryptProcess<'a> {
             self.0.process(input, output);
         }
 
-        Err(remaining)
+        output
     }
 
     fn finalize(mut self, input: &[u8], output: &mut [u8]) -> Result<bool, LengthError> {
@@ -124,12 +122,10 @@ impl<'a> Decryption<'a, LengthError> for DecryptProcess<'a> {
             return Err(LengthError);
         }
 
-        if let Err(buf) = <Self as Decryption<_>>::process(&mut self, input, output) {
-            let (_, output) = output.split_at_mut(input.len() - buf.len());
-            Ok(self.0.finalize(buf, output))
-        } else {
-            unreachable!()
-        }
+        let take = self.process(input, output).len();
+        let (_, input) = input.split_at(take);
+        let (_, output) = output.split_at_mut(take);
+        Ok(self.0.finalize(input, output))
     }
 }
 

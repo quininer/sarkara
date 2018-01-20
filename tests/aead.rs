@@ -56,18 +56,13 @@ fn test_onlineae<AE>()
             let cipher = AE::new(&key2);
             let mut process = cipher.encrypt(&nonce2, &aad2);
 
-            let mut ctpos = 0;
             let mut ct = vec![0; pt2.len() + AE::TAG_LENGTH];
             let mut buf = Vec::new();
 
-            if let Err(remaining) = process.process(&pt2, &mut ct) {
-                ctpos += pt2.len() - remaining.len();
-                buf.extend_from_slice(remaining);
-            } else {
-                ctpos += pt2.len();
-            }
-            let (ct, ct2) = ct.split_at_mut(ctpos);
-            send.send(Vec::from(ct)).unwrap();
+            let ct1_len = process.process(&pt2, &mut ct).len();
+            buf.extend_from_slice(&pt2[ct1_len..]);
+            let (ct1, ct2) = ct.split_at_mut(ct1_len);
+            send.send(Vec::from(ct1)).unwrap();
 
             process.finalize(&buf, ct2).unwrap();
             send.send(Vec::from(ct2)).unwrap();
@@ -80,21 +75,16 @@ fn test_onlineae<AE>()
             let cipher = AE::new(&key2);
             let mut process = cipher.decrypt(&nonce2, &aad2);
 
-            let mut otpos = 0;
             let mut ot = vec![0; i];
             let mut buf = Vec::new();
 
-            let ct = recv.recv().unwrap();
-            if let Err(remaining) = process.process(&ct, &mut ot) {
-                otpos += ct.len() - remaining.len();
-                buf.extend_from_slice(remaining);
-            } else {
-                otpos += ct.len();
-            }
+            let ct1 = recv.recv().unwrap();
+            let ot1_len = process.process(&ct1, &mut ot).len();
+            buf.extend_from_slice(&ct1[ot1_len..]);
 
             let ct2 = recv.recv().unwrap();
             buf.extend_from_slice(&ct2);
-            let r = process.finalize(&buf, &mut ot[otpos..]).unwrap();
+            let r = process.finalize(&buf, &mut ot[ot1_len..]).unwrap();
 
             assert!(r);
             assert_eq!(ot, pt);

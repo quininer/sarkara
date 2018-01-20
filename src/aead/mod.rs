@@ -31,11 +31,11 @@ pub trait Online<'a>: AeadCipher {
 }
 
 pub trait Encryption<'a, Error> {
-    fn process<'b>(&mut self, input: &'b [u8], output: &mut [u8]) -> Result<(), &'b [u8]>;
+    fn process<'b>(&mut self, input: &[u8], output: &'b mut [u8]) -> &'b [u8];
     fn finalize(self, input: &[u8], output: &mut [u8]) -> Result<(), Error>;
 }
 
 pub trait Decryption<'a, Error> {
-    fn process<'b>(&mut self, input: &'b [u8], output: &mut [u8]) -> Result<(), &'b [u8]>;
+    fn process<'b>(&mut self, input: &[u8], output: &'b mut [u8]) -> &'b [u8];
     fn finalize(self, input: &[u8], output: &mut [u8]) -> Result<bool, Error>;
 }
