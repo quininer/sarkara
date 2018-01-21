@@ -20,10 +20,6 @@ pub trait KeyExchange {
     fn exchange_from(sharedkey: &mut [u8], sk: &Self::PrivateKey, m: &Self::Message);
 }
 
-pub trait DeterministicExchange: KeyExchange {
-    fn exchange_to(sharedkey: &mut [u8], pk: &Self::PublicKey) -> Self::Message;
-}
-
 pub trait CheckedExchange: KeyExchange {
     fn exchange_from(sharedkey: &mut [u8], sk: &Self::PrivateKey, m: &Self::Message) -> bool;
 }
