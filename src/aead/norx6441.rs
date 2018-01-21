@@ -4,7 +4,7 @@ use norx::{ Norx as NorxCipher, Process, Encrypt, Decrypt };
 use super::{ AeadCipher, Online, Encryption, Decryption };
 
 
-pub struct Norx([u8; KEY_LENGTH]);
+pub struct Norx6441([u8; KEY_LENGTH]);
 
 pub struct EncryptProcess<'a> {
     process: Process<Encrypt>,
@@ -20,7 +20,7 @@ pub struct DecryptProcess<'a> {
 #[fail(display = "input/output length does not match")]
 pub struct LengthError;
 
-impl AeadCipher for Norx {
+impl AeadCipher for Norx6441 {
     const KEY_LENGTH: usize = KEY_LENGTH;
     const NONCE_LENGTH: usize = NONCE_LENGTH;
     const TAG_LENGTH: usize = TAG_LENGTH;
@@ -30,7 +30,7 @@ impl AeadCipher for Norx {
     fn new(key: &[u8]) -> Self {
         let mut k = [0; KEY_LENGTH];
         k.copy_from_slice(key);
-        Norx(k)
+        Norx6441(k)
     }
 
     fn seal(&self, nonce: &[u8], aad: &[u8], input: &[u8], output: &mut [u8]) -> Result<(), Self::Error> {
@@ -42,7 +42,7 @@ impl AeadCipher for Norx {
     }
 }
 
-impl<'a> Online<'a> for Norx {
+impl<'a> Online<'a> for Norx6441 {
     type Encryption = EncryptProcess<'a>;
     type Decryption = DecryptProcess<'a>;
 
@@ -90,7 +90,9 @@ impl<'a> Encryption<'a, LengthError> for EncryptProcess<'a> {
         let take = self.process(input, output).len();
         let (_, input) = input.split_at(take);
         let (_, output) = output.split_at_mut(take);
-        Ok(self.process.finalize(self.key, &[], input, output))
+        self.process.finalize(self.key, &[], input, output);
+
+        Ok(())
     }
 }
 
