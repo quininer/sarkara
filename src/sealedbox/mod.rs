@@ -1,45 +1,60 @@
+use std::marker::PhantomData;
 use rand::Rng;
 use seckey::TempKey;
-use ::kex::KeyExchange;
+use ::kex::{ KeyExchange, CheckedExchange };
 use ::aead::{ AeadCipher, Online };
 
 
+pub struct SealedBox<KEX, AE>(PhantomData<(KEX, AE)>);
 pub struct Sealing<AE: AeadCipher>(AE);
 pub struct Opening<AE: AeadCipher>(AE);
 
-pub trait SealedBox: KeyExchange {
-    fn send<R, AE>(r: R, pk: &Self::PublicKey)
-        -> (Self::Message, Sealing<AE>)
-        where
-            R: Rng,
-            AE: AeadCipher,
-//            AE::KEY_LENGTH = Self::SHARED_LENGTH
-    ;
-    fn recv<AE>(sk: &Self::PrivateKey, m: &Self::Message)
-        -> Opening<AE>
-        where AE: AeadCipher;
-}
 
-impl<T> SealedBox for T where T: KeyExchange {
-    fn send<R: Rng, AE: AeadCipher>(r: R, pk: &Self::PublicKey) -> (Self::Message, Sealing<AE>) {
+impl<KEX, AE> SealedBox<KEX, AE>
+    where
+        KEX: KeyExchange,
+        AE: AeadCipher,
+//        AE::KEY_LENGTH = KEX::SHARED_LENGTH
+{
+    pub fn send<R: Rng>(r: R, pk: &KEX::PublicKey) -> (KEX::Message, Sealing<AE>) {
         // TODO static assert
-        assert_eq!(Self::SHARED_LENGTH, AE::KEY_LENGTH);
-        let mut sharedkey = vec![0; Self::SHARED_LENGTH];
+        assert_eq!(KEX::SHARED_LENGTH, AE::KEY_LENGTH);
+        let mut sharedkey = vec![0; KEX::SHARED_LENGTH];
         let mut sharedkey = TempKey::from_slice(&mut sharedkey);
 
-        let m = Self::exchange_to(r, &mut sharedkey, pk);
+        let m = KEX::exchange_to(r, &mut sharedkey, pk);
         let ae = AE::new(&sharedkey);
 
         (m, Sealing(ae))
     }
 
-    fn recv<AE: AeadCipher>(sk: &Self::PrivateKey, m: &Self::Message) -> Opening<AE> {
+    pub fn recv(sk: &KEX::PrivateKey, m: &KEX::Message) -> Opening<AE> {
         // TODO static assert
-        assert_eq!(Self::SHARED_LENGTH, AE::KEY_LENGTH);
-        let mut sharedkey = vec![0; Self::SHARED_LENGTH];
+        assert_eq!(KEX::SHARED_LENGTH, AE::KEY_LENGTH);
+        let mut sharedkey = vec![0; KEX::SHARED_LENGTH];
         let mut sharedkey = TempKey::from_slice(&mut sharedkey);
 
-        Self::exchange_from(&mut sharedkey, sk, m);
+        KEX::exchange_from(&mut sharedkey, sk, m);
+        let ae = AE::new(&sharedkey);
+
+        Opening(ae)
+    }
+}
+
+impl<KEX, AE> SealedBox<KEX, AE>
+    where
+        KEX: CheckedExchange,
+        AE: AeadCipher
+{
+    pub fn checked_recv(sk: &KEX::PrivateKey, m: &KEX::Message) -> Opening<AE> {
+        // TODO static assert
+        assert_eq!(KEX::SHARED_LENGTH, AE::KEY_LENGTH);
+        let mut sharedkey = vec![0; KEX::SHARED_LENGTH];
+        let mut sharedkey = TempKey::from_slice(&mut sharedkey);
+
+        if !<KEX as CheckedExchange>::exchange_from(&mut sharedkey, sk, m) {
+            unimplemented!()
+        }
         let ae = AE::new(&sharedkey);
 
         Opening(ae)

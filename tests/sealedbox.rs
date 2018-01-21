@@ -1,7 +1,7 @@
 extern crate rand;
 extern crate sarkara;
 
-use rand::{thread_rng, Rng, ThreadRng};
+use rand::{ Rng, thread_rng };
 use sarkara::aead::AeadCipher;
 use sarkara::kex::KeyExchange;
 use sarkara::sealedbox::SealedBox;
@@ -10,11 +10,11 @@ use sarkara::kex::kyber::Kyber;
 use sarkara::aead::sparx256colm0::Sparx256Colm0;
 use sarkara::aead::norx6441::Norx6441;
 
-fn test_sealedbox<K: KeyExchange, AE: AeadCipher>() {
-    let (bob_priv, bob_pub) = K::keypair(thread_rng());
+fn test_sealedbox<KEX: KeyExchange, AE: AeadCipher>() {
+    let (bob_priv, bob_pub) = KEX::keypair(thread_rng());
 
-    let (alice_msg, alice_enc) = K::send::<ThreadRng, AE>(thread_rng(), &bob_pub);
-    let bob_dec = K::recv::<AE>(&bob_priv, &alice_msg);
+    let (alice_msg, alice_enc) = SealedBox::<KEX, AE>::send(thread_rng(), &bob_pub);
+    let bob_dec = SealedBox::<KEX, AE>::recv(&bob_priv, &alice_msg);
 
     let mut nonce = vec![0; AE::NONCE_LENGTH];
     let mut aad = vec![0; thread_rng().gen_range(0, 34)];
