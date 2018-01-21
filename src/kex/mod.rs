@@ -1,5 +1,5 @@
 use rand::Rng;
-use Packing;
+use ::{ Packing, Error };
 
 pub mod kyber;
 
@@ -21,5 +21,5 @@ pub trait KeyExchange {
 }
 
 pub trait CheckedExchange: KeyExchange {
-    fn exchange_from(sharedkey: &mut [u8], sk: &Self::PrivateKey, m: &Self::Message) -> bool;
+    fn exchange_from(sharedkey: &mut [u8], sk: &Self::PrivateKey, m: &Self::Message) -> Result<(), Error>;
 }

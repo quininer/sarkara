@@ -1,5 +1,7 @@
 //! Sarkara is a Post-Quantum cryptography library.
 
+#![feature(non_exhaustive)]
+
 #[macro_use] extern crate arrayref;
 #[macro_use] extern crate failure;
 extern crate rand;
@@ -24,4 +26,15 @@ pub trait Packing: Sized {
 
     /// TODO should be `from_bytes(buf: &[u8; Self::LENGTH]) -> Self`
     fn from_bytes(buf: &[u8]) -> Self;
+}
+
+
+#[derive(Debug, Fail)]
+#[non_exhaustive]
+pub enum Error {
+    #[fail(display = "Input/Output length does not match")]
+    Length,
+
+    #[fail(display = "Fail to pass verification")]
+    VerificationFailed,
 }

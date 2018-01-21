@@ -1,4 +1,4 @@
-use failure::Fail;
+use ::Error;
 
 pub mod sparx256colm0;
 pub mod norx6441;
@@ -9,20 +9,18 @@ pub trait AeadCipher {
     const NONCE_LENGTH: usize;
     const TAG_LENGTH: usize;
 
-    type Error: Fail;
-
     /// TODO should be `Self::KEY_LENGTH`
     fn new(key: &[u8]) -> Self;
     /// TODO should be `Self::NONCE_LENGTH`
-    fn seal(&self, nonce: &[u8], aad: &[u8], input: &[u8], output: &mut [u8]) -> Result<(), Self::Error>;
-    fn open(&self, nonce: &[u8], aad: &[u8], input: &[u8], output: &mut [u8]) -> Result<bool, Self::Error>;
+    fn seal(&self, nonce: &[u8], aad: &[u8], input: &[u8], output: &mut [u8]) -> Result<(), Error>;
+    fn open(&self, nonce: &[u8], aad: &[u8], input: &[u8], output: &mut [u8]) -> Result<(), Error>;
 }
 
 
 // TODO GAT https://github.com/rust-lang/rust/issues/44265
 pub trait Online<'a>: AeadCipher {
-    type Encryption: Encryption<'a, Self::Error>;
-    type Decryption: Decryption<'a, Self::Error>;
+    type Encryption: Encryption<'a>;
+    type Decryption: Decryption<'a>;
 
     /// TODO should be `Self::NONCE_LENGTH`
     fn encrypt(&'a self, nonce: &[u8], aad: &[u8]) -> Self::Encryption;
@@ -30,12 +28,12 @@ pub trait Online<'a>: AeadCipher {
     fn decrypt(&'a self, nonce: &[u8], aad: &[u8]) -> Self::Decryption;
 }
 
-pub trait Encryption<'a, Error> {
+pub trait Encryption<'a> {
     fn process<'b>(&mut self, input: &[u8], output: &'b mut [u8]) -> &'b [u8];
     fn finalize(self, input: &[u8], output: &mut [u8]) -> Result<(), Error>;
 }
 
-pub trait Decryption<'a, Error> {
+pub trait Decryption<'a> {
     fn process<'b>(&mut self, input: &[u8], output: &'b mut [u8]) -> &'b [u8];
-    fn finalize(self, input: &[u8], output: &mut [u8]) -> Result<bool, Error>;
+    fn finalize(self, input: &[u8], output: &mut [u8]) -> Result<(), Error>;
 }

@@ -1,5 +1,5 @@
 use rand::Rng;
-use ::Packing;
+use ::{ Packing, Error };
 
 pub mod dilithium;
 
@@ -13,7 +13,7 @@ pub trait Signature {
 
     fn signature<R: Rng>(r: R, sk: &Self::PrivateKey, data: &[u8]) -> Self::Signature;
 
-    fn verify(pk: &Self::PublicKey, sig: &Self::Signature, data: &[u8]) -> bool;
+    fn verify(pk: &Self::PublicKey, sig: &Self::Signature, data: &[u8]) -> Result<(), Error>;
 }
 
 pub trait DeterministicSignature: Signature {

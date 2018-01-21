@@ -3,6 +3,7 @@ use rand::Rng;
 use seckey::TempKey;
 use ::kex::{ KeyExchange, CheckedExchange };
 use ::aead::{ AeadCipher, Online };
+use ::Error;
 
 
 pub struct SealedBox<KEX, AE>(PhantomData<(KEX, AE)>);
@@ -46,24 +47,22 @@ impl<KEX, AE> SealedBox<KEX, AE>
         KEX: CheckedExchange,
         AE: AeadCipher
 {
-    pub fn checked_recv(sk: &KEX::PrivateKey, m: &KEX::Message) -> Opening<AE> {
+    pub fn checked_recv(sk: &KEX::PrivateKey, m: &KEX::Message) -> Result<Opening<AE>, Error> {
         // TODO static assert
         assert_eq!(KEX::SHARED_LENGTH, AE::KEY_LENGTH);
         let mut sharedkey = vec![0; KEX::SHARED_LENGTH];
         let mut sharedkey = TempKey::from_slice(&mut sharedkey);
 
-        if !<KEX as CheckedExchange>::exchange_from(&mut sharedkey, sk, m) {
-            unimplemented!()
-        }
+        <KEX as CheckedExchange>::exchange_from(&mut sharedkey, sk, m)?;
         let ae = AE::new(&sharedkey);
 
-        Opening(ae)
+        Ok(Opening(ae))
     }
 }
 
 impl<AE: AeadCipher> Sealing<AE> {
     #[inline]
-    pub fn seal(&self, nonce: &[u8], aad: &[u8], input: &[u8], output: &mut [u8]) -> Result<(), AE::Error> {
+    pub fn seal(&self, nonce: &[u8], aad: &[u8], input: &[u8], output: &mut [u8]) -> Result<(), Error> {
         self.0.seal(nonce, aad, input, output)
     }
 }
@@ -77,7 +76,7 @@ impl<'a, AE: AeadCipher + Online<'a>> Sealing<AE> {
 
 impl<AE: AeadCipher> Opening<AE> {
     #[inline]
-    pub fn open(&self, nonce: &[u8], aad: &[u8], input: &[u8], output: &mut [u8]) -> Result<bool, AE::Error> {
+    pub fn open(&self, nonce: &[u8], aad: &[u8], input: &[u8], output: &mut [u8]) -> Result<(), Error> {
         self.0.open(nonce, aad, input, output)
     }
 }

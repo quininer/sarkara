@@ -4,33 +4,29 @@ use sparx_cipher::params::{ KEY_BYTES, BLOCK_BYTES };
 use colm::{ NONCE_LENGTH, Colm, E, D, Process0 };
 use colm::traits::BlockCipher;
 use super::{ AeadCipher, Online, Encryption, Decryption };
+use ::Error;
 
 
 pub struct Sparx256Colm0(Colm<Sparx256>);
 pub struct EncryptProcess<'a>(Process0<'a, Sparx256, E>);
 pub struct DecryptProcess<'a>(Process0<'a, Sparx256, D>);
 
-#[derive(Debug, Fail)]
-#[fail(display = "input/output length does not match")]
-pub struct LengthError;
 
 impl AeadCipher for Sparx256Colm0 {
     const KEY_LENGTH: usize = Sparx256::KEY_LENGTH;
     const NONCE_LENGTH: usize = NONCE_LENGTH;
     const TAG_LENGTH: usize = Sparx256::BLOCK_LENGTH;
 
-    type Error = LengthError;
-
     fn new(key: &[u8]) -> Self {
         let key = array_ref!(key, 0, KEY_BYTES);
         Sparx256Colm0(Colm::new(key))
     }
 
-    fn seal(&self, nonce: &[u8], aad: &[u8], input: &[u8], output: &mut [u8]) -> Result<(), Self::Error> {
+    fn seal(&self, nonce: &[u8], aad: &[u8], input: &[u8], output: &mut [u8]) -> Result<(), Error> {
         self.encrypt(nonce, aad).finalize(input, output)
     }
 
-    fn open(&self, nonce: &[u8], aad: &[u8], input: &[u8], output: &mut [u8]) -> Result<bool, Self::Error> {
+    fn open(&self, nonce: &[u8], aad: &[u8], input: &[u8], output: &mut [u8]) -> Result<(), Error> {
         self.decrypt(nonce, aad).finalize(input, output)
     }
 }
@@ -51,7 +47,7 @@ impl<'a> Online<'a> for Sparx256Colm0 {
 }
 
 
-impl<'a> Encryption<'a, LengthError> for EncryptProcess<'a> {
+impl<'a> Encryption<'a> for EncryptProcess<'a> {
     fn process<'b>(&mut self, input: &[u8], output: &'b mut [u8]) -> &'b [u8] {
         let len = cmp::min(input.len(), output.len());
 
@@ -75,9 +71,9 @@ impl<'a> Encryption<'a, LengthError> for EncryptProcess<'a> {
         output
     }
 
-    fn finalize(mut self, input: &[u8], output: &mut [u8]) -> Result<(), LengthError> {
+    fn finalize(mut self, input: &[u8], output: &mut [u8]) -> Result<(), Error> {
         if input.is_empty() || input.len() + BLOCK_BYTES != output.len() {
-            return Err(LengthError);
+            return Err(Error::Length);
         }
 
         let take = self.process(input, output).len();
@@ -89,7 +85,7 @@ impl<'a> Encryption<'a, LengthError> for EncryptProcess<'a> {
     }
 }
 
-impl<'a> Decryption<'a, LengthError> for DecryptProcess<'a> {
+impl<'a> Decryption<'a> for DecryptProcess<'a> {
     fn process<'b>(&mut self, input: &[u8], output: &'b mut [u8]) -> &'b [u8] {
         let len = cmp::min(input.len(), output.len() + BLOCK_BYTES);
 
@@ -113,19 +109,24 @@ impl<'a> Decryption<'a, LengthError> for DecryptProcess<'a> {
         output
     }
 
-    fn finalize(mut self, input: &[u8], output: &mut [u8]) -> Result<bool, LengthError> {
+    fn finalize(mut self, input: &[u8], output: &mut [u8]) -> Result<(), Error> {
         if
             input.is_empty() ||
             input.len() <= BLOCK_BYTES ||
             input.len() != output.len() + BLOCK_BYTES
         {
-            return Err(LengthError);
+            return Err(Error::Length);
         }
 
         let take = self.process(input, output).len();
         let (_, input) = input.split_at(take);
         let (_, output) = output.split_at_mut(take);
-        Ok(self.0.finalize(input, output))
+
+        if self.0.finalize(input, output) {
+            Ok(())
+        } else {
+            Err(Error::VerificationFailed)
+        }
     }
 }
 

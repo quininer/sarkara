@@ -27,9 +27,8 @@ fn test_sealedbox<KEX: KeyExchange, AE: AeadCipher>() {
     thread_rng().fill_bytes(&mut pt);
 
     alice_enc.seal(&nonce, &aad, &pt, &mut ct).unwrap();
-    let r = bob_dec.open(&nonce, &aad, &ct, &mut ot).unwrap();
+    bob_dec.open(&nonce, &aad, &ct, &mut ot).unwrap();
 
-    assert!(r);
     assert_eq!(pt, ot);
 }
 

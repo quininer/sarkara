@@ -26,8 +26,7 @@ fn test_aead<AE: AeadCipher>() {
 
         let cipher = AE::new(&key);
         cipher.seal(&nonce, &aad, &pt, &mut ct).unwrap();
-        let r = cipher.open(&nonce, &aad, &ct, &mut ot).unwrap();
-        assert!(r);
+        cipher.open(&nonce, &aad, &ct, &mut ot).unwrap();
         assert_eq!(pt, ot);
     }
 }
@@ -84,9 +83,8 @@ fn test_onlineae<AE>()
 
             let ct2 = recv.recv().unwrap();
             buf.extend_from_slice(&ct2);
-            let r = process.finalize(&buf, &mut ot[ot1_len..]).unwrap();
+            process.finalize(&buf, &mut ot[ot1_len..]).unwrap();
 
-            assert!(r);
             assert_eq!(ot, pt);
         });
 

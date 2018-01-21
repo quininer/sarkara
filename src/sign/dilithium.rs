@@ -2,13 +2,13 @@ use rand::Rng;
 use seckey::SecKey;
 use dilithium::{ params, sign };
 use super::{ Signature, DeterministicSignature };
-use ::Packing;
+use ::{ Packing, Error };
 
 
 pub struct Dilithium;
-pub struct PrivateKey(pub SecKey<[u8; params::SECRETKEYBYTES]>);
-pub struct PublicKey(pub [u8; params::PUBLICKEYBYTES]);
-pub struct SignatureData(pub [u8; params::BYTES]);
+pub struct PrivateKey(SecKey<[u8; params::SECRETKEYBYTES]>);
+pub struct PublicKey([u8; params::PUBLICKEYBYTES]);
+pub struct SignatureData([u8; params::BYTES]);
 
 impl Signature for Dilithium {
     type PrivateKey = PrivateKey;
@@ -31,8 +31,12 @@ impl Signature for Dilithium {
         &PublicKey(ref pk): &Self::PublicKey,
         &SignatureData(ref sig): &Self::Signature,
         data: &[u8]
-    ) -> bool {
-        sign::verify(data, sig, pk)
+    ) -> Result<(), Error> {
+        if sign::verify(data, sig, pk) {
+            Ok(())
+        } else {
+            Err(Error::VerificationFailed)
+        }
     }
 }
 

@@ -2,13 +2,13 @@ use rand::Rng;
 use seckey::SecKey;
 use kyber::{ params, kem };
 use super::{ KeyExchange, CheckedExchange };
-use ::Packing;
+use ::{ Packing, Error };
 
 
 pub struct Kyber;
-pub struct PrivateKey(pub SecKey<[u8; params::SECRETKEYBYTES]>);
-pub struct PublicKey(pub [u8; params::PUBLICKEYBYTES]);
-pub struct Message(pub [u8; params::CIPHERTEXTBYTES]);
+pub struct PrivateKey(SecKey<[u8; params::SECRETKEYBYTES]>);
+pub struct PublicKey([u8; params::PUBLICKEYBYTES]);
+pub struct Message([u8; params::CIPHERTEXTBYTES]);
 
 impl KeyExchange for Kyber {
     type PrivateKey = PrivateKey;
@@ -34,7 +34,7 @@ impl KeyExchange for Kyber {
     }
 
     fn exchange_from(sharedkey: &mut [u8], sk: &Self::PrivateKey, m: &Self::Message) {
-        <Kyber as CheckedExchange>::exchange_from(sharedkey, sk, m);
+        let _ = <Kyber as CheckedExchange>::exchange_from(sharedkey, sk, m);
     }
 }
 
@@ -43,9 +43,13 @@ impl CheckedExchange for Kyber {
         sharedkey: &mut [u8],
         &PrivateKey(ref sk): &Self::PrivateKey,
         &Message(ref m): &Self::Message
-    ) -> bool {
+    ) -> Result<(), Error> {
         let sharedkey = array_mut_ref!(sharedkey, 0, params::SYMBYTES);
-        kem::dec(sharedkey, m, &sk.read())
+        if kem::dec(sharedkey, m, &sk.read()) {
+            Ok(())
+        } else {
+            Err(Error::VerificationFailed)
+        }
     }
 }
 
