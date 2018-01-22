@@ -1,6 +1,5 @@
 use ::Error;
 
-pub mod sparx256colm0;
 pub mod norx6441;
 
 

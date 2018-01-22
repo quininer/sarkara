@@ -5,7 +5,6 @@ use std::thread;
 use std::sync::mpsc::channel;
 use rand::{ Rng, thread_rng };
 use sarkara::aead::{ AeadCipher, Online, Encryption, Decryption };
-use sarkara::aead::sparx256colm0::Sparx256Colm0;
 use sarkara::aead::norx6441::Norx6441;
 
 
@@ -38,7 +37,7 @@ fn test_onlineae<AE>()
     let mut key = vec![0; AE::KEY_LENGTH];
     let mut nonce = vec![0; AE::NONCE_LENGTH];
 
-    for i in 1..65 {
+    for i in 1..256 {
         let mut aad = vec![0; thread_rng().gen_range(0, 34)];
         let mut pt = vec![0; i];
         thread_rng().fill_bytes(&mut key);
@@ -93,12 +92,6 @@ fn test_onlineae<AE>()
     }
 }
 
-
-#[test]
-fn test_sparx256colm0() {
-    test_aead::<Sparx256Colm0>();
-    test_onlineae::<Sparx256Colm0>();
-}
 
 #[test]
 fn test_norx6441() {

@@ -7,7 +7,6 @@ use sarkara::kex::KeyExchange;
 use sarkara::sealedbox::SealedBox;
 
 use sarkara::kex::kyber::Kyber;
-use sarkara::aead::sparx256colm0::Sparx256Colm0;
 use sarkara::aead::norx6441::Norx6441;
 
 fn test_sealedbox<KEX: KeyExchange, AE: AeadCipher>() {
@@ -32,10 +31,6 @@ fn test_sealedbox<KEX: KeyExchange, AE: AeadCipher>() {
     assert_eq!(pt, ot);
 }
 
-#[test]
-fn test_kyber_sparx256colm0() {
-    test_sealedbox::<Kyber, Sparx256Colm0>();
-}
 
 #[test]
 fn test_kyber_norx() {
