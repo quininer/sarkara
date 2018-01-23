@@ -25,5 +25,12 @@ kyber = "0.2.0-alpha.1"
 dilithium = "0.1.1"
 norx = { version = "0.1", default-features = false, features = [ "W64", "L4", "P1" ] }
 
+[dependencies.sidh]
+git = "https://github.com/etairi/sidh-rs"
+default-features = false
+features = [ "nightly", "std" ]
+optional = true
+
 [features]
+extra = [ "sidh" ]
 simd = [ "norx/simd" ]

@@ -4,7 +4,6 @@ extern crate sarkara;
 use rand::thread_rng;
 use sarkara::{ Packing, Error };
 use sarkara::kex::{ KeyExchange, CheckedExchange };
-use sarkara::kex::kyber::Kyber;
 
 
 fn test_kex<KEX: KeyExchange>() {
@@ -41,6 +40,16 @@ fn test_checkedkex<KEX: CheckedExchange>() {
 
 #[test]
 fn test_kyber() {
+    use sarkara::kex::kyber::Kyber;
+
     test_kex::<Kyber>();
     test_checkedkex::<Kyber>();
+}
+
+#[cfg(feature = "extra")]
+#[test]
+fn test_sidh() {
+    use sarkara::kex::sidh::Sidh;
+
+    test_kex::<Sidh>();
 }

@@ -6,9 +6,6 @@ use sarkara::aead::AeadCipher;
 use sarkara::kex::KeyExchange;
 use sarkara::sealedbox::SealedBox;
 
-use sarkara::kex::kyber::Kyber;
-use sarkara::aead::norx6441::Norx6441;
-
 fn test_sealedbox<KEX: KeyExchange, AE: AeadCipher>() {
     let (bob_priv, bob_pub) = KEX::keypair(thread_rng());
 
@@ -34,5 +31,8 @@ fn test_sealedbox<KEX: KeyExchange, AE: AeadCipher>() {
 
 #[test]
 fn test_kyber_norx() {
+    use sarkara::kex::kyber::Kyber;
+    use sarkara::aead::norx6441::Norx6441;
+
     test_sealedbox::<Kyber, Norx6441>();
 }

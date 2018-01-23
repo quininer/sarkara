@@ -10,6 +10,9 @@ extern crate dilithium;
 extern crate kyber;
 extern crate norx;
 
+#[cfg(feature = "extra")]
+extern crate sidh;
+
 pub mod sign;
 pub mod kex;
 pub mod aead;

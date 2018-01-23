@@ -3,7 +3,6 @@ extern crate sarkara;
 
 use rand::{ Rng, thread_rng };
 use sarkara::sign::{ Signature, DeterministicSignature };
-use sarkara::sign::dilithium::Dilithium;
 
 
 fn test_sign<SS: Signature>() {
@@ -33,6 +32,8 @@ fn test_dsign<SS: DeterministicSignature>() {
 
 #[test]
 fn test_dilithium() {
+    use sarkara::sign::dilithium::Dilithium;
+
     test_sign::<Dilithium>();
     test_dsign::<Dilithium>();
 }

@@ -3,6 +3,9 @@ use ::{ Packing, Error };
 
 pub mod kyber;
 
+#[cfg(feature = "extra")]
+pub mod sidh;
+
 
 pub trait KeyExchange {
     type PrivateKey: Packing;
