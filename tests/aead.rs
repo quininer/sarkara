@@ -4,6 +4,7 @@ extern crate sarkara;
 use std::thread;
 use std::sync::mpsc::channel;
 use rand::{ Rng, thread_rng };
+use sarkara::Error;
 use sarkara::aead::{ AeadCipher, Online, Encryption, Decryption };
 use sarkara::aead::norx6441::Norx6441;
 
@@ -26,7 +27,15 @@ fn test_aead<AE: AeadCipher>() {
         let cipher = AE::new(&key);
         cipher.seal(&nonce, &aad, &pt, &mut ct).unwrap();
         cipher.open(&nonce, &aad, &ct, &mut ot).unwrap();
+
         assert_eq!(pt, ot);
+
+        ct[i - 1] ^= 0x42;
+        assert!(if let Err(Error::VerificationFailed) = cipher.open(&nonce, &aad, &ct, &mut ot) {
+            true
+        } else {
+            false
+        });
     }
 }
 
