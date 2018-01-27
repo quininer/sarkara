@@ -20,8 +20,8 @@ impl<KEX, AE> SealedBox<KEX, AE>
     pub fn send<R: Rng>(r: R, pk: &KEX::PublicKey) -> (KEX::Message, Sealing<AE>) {
         // TODO static assert
         assert_eq!(KEX::SHARED_LENGTH, AE::KEY_LENGTH);
-        let mut sharedkey = vec![0; KEX::SHARED_LENGTH];
-        let mut sharedkey = TempKey::from_slice(&mut sharedkey);
+        let mut sharedkey: Vec<u8> = vec![0; KEX::SHARED_LENGTH];
+        let mut sharedkey = TempKey::from(&mut sharedkey as &mut [u8]);
 
         let m = KEX::exchange_to(r, &mut sharedkey, pk);
         let ae = AE::new(&sharedkey);
@@ -32,8 +32,8 @@ impl<KEX, AE> SealedBox<KEX, AE>
     pub fn recv(sk: &KEX::PrivateKey, m: &KEX::Message) -> Opening<AE> {
         // TODO static assert
         assert_eq!(KEX::SHARED_LENGTH, AE::KEY_LENGTH);
-        let mut sharedkey = vec![0; KEX::SHARED_LENGTH];
-        let mut sharedkey = TempKey::from_slice(&mut sharedkey);
+        let mut sharedkey: Vec<u8> = vec![0; KEX::SHARED_LENGTH];
+        let mut sharedkey = TempKey::from(&mut sharedkey as &mut [u8]);
 
         KEX::exchange_from(&mut sharedkey, sk, m);
         let ae = AE::new(&sharedkey);
@@ -50,8 +50,8 @@ impl<KEX, AE> SealedBox<KEX, AE>
     pub fn checked_recv(sk: &KEX::PrivateKey, m: &KEX::Message) -> Result<Opening<AE>, Error> {
         // TODO static assert
         assert_eq!(KEX::SHARED_LENGTH, AE::KEY_LENGTH);
-        let mut sharedkey = vec![0; KEX::SHARED_LENGTH];
-        let mut sharedkey = TempKey::from_slice(&mut sharedkey);
+        let mut sharedkey: Vec<u8> = vec![0; KEX::SHARED_LENGTH];
+        let mut sharedkey = TempKey::from(&mut sharedkey as &mut [u8]);
 
         <KEX as CheckedExchange>::exchange_from(&mut sharedkey, sk, m)?;
         let ae = AE::new(&sharedkey);
