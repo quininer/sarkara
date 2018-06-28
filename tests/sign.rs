@@ -1,17 +1,18 @@
 extern crate rand;
 extern crate sarkara;
 
-use rand::{ Rng, thread_rng };
+use rand::{ Rng, RngCore, FromEntropy, ChaChaRng };
 use sarkara::sign::{ Signature, DeterministicSignature };
 use sarkara::sign::dilithium::Dilithium;
 
 
 fn test_sign<SS: Signature>() {
-    let mut data = vec![0; thread_rng().gen_range(1, 2049)];
-    thread_rng().fill_bytes(&mut data);
+    let mut rng = ChaChaRng::from_entropy();
+    let mut data = vec![0; rng.gen_range(1, 2049)];
+    rng.fill_bytes(&mut data);
 
-    let (sk, pk) = SS::keypair(thread_rng());
-    let sig = SS::signature(thread_rng(), &sk, &data);
+    let (sk, pk) = SS::keypair(&mut rng);
+    let sig = SS::signature(&mut rng, &sk, &data);
     assert!(SS::verify(&pk, &sig, &data).is_ok());
 
     data[0] ^= 0x42;
@@ -19,10 +20,11 @@ fn test_sign<SS: Signature>() {
 }
 
 fn test_dsign<SS: DeterministicSignature>() {
-    let mut data = vec![0; thread_rng().gen_range(1, 2049)];
-    thread_rng().fill_bytes(&mut data);
+    let mut rng = ChaChaRng::from_entropy();
+    let mut data = vec![0; rng.gen_range(1, 2049)];
+    rng.fill_bytes(&mut data);
 
-    let (sk, pk) = SS::keypair(thread_rng());
+    let (sk, pk) = SS::keypair(&mut rng);
     let sig = <SS as DeterministicSignature>::signature(&sk, &data);
     assert!(SS::verify(&pk, &sig, &data).is_ok());
 

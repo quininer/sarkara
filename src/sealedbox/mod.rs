@@ -1,5 +1,5 @@
 use std::marker::PhantomData;
-use rand::Rng;
+use rand::{ Rng, CryptoRng };
 use seckey::TempKey;
 use ::kex::{ KeyExchange, CheckedExchange };
 use ::aead::{ AeadCipher, Online };
@@ -17,7 +17,7 @@ impl<KEX, AE> SealedBox<KEX, AE>
         AE: AeadCipher,
 //        AE::KEY_LENGTH = KEX::SHARED_LENGTH
 {
-    pub fn send<R: Rng>(r: R, pk: &KEX::PublicKey) -> (KEX::Message, Sealing<AE>) {
+    pub fn send<R: Rng + CryptoRng>(r: R, pk: &KEX::PublicKey) -> (KEX::Message, Sealing<AE>) {
         // TODO static assert
         assert_eq!(KEX::SHARED_LENGTH, AE::KEY_LENGTH);
         let mut sharedkey: Vec<u8> = vec![0; KEX::SHARED_LENGTH];

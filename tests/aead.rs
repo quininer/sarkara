@@ -3,26 +3,27 @@ extern crate sarkara;
 
 use std::thread;
 use std::sync::mpsc::channel;
-use rand::{ Rng, thread_rng };
+use rand::{ Rng, RngCore, FromEntropy, ChaChaRng };
 use sarkara::Error;
 use sarkara::aead::{ AeadCipher, Online, Encryption, Decryption };
 use sarkara::aead::norx6441::Norx6441;
 
 
 fn test_aead<AE: AeadCipher>() {
-    let mut key = vec![0; AE::KEY_LENGTH];
-    let mut nonce = vec![0; AE::NONCE_LENGTH];
+    let mut key = vec![0u8; AE::KEY_LENGTH];
+    let mut nonce = vec![0u8; AE::NONCE_LENGTH];
+    let mut rng = ChaChaRng::from_entropy();
 
     for i in 1..256 {
-        let mut aad = vec![0; thread_rng().gen_range(0, 34)];
-        let mut pt = vec![0; i];
-        let mut ct = vec![0; pt.len() + AE::TAG_LENGTH];
-        let mut ot = vec![0; pt.len()];
+        let mut aad = vec![0u8; rng.gen_range(0, 34)];
+        let mut pt = vec![0u8; i];
+        let mut ct = vec![0u8; pt.len() + AE::TAG_LENGTH];
+        let mut ot = vec![0u8; pt.len()];
 
-        thread_rng().fill_bytes(&mut key);
-        thread_rng().fill_bytes(&mut nonce);
-        thread_rng().fill_bytes(&mut aad);
-        thread_rng().fill_bytes(&mut pt);
+        rng.fill_bytes(&mut key);
+        rng.fill_bytes(&mut nonce);
+        rng.fill_bytes(&mut aad);
+        rng.fill_bytes(&mut pt);
 
         let cipher = AE::new(&key);
         cipher.seal(&nonce, &aad, &pt, &mut ct).unwrap();
@@ -43,15 +44,16 @@ fn test_onlineae<AE>()
     where
         for<'a> AE: AeadCipher + Online<'a>
 {
-    let mut key = vec![0; AE::KEY_LENGTH];
-    let mut nonce = vec![0; AE::NONCE_LENGTH];
+    let mut key = vec![0u8; AE::KEY_LENGTH];
+    let mut nonce = vec![0u8; AE::NONCE_LENGTH];
+    let mut rng = ChaChaRng::from_entropy();
 
     for i in 1..256 {
-        let mut aad = vec![0; thread_rng().gen_range(0, 34)];
-        let mut pt = vec![0; i];
-        thread_rng().fill_bytes(&mut key);
-        thread_rng().fill_bytes(&mut nonce);
-        thread_rng().fill_bytes(&mut pt);
+        let mut aad = vec![0u8; rng.gen_range(0, 34)];
+        let mut pt = vec![0u8; i];
+        rng.fill_bytes(&mut key);
+        rng.fill_bytes(&mut nonce);
+        rng.fill_bytes(&mut pt);
 
         let (send, recv) = channel();
 
@@ -63,7 +65,7 @@ fn test_onlineae<AE>()
             let cipher = AE::new(&key2);
             let mut process = cipher.encrypt(&nonce2, &aad2);
 
-            let mut ct = vec![0; pt2.len() + AE::TAG_LENGTH];
+            let mut ct = vec![0u8; pt2.len() + AE::TAG_LENGTH];
             let mut buf = Vec::new();
 
             let ct1_len = process.process(&pt2, &mut ct).len();
@@ -82,7 +84,7 @@ fn test_onlineae<AE>()
             let cipher = AE::new(&key2);
             let mut process = cipher.decrypt(&nonce2, &aad2);
 
-            let mut ot = vec![0; i];
+            let mut ot = vec![0u8; i];
             let mut buf = Vec::new();
 
             let ct1 = recv.recv().unwrap();

@@ -1,4 +1,4 @@
-use rand::Rng;
+use rand::{ Rng, CryptoRng };
 use ::{ Packing, Error };
 
 pub mod kyber;
@@ -11,10 +11,10 @@ pub trait KeyExchange {
 
     const SHARED_LENGTH: usize;
 
-    fn keypair<R: Rng>(r: R) -> (Self::PrivateKey, Self::PublicKey);
+    fn keypair<R: Rng + CryptoRng>(r: R) -> (Self::PrivateKey, Self::PublicKey);
 
     /// TODO should be `sharedkey: &mut [u8; Self::SHARED_LENGTH]`
-    fn exchange_to<R: Rng>(r: R, sharedkey: &mut [u8], pk: &Self::PublicKey) -> Self::Message;
+    fn exchange_to<R: Rng + CryptoRng>(r: R, sharedkey: &mut [u8], pk: &Self::PublicKey) -> Self::Message;
 
     /// TODO should be `sharedkey: &mut [u8; Self::SHARED_LENGTH]`
     fn exchange_from(sharedkey: &mut [u8], sk: &Self::PrivateKey, m: &Self::Message);

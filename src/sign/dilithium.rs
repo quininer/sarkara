@@ -1,4 +1,4 @@
-use rand::Rng;
+use rand::{ Rng, CryptoRng };
 use seckey::SecKey;
 use dilithium::{ params, sign };
 use super::{ Signature, DeterministicSignature };
@@ -15,7 +15,7 @@ impl Signature for Dilithium {
     type PublicKey = PublicKey;
     type Signature = SignatureData;
 
-    fn keypair<R: Rng>(mut r: R) -> (Self::PrivateKey, Self::PublicKey) {
+    fn keypair<R: Rng + CryptoRng>(mut r: R) -> (Self::PrivateKey, Self::PublicKey) {
         // TODO use `SecKey::with_default()`
         let mut sk = SecKey::new([0; params::SECRETKEYBYTES]).ok().expect("memsec malloc failed");
         let mut pk = [0; params::PUBLICKEYBYTES];
@@ -23,7 +23,7 @@ impl Signature for Dilithium {
         (PrivateKey(sk), PublicKey(pk))
     }
 
-    fn signature<R: Rng>(_: R, sk: &Self::PrivateKey, data: &[u8]) -> Self::Signature {
+    fn signature<R: Rng + CryptoRng>(_: R, sk: &Self::PrivateKey, data: &[u8]) -> Self::Signature {
         <Dilithium as DeterministicSignature>::signature(sk, data)
     }
 

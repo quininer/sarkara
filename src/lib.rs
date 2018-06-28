@@ -29,6 +29,7 @@ pub trait Packing: Sized {
 
 #[derive(Debug, Fail)]
 #[non_exhaustive]
+#[must_use]
 pub enum Error {
     #[fail(display = "Input/Output length does not match")]
     Length,
