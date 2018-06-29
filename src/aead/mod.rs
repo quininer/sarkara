@@ -1,6 +1,7 @@
 use ::Error;
 
 pub mod norx6441;
+pub mod norx_mrs;
 
 
 pub trait AeadCipher {

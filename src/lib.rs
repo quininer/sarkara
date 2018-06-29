@@ -9,6 +9,8 @@ extern crate seckey;
 extern crate dilithium;
 extern crate kyber;
 extern crate norx;
+extern crate norx_permutation;
+extern crate mem_aead_mrs;
 
 pub mod sign;
 pub mod kex;

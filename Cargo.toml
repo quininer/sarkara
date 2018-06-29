@@ -28,4 +28,4 @@ norx = { version = "0.1", default-features = false, features = [ "W64", "L4", "P
 mem-aead-mrs = "*"
 
 [features]
-simd = [ "norx/simd" ]
+simd = [ "norx-permutation/simd", "norx/simd" ]
