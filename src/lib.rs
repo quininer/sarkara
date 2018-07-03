@@ -21,8 +21,7 @@ pub mod sealedbox;
 pub trait Packing: Sized {
     const BYTES_LENGTH: usize;
 
-    /// TODO should be `as_bytes(&self, buf: &[u8; Self::LENGTH])`
-    fn read_bytes(&self, buf: &mut [u8]);
+    fn read_bytes<F: FnOnce(&[u8])>(&self, f: F);
 
     /// TODO should be `from_bytes(buf: &[u8; Self::LENGTH]) -> Self`
     fn from_bytes(buf: &[u8]) -> Self;

@@ -1,8 +1,8 @@
 use rand::{ Rng, CryptoRng };
 use seckey::SecKey;
 use dilithium::{ params, sign };
+use crate::{ Packing, Error };
 use super::{ Signature, DeterministicSignature };
-use ::{ Packing, Error };
 
 
 pub struct Dilithium;
@@ -51,9 +51,8 @@ impl DeterministicSignature for Dilithium {
 impl Packing for PrivateKey {
     const BYTES_LENGTH: usize = params::SECRETKEYBYTES;
 
-    fn read_bytes(&self, buf: &mut [u8]) {
-        let buf = array_mut_ref!(buf, 0, params::SECRETKEYBYTES);
-        buf.clone_from(&*self.0.read())
+    fn read_bytes<F: FnOnce(&[u8])>(&self, f: F) {
+        f(&*self.0.read());
     }
 
     fn from_bytes(buf: &[u8]) -> Self {
@@ -67,9 +66,8 @@ impl Packing for PrivateKey {
 impl Packing for PublicKey {
     const BYTES_LENGTH: usize = params::PUBLICKEYBYTES;
 
-    fn read_bytes(&self, buf: &mut [u8]) {
-        let buf = array_mut_ref!(buf, 0, params::PUBLICKEYBYTES);
-        buf.clone_from(&self.0)
+    fn read_bytes<F: FnOnce(&[u8])>(&self, f: F) {
+        f(&self.0);
     }
 
     fn from_bytes(buf: &[u8]) -> Self {
@@ -83,9 +81,8 @@ impl Packing for PublicKey {
 impl Packing for SignatureData {
     const BYTES_LENGTH: usize = params::BYTES;
 
-    fn read_bytes(&self, buf: &mut [u8]) {
-        let buf = array_mut_ref!(buf, 0, params::BYTES);
-        buf.clone_from(&self.0)
+    fn read_bytes<F: FnOnce(&[u8])>(&self, f: F) {
+        f(&self.0);
     }
 
     fn from_bytes(buf: &[u8]) -> Self {

@@ -1,6 +1,8 @@
+cargo-features = ["edition"]
+
 [package]
 name = "sarkara"
-version = "0.10.0-alpha.1"
+version = "0.10.0-alpha.2"
 authors = ["quininer kel <quininer@live.com>"]
 description = "A experimental post-quantum cryptography library."
 repository = "https://github.com/quininer/sarkara"
@@ -8,6 +10,7 @@ documentation = "https://docs.rs/sarkara/"
 keywords = [ "post-quantum", "cryptography" ]
 license = "MIT"
 categories = [ "cryptography" ]
+edition = "2018"
 
 [badges]
 travis-ci = { repository = "quininer/sarkara" }
@@ -25,7 +28,7 @@ kyber = "0.2.0-alpha.2"
 dilithium = "0.2.0-alpha.2"
 norx-permutation = { version = "0.1", default-features = false, features = [ "W64", "L4" ] }
 norx = { version = "0.1", default-features = false, features = [ "W64", "L4", "P1" ] }
-mem-aead-mrs = "*"
+mem-aead-mrs = "0.1"
 
 [features]
 simd = [ "norx-permutation/simd", "norx/simd" ]

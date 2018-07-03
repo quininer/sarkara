@@ -1,4 +1,4 @@
-use ::Error;
+use crate::Error;
 
 pub mod norx6441;
 pub mod norx_mrs;

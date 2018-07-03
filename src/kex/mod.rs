@@ -1,5 +1,5 @@
 use rand::{ Rng, CryptoRng };
-use ::{ Packing, Error };
+use crate::{ Packing, Error };
 
 pub mod kyber;
 

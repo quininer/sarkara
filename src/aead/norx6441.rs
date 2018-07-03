@@ -1,8 +1,8 @@
 use std::cmp;
 use norx::constant::{ KEY_LENGTH, NONCE_LENGTH, TAG_LENGTH, BLOCK_LENGTH };
 use norx::{ Norx as NorxCipher, Process, Encrypt, Decrypt };
+use crate::Error;
 use super::{ AeadCipher, Online, Encryption, Decryption };
-use ::Error;
 
 
 pub struct Norx6441([u8; KEY_LENGTH]);

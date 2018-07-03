@@ -1,9 +1,9 @@
 use std::marker::PhantomData;
 use rand::{ Rng, CryptoRng };
 use seckey::TempKey;
-use ::kex::{ KeyExchange, CheckedExchange };
-use ::aead::{ AeadCipher, Online };
-use ::Error;
+use crate::kex::{ KeyExchange, CheckedExchange };
+use crate::aead::{ AeadCipher, Online };
+use crate::Error;
 
 
 pub struct SealedBox<KEX, AE>(PhantomData<(KEX, AE)>);

@@ -26,7 +26,7 @@ fn test_checkedkex<KEX: CheckedExchange>() {
     let msg = KEX::exchange_to(&mut rng, &mut b, &pka);
 
     let mut fake_msg = vec![0u8; KEX::Message::BYTES_LENGTH];
-    msg.read_bytes(&mut fake_msg);
+    msg.read_bytes(|msg| fake_msg.copy_from_slice(msg));
     fake_msg[0] ^= 0x42;
     fake_msg[KEX::Message::BYTES_LENGTH - 1] ^= 0x43;
     let fake_msg = KEX::Message::from_bytes(&fake_msg);

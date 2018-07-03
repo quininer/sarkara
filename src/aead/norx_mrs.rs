@@ -3,8 +3,8 @@ use mem_aead_mrs::{
     KEY_LENGTH, NONCE_LENGTH, TAG_LENGTH,
     Mrs, Permutation
 };
+use crate::Error;
 use super::AeadCipher;
-use ::Error;
 
 
 pub struct NorxMrs([u8; KEY_LENGTH]);

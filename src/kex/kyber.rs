@@ -1,8 +1,8 @@
 use rand::{ Rng, CryptoRng };
 use seckey::SecKey;
 use kyber::{ params, kem };
+use crate::{ Packing, Error };
 use super::{ KeyExchange, CheckedExchange };
-use ::{ Packing, Error };
 
 
 pub struct Kyber;
@@ -56,9 +56,8 @@ impl CheckedExchange for Kyber {
 impl Packing for PrivateKey {
     const BYTES_LENGTH: usize = params::SECRETKEYBYTES;
 
-    fn read_bytes(&self, buf: &mut [u8]) {
-        let buf = array_mut_ref!(buf, 0, params::SECRETKEYBYTES);
-        buf.clone_from(&*self.0.read())
+    fn read_bytes<F: FnOnce(&[u8])>(&self, f: F) {
+        f(&*self.0.read());
     }
 
     fn from_bytes(buf: &[u8]) -> Self {
@@ -71,9 +70,8 @@ impl Packing for PrivateKey {
 impl Packing for PublicKey {
     const BYTES_LENGTH: usize = params::PUBLICKEYBYTES;
 
-    fn read_bytes(&self, buf: &mut [u8]) {
-        let buf = array_mut_ref!(buf, 0, params::PUBLICKEYBYTES);
-        buf.clone_from(&self.0)
+    fn read_bytes<F: FnOnce(&[u8])>(&self, f: F) {
+        f(&self.0);
     }
 
     fn from_bytes(buf: &[u8]) -> Self {
@@ -87,9 +85,8 @@ impl Packing for PublicKey {
 impl Packing for Message {
     const BYTES_LENGTH: usize = params::CIPHERTEXTBYTES;
 
-    fn read_bytes(&self, buf: &mut [u8]) {
-        let buf = array_mut_ref!(buf, 0, params::CIPHERTEXTBYTES);
-        buf.clone_from(&self.0)
+    fn read_bytes<F: FnOnce(&[u8])>(&self, f: F) {
+        f(&self.0);
     }
 
     fn from_bytes(buf: &[u8]) -> Self {
