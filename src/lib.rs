@@ -15,6 +15,7 @@ extern crate mem_aead_mrs;
 #[cfg(feature = "serde")]
 extern crate serde;
 
+#[macro_use] mod common;
 pub mod sign;
 pub mod kex;
 pub mod aead;

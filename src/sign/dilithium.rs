@@ -48,59 +48,12 @@ impl DeterministicSignature for Dilithium {
     }
 }
 
-impl Packing for PrivateKey {
-    const BYTES_LENGTH: usize = params::SECRETKEYBYTES;
-
-    fn read_bytes<T, F>(&self, f: F)
-        -> T
-        where F: FnOnce(&[u8]) -> T
-    {
-        f(&*self.0.read())
-    }
-
-    fn from_bytes(buf: &[u8]) -> Self {
-        let buf = array_ref!(buf, 0, params::SECRETKEYBYTES);
-        SecKey::from_ref(buf)
-            .map(PrivateKey)
-            .expect("memsec malloc failed")
-    }
-}
-
-impl Packing for PublicKey {
-    const BYTES_LENGTH: usize = params::PUBLICKEYBYTES;
-
-    fn read_bytes<T, F>(&self, f: F)
-        -> T
-        where F: FnOnce(&[u8]) -> T
-    {
-        f(&self.0)
-    }
-
-    fn from_bytes(buf: &[u8]) -> Self {
-        let buf = array_ref!(buf, 0, params::PUBLICKEYBYTES);
-        let mut pk = [0; params::PUBLICKEYBYTES];
-        pk.clone_from(buf);
-        PublicKey(pk)
-    }
-}
-
-impl Packing for SignatureData {
-    const BYTES_LENGTH: usize = params::BYTES;
-
-    fn read_bytes<T, F>(&self, f: F)
-        -> T
-        where F: FnOnce(&[u8]) -> T
-    {
-        f(&self.0)
-    }
-
-    fn from_bytes(buf: &[u8]) -> Self {
-        let buf = array_ref!(buf, 0, params::BYTES);
-        let mut sig = [0; params::BYTES];
-        sig.clone_from(buf);
-        SignatureData(sig)
-    }
-}
+eq!(sec PrivateKey);
+eq!(PublicKey);
+eq!(SignatureData);
+packing!(sec PrivateKey; params::SECRETKEYBYTES);
+packing!(PublicKey; params::PUBLICKEYBYTES);
+packing!(SignatureData; params::BYTES);
 
 #[cfg(feature = "serde")]
 mod serde {
@@ -110,46 +63,6 @@ mod serde {
         de::{ self, Visitor }
     };
     use super::*;
-
-    macro_rules! serde {
-        ( $t:ident ) => {
-            impl Serialize for $t {
-                fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-                    where S: Serializer
-                {
-                    self.read_bytes(|bytes| serializer.serialize_bytes(bytes))
-                }
-            }
-
-            impl<'de> Deserialize<'de> for $t {
-                fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-                    where D: Deserializer<'de>
-                {
-                    struct BytesVisitor;
-
-                    impl<'de> Visitor<'de> for BytesVisitor {
-                        type Value = $t;
-
-                        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                            formatter.write_str("a valid point in Ristretto format")
-                        }
-
-                        fn visit_bytes<E>(self, v: &[u8]) -> Result<Self::Value, E>
-                            where E: de::Error
-                        {
-                            if v.len() == $t::BYTES_LENGTH {
-                                Ok($t::from_bytes(v))
-                            } else {
-                                Err(de::Error::invalid_length(v.len(), &self))
-                            }
-                        }
-                    }
-
-                    deserializer.deserialize_bytes(BytesVisitor)
-                }
-            }
-        }
-    }
 
     serde!(PrivateKey);
     serde!(PublicKey);
