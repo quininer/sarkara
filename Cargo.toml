@@ -30,5 +30,7 @@ norx-permutation = { version = "0.1", default-features = false, features = [ "W6
 norx = { version = "0.1", default-features = false, features = [ "W64", "L4", "P1" ] }
 mem-aead-mrs = "0.1"
 
+serde = { version = "1", optional = true }
+
 [features]
 simd = [ "norx-permutation/simd", "norx/simd" ]

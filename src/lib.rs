@@ -12,6 +12,9 @@ extern crate norx;
 extern crate norx_permutation;
 extern crate mem_aead_mrs;
 
+#[cfg(feature = "serde")]
+extern crate serde;
+
 pub mod sign;
 pub mod kex;
 pub mod aead;
@@ -21,7 +24,9 @@ pub mod sealedbox;
 pub trait Packing: Sized {
     const BYTES_LENGTH: usize;
 
-    fn read_bytes<F: FnOnce(&[u8])>(&self, f: F);
+    fn read_bytes<T, F>(&self, f: F)
+        -> T
+        where F: FnOnce(&[u8]) -> T;
 
     /// TODO should be `from_bytes(buf: &[u8; Self::LENGTH]) -> Self`
     fn from_bytes(buf: &[u8]) -> Self;
