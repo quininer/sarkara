@@ -1,12 +1,11 @@
 use rand::{ Rng, CryptoRng };
-use seckey::SecKey;
 use dilithium::{ params, sign };
 use crate::{ Packing, Error };
 use super::{ Signature, DeterministicSignature };
 
 
 pub struct Dilithium;
-pub struct PrivateKey(SecKey<[u8; params::SECRETKEYBYTES]>);
+pub struct PrivateKey([u8; params::SECRETKEYBYTES]);
 pub struct PublicKey([u8; params::PUBLICKEYBYTES]);
 pub struct SignatureData([u8; params::BYTES]);
 
@@ -16,10 +15,9 @@ impl Signature for Dilithium {
     type Signature = SignatureData;
 
     fn keypair<R: Rng + CryptoRng>(mut r: R) -> (Self::PrivateKey, Self::PublicKey) {
-        // TODO use `SecKey::with_default()`
-        let mut sk = SecKey::new([0; params::SECRETKEYBYTES]).ok().expect("memsec malloc failed");
+        let mut sk = [0; params::SECRETKEYBYTES];
         let mut pk = [0; params::PUBLICKEYBYTES];
-        sign::keypair(&mut r, &mut pk, &mut sk.write());
+        sign::keypair(&mut r, &mut pk, &mut sk);
         (PrivateKey(sk), PublicKey(pk))
     }
 
@@ -43,15 +41,15 @@ impl Signature for Dilithium {
 impl DeterministicSignature for Dilithium {
     fn signature(&PrivateKey(ref sk): &Self::PrivateKey, data: &[u8]) -> Self::Signature {
         let mut sig = [0; params::BYTES];
-        sign::sign(&mut sig, data, &sk.read());
+        sign::sign(&mut sig, data, &sk);
         SignatureData(sig)
     }
 }
 
-eq!(sec PrivateKey);
+eq!(PrivateKey);
 eq!(PublicKey);
 eq!(SignatureData);
-packing!(sec PrivateKey; params::SECRETKEYBYTES);
+packing!(PrivateKey; params::SECRETKEYBYTES);
 packing!(PublicKey; params::PUBLICKEYBYTES);
 packing!(SignatureData; params::BYTES);
 

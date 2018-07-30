@@ -1,12 +1,11 @@
 use rand::{ Rng, CryptoRng };
-use seckey::SecKey;
 use kyber::{ params, kem };
 use crate::{ Packing, Error };
 use super::{ KeyExchange, CheckedExchange };
 
 
 pub struct Kyber;
-pub struct PrivateKey(SecKey<[u8; params::SECRETKEYBYTES]>);
+pub struct PrivateKey([u8; params::SECRETKEYBYTES]);
 pub struct PublicKey([u8; params::PUBLICKEYBYTES]);
 pub struct Message([u8; params::CIPHERTEXTBYTES]);
 
@@ -18,11 +17,10 @@ impl KeyExchange for Kyber {
     const SHARED_LENGTH: usize = params::SYMBYTES;
 
     fn keypair<R: Rng + CryptoRng>(mut r: R) -> (Self::PrivateKey, Self::PublicKey) {
-        // TODO use `SecKey::with_default()`
-        let mut sk = SecKey::new([0; params::SECRETKEYBYTES]).ok().expect("memsec malloc failed");
+        let mut sk = [0; params::SECRETKEYBYTES];
 
         let mut pk = [0; params::PUBLICKEYBYTES];
-        kem::keypair(&mut r, &mut pk, &mut sk.write());
+        kem::keypair(&mut r, &mut pk, &mut sk);
         (PrivateKey(sk), PublicKey(pk))
     }
 
@@ -45,7 +43,7 @@ impl CheckedExchange for Kyber {
         &Message(ref m): &Self::Message
     ) -> Result<(), Error> {
         let sharedkey = array_mut_ref!(sharedkey, 0, params::SYMBYTES);
-        if kem::dec(sharedkey, m, &sk.read()) {
+        if kem::dec(sharedkey, m, sk) {
             Ok(())
         } else {
             Err(Error::VerificationFailed)
@@ -53,10 +51,10 @@ impl CheckedExchange for Kyber {
     }
 }
 
-eq!(sec PrivateKey);
+eq!(PrivateKey);
 eq!(PublicKey);
 eq!(Message);
-packing!(sec PrivateKey; params::SECRETKEYBYTES);
+packing!(PrivateKey; params::SECRETKEYBYTES);
 packing!(PublicKey; params::PUBLICKEYBYTES);
 packing!(Message; params::CIPHERTEXTBYTES);
 

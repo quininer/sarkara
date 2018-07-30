@@ -1,13 +1,4 @@
 macro_rules! eq {
-    ( sec $t:ident ) => {
-        impl PartialEq<$t> for $t {
-            fn eq(&self, rhs: &$t) -> bool {
-                seckey::CmpKey::from(&*self.0.read()) == &*rhs.0.read()
-            }
-        }
-
-        impl Eq for $t {}
-    };
     ( $t:ident ) => {
         impl PartialEq<$t> for $t {
             fn eq(&self, rhs: &$t) -> bool {
@@ -20,24 +11,6 @@ macro_rules! eq {
 }
 
 macro_rules! packing {
-    ( sec $t:ident ; $len:expr ) => {
-        impl Packing for $t {
-            const BYTES_LENGTH: usize = $len;
-
-            fn read_bytes<T, F>(&self, f: F)
-                -> T
-                where F: FnOnce(&[u8]) -> T
-            {
-                f(&*self.0.read())
-            }
-
-            fn from_bytes(buf: &[u8]) -> Self {
-                let buf = array_ref!(buf, 0, $len);
-                SecKey::from_ref(buf).map($t)
-                    .expect("memsec malloc failed")
-            }
-        }
-    };
     ( $t:ident ; $len:expr ) => {
         impl Packing for $t {
             const BYTES_LENGTH: usize = $len;
