@@ -7,9 +7,9 @@ use crate::Error;
 use super::AeadCipher;
 
 
-pub struct NorxMrs([u8; KEY_LENGTH]);
+pub struct NorxMRS([u8; KEY_LENGTH]);
 
-impl AeadCipher for NorxMrs {
+impl AeadCipher for NorxMRS {
     const KEY_LENGTH: usize = KEY_LENGTH;
     const NONCE_LENGTH: usize = NONCE_LENGTH;
     const TAG_LENGTH: usize = TAG_LENGTH;
@@ -17,7 +17,7 @@ impl AeadCipher for NorxMrs {
     fn new(key: &[u8]) -> Self {
         let mut k = [0; KEY_LENGTH];
         k.copy_from_slice(key);
-        NorxMrs(k)
+        NorxMRS(k)
     }
 
     fn seal(&self, nonce: &[u8], aad: &[u8], input: &[u8], output: &mut [u8]) -> Result<(), Error> {
@@ -29,7 +29,7 @@ impl AeadCipher for NorxMrs {
 
         let (output, tag) = output.split_at_mut(input.len());
         output.copy_from_slice(input);
-        let NorxMrs(key) = self;
+        let NorxMRS(key) = self;
         let tag = array_mut_ref!(tag, 0, TAG_LENGTH);
         let nonce = array_ref!(nonce, 0, NONCE_LENGTH);
 
@@ -48,7 +48,7 @@ impl AeadCipher for NorxMrs {
 
         let (input, tag) = input.split_at(output.len());
         output.copy_from_slice(input);
-        let NorxMrs(key) = self;
+        let NorxMRS(key) = self;
         let tag = array_ref!(tag, 0, TAG_LENGTH);
         let nonce = array_ref!(nonce, 0, NONCE_LENGTH);
 

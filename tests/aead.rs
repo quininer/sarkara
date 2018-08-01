@@ -7,7 +7,7 @@ use rand::{ Rng, RngCore, FromEntropy, ChaChaRng };
 use sarkara::Error;
 use sarkara::aead::{ AeadCipher, Online, Encryption, Decryption };
 use sarkara::aead::norx6441::Norx6441;
-use sarkara::aead::norx_mrs::NorxMrs;
+use sarkara::aead::norx_mrs::NorxMRS;
 
 
 fn test_aead<AE: AeadCipher>() {
@@ -54,6 +54,7 @@ fn test_onlineae<AE>()
         let mut pt = vec![0u8; i];
         rng.fill_bytes(&mut key);
         rng.fill_bytes(&mut nonce);
+        rng.fill_bytes(&mut aad);
         rng.fill_bytes(&mut pt);
 
         let (send, recv) = channel();
@@ -113,5 +114,5 @@ fn test_norx6441() {
 
 #[test]
 fn test_norx_mrs() {
-    test_aead::<NorxMrs>();
+    test_aead::<NorxMRS>();
 }

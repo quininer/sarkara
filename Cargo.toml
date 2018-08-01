@@ -2,7 +2,7 @@ cargo-features = ["edition"]
 
 [package]
 name = "sarkara"
-version = "0.10.0-alpha.2"
+version = "0.10.0-alpha.3"
 authors = ["quininer kel <quininer@live.com>"]
 description = "A experimental post-quantum cryptography library."
 repository = "https://github.com/quininer/sarkara"
@@ -24,8 +24,8 @@ rand = "0.5"
 arrayref = "0.3"
 seckey = { version = "0.9", features = [ "nightly" ] }
 failure = "0.1"
-kyber = "0.2.0-alpha.2"
-dilithium = "0.2.0-alpha.2"
+kyber = "=0.2.0-alpha.2"
+dilithium = "=0.2.0-alpha.2"
 norx-permutation = { version = "0.1", default-features = false, features = [ "W64", "L4" ] }
 norx = { version = "0.1", default-features = false, features = [ "W64", "L4", "P1" ] }
 mem-aead-mrs = "0.1"
