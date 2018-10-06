@@ -1,3 +1,4 @@
+use arrayref::array_mut_ref;
 use rand::{ Rng, CryptoRng };
 use kyber::{ params, kem };
 use crate::{ Packing, Error };
@@ -59,7 +60,7 @@ packing!(PublicKey; params::PUBLICKEYBYTES);
 packing!(Message; params::CIPHERTEXTBYTES);
 
 #[cfg(feature = "serde")]
-mod serde {
+mod serde1 {
     use std::fmt;
     use serde::{
         Serialize, Serializer, Deserialize, Deserializer,

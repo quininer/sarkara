@@ -1,3 +1,4 @@
+use arrayref::{ array_ref, array_mut_ref };
 use norx_permutation::{ U, S, norx };
 use mem_aead_mrs::{
     KEY_LENGTH, NONCE_LENGTH, TAG_LENGTH,

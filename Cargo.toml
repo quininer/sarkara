@@ -1,5 +1,3 @@
-cargo-features = ["edition"]
-
 [package]
 name = "sarkara"
 version = "0.10.0-alpha.4"

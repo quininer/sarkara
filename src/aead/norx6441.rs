@@ -1,4 +1,5 @@
 use std::cmp;
+use arrayref::{ array_ref, array_mut_ref };
 use norx::constant::{ KEY_LENGTH, NONCE_LENGTH, TAG_LENGTH, BLOCK_LENGTH };
 use norx::{ Norx as NorxCipher, Process, Encrypt, Decrypt };
 use crate::Error;

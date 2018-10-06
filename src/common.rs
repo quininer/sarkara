@@ -23,7 +23,7 @@ macro_rules! packing {
             }
 
             fn from_bytes(buf: &[u8]) -> Self {
-                let buf = array_ref!(buf, 0, $len);
+                let buf = arrayref::array_ref!(buf, 0, $len);
                 let mut pk = [0; $len];
                 pk.clone_from(buf);
                 $t(pk)

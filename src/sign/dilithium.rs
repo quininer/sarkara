@@ -54,7 +54,7 @@ packing!(PublicKey; params::PUBLICKEYBYTES);
 packing!(SignatureData; params::BYTES);
 
 #[cfg(feature = "serde")]
-mod serde {
+mod serde1 {
     use std::fmt;
     use serde::{
         Serialize, Serializer, Deserialize, Deserializer,

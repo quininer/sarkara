@@ -2,16 +2,6 @@
 
 #![feature(non_exhaustive)]
 
-#[macro_use] extern crate arrayref;
-#[macro_use] extern crate failure;
-extern crate rand;
-extern crate seckey;
-extern crate dilithium;
-extern crate kyber;
-extern crate norx;
-extern crate norx_permutation;
-extern crate mem_aead_mrs;
-
 #[cfg(feature = "serde")]
 extern crate serde;
 
@@ -20,6 +10,8 @@ pub mod sign;
 pub mod kex;
 pub mod aead;
 pub mod sealedbox;
+
+use failure::Fail;
 
 
 pub trait Packing: Sized {

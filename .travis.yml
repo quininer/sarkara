@@ -7,3 +7,5 @@ os:
     - osx
 script:
     - cargo test
+    - cargo check --features serde
+    - cargo check --features simd
