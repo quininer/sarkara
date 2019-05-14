@@ -1,21 +1,20 @@
-use std::cmp;
-use arrayref::{ array_ref, array_mut_ref };
-use norx::constant::{ KEY_LENGTH, NONCE_LENGTH, TAG_LENGTH, BLOCK_LENGTH };
-use norx::{ Norx as NorxCipher, Process, Encrypt, Decrypt };
+use super::{AeadCipher, Decryption, Encryption, Online};
 use crate::Error;
-use super::{ AeadCipher, Online, Encryption, Decryption };
-
+use arrayref::{array_mut_ref, array_ref};
+use norx::constant::{BLOCK_LENGTH, KEY_LENGTH, NONCE_LENGTH, TAG_LENGTH};
+use norx::{Decrypt, Encrypt, Norx as NorxCipher, Process};
+use std::cmp;
 
 pub struct Norx6441([u8; KEY_LENGTH]);
 
 pub struct EncryptProcess<'a> {
     process: Process<Encrypt>,
-    key: &'a [u8; KEY_LENGTH]
+    key: &'a [u8; KEY_LENGTH],
 }
 
 pub struct DecryptProcess<'a> {
     process: Process<Decrypt>,
-    key: &'a [u8; KEY_LENGTH]
+    key: &'a [u8; KEY_LENGTH],
 }
 
 impl AeadCipher for Norx6441 {
@@ -46,7 +45,7 @@ impl<'a> Online<'a> for Norx6441 {
         let nonce = array_ref!(nonce, 0, NONCE_LENGTH);
         EncryptProcess {
             process: NorxCipher::new(&self.0, nonce).encrypt(aad),
-            key: &self.0
+            key: &self.0,
         }
     }
 
@@ -54,7 +53,7 @@ impl<'a> Online<'a> for Norx6441 {
         let nonce = array_ref!(nonce, 0, NONCE_LENGTH);
         DecryptProcess {
             process: NorxCipher::new(&self.0, nonce).decrypt(aad),
-            key: &self.0
+            key: &self.0,
         }
     }
 }
@@ -67,12 +66,15 @@ impl<'a> Encryption<'a> for EncryptProcess<'a> {
         let (output, _) = output.split_at_mut(input.len());
 
         self.process.process(
-            input.chunks(BLOCK_LENGTH)
+            input
+                .chunks(BLOCK_LENGTH)
                 .zip(output.chunks_mut(BLOCK_LENGTH))
-                .map(|(input, output)| (
-                    array_ref!(input, 0, BLOCK_LENGTH),
-                    array_mut_ref!(output, 0, BLOCK_LENGTH)
-                ))
+                .map(|(input, output)| {
+                    (
+                        array_ref!(input, 0, BLOCK_LENGTH),
+                        array_mut_ref!(output, 0, BLOCK_LENGTH),
+                    )
+                }),
         );
 
         output
@@ -100,12 +102,15 @@ impl<'a> Decryption<'a> for DecryptProcess<'a> {
         let (output, _) = output.split_at_mut(input.len());
 
         self.process.process(
-            input.chunks(BLOCK_LENGTH)
+            input
+                .chunks(BLOCK_LENGTH)
                 .zip(output.chunks_mut(BLOCK_LENGTH))
-                .map(|(input, output)| (
-                    array_ref!(input, 0, BLOCK_LENGTH),
-                    array_mut_ref!(output, 0, BLOCK_LENGTH)
-                ))
+                .map(|(input, output)| {
+                    (
+                        array_ref!(input, 0, BLOCK_LENGTH),
+                        array_mut_ref!(output, 0, BLOCK_LENGTH),
+                    )
+                }),
         );
 
         output

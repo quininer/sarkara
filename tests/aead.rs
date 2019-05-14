@@ -1,14 +1,13 @@
 extern crate rand;
 extern crate sarkara;
 
-use std::thread;
-use std::sync::mpsc::channel;
-use rand::{ Rng, RngCore, FromEntropy, ChaChaRng };
-use sarkara::Error;
-use sarkara::aead::{ AeadCipher, Online, Encryption, Decryption };
+use rand::{ChaChaRng, FromEntropy, Rng, RngCore};
 use sarkara::aead::norx6441::Norx6441;
 use sarkara::aead::norx_mrs::NorxMRS;
-
+use sarkara::aead::{AeadCipher, Decryption, Encryption, Online};
+use sarkara::Error;
+use std::sync::mpsc::channel;
+use std::thread;
 
 fn test_aead<AE: AeadCipher>() {
     let mut key = vec![0u8; AE::KEY_LENGTH];
@@ -33,17 +32,19 @@ fn test_aead<AE: AeadCipher>() {
         assert_eq!(pt, ot);
 
         ct[i - 1] ^= 0x42;
-        assert!(if let Err(Error::VerificationFailed) = cipher.open(&nonce, &aad, &ct, &mut ot) {
-            true
-        } else {
-            false
-        });
+        assert!(
+            if let Err(Error::VerificationFailed) = cipher.open(&nonce, &aad, &ct, &mut ot) {
+                true
+            } else {
+                false
+            }
+        );
     }
 }
 
 fn test_onlineae<AE>()
-    where
-        for<'a> AE: AeadCipher + Online<'a>
+where
+    for<'a> AE: AeadCipher + Online<'a>,
 {
     let mut key = vec![0u8; AE::KEY_LENGTH];
     let mut nonce = vec![0u8; AE::NONCE_LENGTH];
@@ -104,7 +105,6 @@ fn test_onlineae<AE>()
         b.join().unwrap();
     }
 }
-
 
 #[test]
 fn test_norx6441() {

@@ -1,9 +1,8 @@
+use super::{CheckedExchange, KeyExchange};
+use crate::{Error, Packing};
 use arrayref::array_mut_ref;
-use rand::{ Rng, CryptoRng };
-use kyber::{ params, kem };
-use crate::{ Packing, Error };
-use super::{ KeyExchange, CheckedExchange };
-
+use kyber::{kem, params};
+use rand::{CryptoRng, Rng};
 
 pub struct Kyber;
 pub struct PrivateKey([u8; params::SECRETKEYBYTES]);
@@ -25,7 +24,11 @@ impl KeyExchange for Kyber {
         (PrivateKey(sk), PublicKey(pk))
     }
 
-    fn exchange_to<R: Rng + CryptoRng>(mut r: R, sharedkey: &mut [u8], &PublicKey(ref pk): &Self::PublicKey) -> Self::Message {
+    fn exchange_to<R: Rng + CryptoRng>(
+        mut r: R,
+        sharedkey: &mut [u8],
+        &PublicKey(ref pk): &Self::PublicKey,
+    ) -> Self::Message {
         let sharedkey = array_mut_ref!(sharedkey, 0, params::SYMBYTES);
         let mut c = [0; params::CIPHERTEXTBYTES];
         kem::enc(&mut r, &mut c, sharedkey, pk);
@@ -41,7 +44,7 @@ impl CheckedExchange for Kyber {
     fn exchange_from(
         sharedkey: &mut [u8],
         &PrivateKey(ref sk): &Self::PrivateKey,
-        &Message(ref m): &Self::Message
+        &Message(ref m): &Self::Message,
     ) -> Result<(), Error> {
         let sharedkey = array_mut_ref!(sharedkey, 0, params::SYMBYTES);
         if kem::dec(sharedkey, m, sk) {
@@ -61,12 +64,12 @@ packing!(Message; params::CIPHERTEXTBYTES);
 
 #[cfg(feature = "serde")]
 mod serde1 {
-    use std::fmt;
-    use serde::{
-        Serialize, Serializer, Deserialize, Deserializer,
-        de::{ self, Visitor }
-    };
     use super::*;
+    use serde::{
+        de::{self, Visitor},
+        Deserialize, Deserializer, Serialize, Serializer,
+    };
+    use std::fmt;
 
     serde!(PrivateKey);
     serde!(PublicKey);

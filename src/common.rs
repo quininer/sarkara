@@ -15,9 +15,9 @@ macro_rules! packing {
         impl Packing for $t {
             const BYTES_LENGTH: usize = $len;
 
-            fn read_bytes<T, F>(&self, f: F)
-                -> T
-                where F: FnOnce(&[u8]) -> T
+            fn read_bytes<T, F>(&self, f: F) -> T
+            where
+                F: FnOnce(&[u8]) -> T,
             {
                 f(&self.0)
             }
@@ -37,7 +37,8 @@ macro_rules! serde {
     ( $t:ident ) => {
         impl Serialize for $t {
             fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-                where S: Serializer
+            where
+                S: Serializer,
             {
                 self.read_bytes(|bytes| serializer.serialize_bytes(bytes))
             }
@@ -45,7 +46,8 @@ macro_rules! serde {
 
         impl<'de> Deserialize<'de> for $t {
             fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-                where D: Deserializer<'de>
+            where
+                D: Deserializer<'de>,
             {
                 struct BytesVisitor;
 
@@ -57,7 +59,8 @@ macro_rules! serde {
                     }
 
                     fn visit_bytes<E>(self, v: &[u8]) -> Result<Self::Value, E>
-                        where E: de::Error
+                    where
+                        E: de::Error,
                     {
                         if v.len() == $t::BYTES_LENGTH {
                             Ok($t::from_bytes(v))
@@ -70,5 +73,5 @@ macro_rules! serde {
                 deserializer.deserialize_bytes(BytesVisitor)
             }
         }
-    }
+    };
 }

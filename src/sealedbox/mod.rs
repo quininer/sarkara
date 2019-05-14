@@ -1,21 +1,19 @@
-use std::marker::PhantomData;
-use rand::{ Rng, CryptoRng };
-use seckey::TempKey;
-use crate::kex::{ KeyExchange, CheckedExchange };
-use crate::aead::{ AeadCipher, Online };
+use crate::aead::{AeadCipher, Online};
+use crate::kex::{CheckedExchange, KeyExchange};
 use crate::Error;
-
+use rand::{CryptoRng, Rng};
+use seckey::TempKey;
+use std::marker::PhantomData;
 
 pub struct SealedBox<KEX, AE>(PhantomData<(KEX, AE)>);
 pub struct Sealing<AE: AeadCipher>(AE);
 pub struct Opening<AE: AeadCipher>(AE);
 
-
 impl<KEX, AE> SealedBox<KEX, AE>
-    where
-        KEX: KeyExchange,
-        AE: AeadCipher,
-//        AE::KEY_LENGTH = KEX::SHARED_LENGTH
+where
+    KEX: KeyExchange,
+    AE: AeadCipher,
+    //        AE::KEY_LENGTH = KEX::SHARED_LENGTH
 {
     pub fn send<R: Rng + CryptoRng>(r: R, pk: &KEX::PublicKey) -> (KEX::Message, Sealing<AE>) {
         // TODO static assert
@@ -43,9 +41,9 @@ impl<KEX, AE> SealedBox<KEX, AE>
 }
 
 impl<KEX, AE> SealedBox<KEX, AE>
-    where
-        KEX: CheckedExchange,
-        AE: AeadCipher
+where
+    KEX: CheckedExchange,
+    AE: AeadCipher,
 {
     pub fn checked_recv(sk: &KEX::PrivateKey, m: &KEX::Message) -> Result<Opening<AE>, Error> {
         // TODO static assert
@@ -62,7 +60,13 @@ impl<KEX, AE> SealedBox<KEX, AE>
 
 impl<AE: AeadCipher> Sealing<AE> {
     #[inline]
-    pub fn seal(&self, nonce: &[u8], aad: &[u8], input: &[u8], output: &mut [u8]) -> Result<(), Error> {
+    pub fn seal(
+        &self,
+        nonce: &[u8],
+        aad: &[u8],
+        input: &[u8],
+        output: &mut [u8],
+    ) -> Result<(), Error> {
         self.0.seal(nonce, aad, input, output)
     }
 }
@@ -76,7 +80,13 @@ impl<'a, AE: AeadCipher + Online<'a>> Sealing<AE> {
 
 impl<AE: AeadCipher> Opening<AE> {
     #[inline]
-    pub fn open(&self, nonce: &[u8], aad: &[u8], input: &[u8], output: &mut [u8]) -> Result<(), Error> {
+    pub fn open(
+        &self,
+        nonce: &[u8],
+        aad: &[u8],
+        input: &[u8],
+        output: &mut [u8],
+    ) -> Result<(), Error> {
         self.0.open(nonce, aad, input, output)
     }
 }

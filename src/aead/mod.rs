@@ -3,7 +3,6 @@ use crate::Error;
 pub mod norx6441;
 pub mod norx_mrs;
 
-
 pub trait AeadCipher {
     const KEY_LENGTH: usize;
     const NONCE_LENGTH: usize;
@@ -15,7 +14,6 @@ pub trait AeadCipher {
     fn seal(&self, nonce: &[u8], aad: &[u8], input: &[u8], output: &mut [u8]) -> Result<(), Error>;
     fn open(&self, nonce: &[u8], aad: &[u8], input: &[u8], output: &mut [u8]) -> Result<(), Error>;
 }
-
 
 // TODO GAT https://github.com/rust-lang/rust/issues/44265
 pub trait Online<'a>: AeadCipher {

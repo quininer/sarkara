@@ -5,26 +5,25 @@
 #[cfg(feature = "serde")]
 extern crate serde;
 
-#[macro_use] mod common;
-pub mod sign;
-pub mod kex;
+#[macro_use]
+mod common;
 pub mod aead;
+pub mod kex;
 pub mod sealedbox;
+pub mod sign;
 
 use failure::Fail;
-
 
 pub trait Packing: Sized {
     const BYTES_LENGTH: usize;
 
-    fn read_bytes<T, F>(&self, f: F)
-        -> T
-        where F: FnOnce(&[u8]) -> T;
+    fn read_bytes<T, F>(&self, f: F) -> T
+    where
+        F: FnOnce(&[u8]) -> T;
 
     /// TODO should be `from_bytes(buf: &[u8; Self::LENGTH]) -> Self`
     fn from_bytes(buf: &[u8]) -> Self;
 }
-
 
 #[derive(Debug, Fail)]
 #[non_exhaustive]

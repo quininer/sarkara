@@ -1,13 +1,13 @@
 extern crate rand;
 extern crate sarkara;
 
-use rand::{ Rng, RngCore, FromEntropy, ChaChaRng };
+use rand::{ChaChaRng, FromEntropy, Rng, RngCore};
 use sarkara::aead::AeadCipher;
 use sarkara::kex::KeyExchange;
 use sarkara::sealedbox::SealedBox;
 
-use sarkara::kex::kyber::Kyber;
 use sarkara::aead::norx6441::Norx6441;
+use sarkara::kex::kyber::Kyber;
 
 fn test_sealedbox<KEX: KeyExchange, AE: AeadCipher>() {
     let mut rng = ChaChaRng::from_entropy();
@@ -31,7 +31,6 @@ fn test_sealedbox<KEX: KeyExchange, AE: AeadCipher>() {
 
     assert_eq!(pt, ot);
 }
-
 
 #[test]
 fn test_kyber_norx() {

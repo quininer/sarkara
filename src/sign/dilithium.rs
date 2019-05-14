@@ -1,8 +1,7 @@
-use rand::{ Rng, CryptoRng };
-use dilithium::{ params, sign };
-use crate::{ Packing, Error };
-use super::{ Signature, DeterministicSignature };
-
+use super::{DeterministicSignature, Signature};
+use crate::{Error, Packing};
+use dilithium::{params, sign};
+use rand::{CryptoRng, Rng};
 
 pub struct Dilithium;
 pub struct PrivateKey([u8; params::SECRETKEYBYTES]);
@@ -28,7 +27,7 @@ impl Signature for Dilithium {
     fn verify(
         &PublicKey(ref pk): &Self::PublicKey,
         &SignatureData(ref sig): &Self::Signature,
-        data: &[u8]
+        data: &[u8],
     ) -> Result<(), Error> {
         if sign::verify(data, sig, pk) {
             Ok(())
@@ -55,12 +54,12 @@ packing!(SignatureData; params::BYTES);
 
 #[cfg(feature = "serde")]
 mod serde1 {
-    use std::fmt;
-    use serde::{
-        Serialize, Serializer, Deserialize, Deserializer,
-        de::{ self, Visitor }
-    };
     use super::*;
+    use serde::{
+        de::{self, Visitor},
+        Deserialize, Deserializer, Serialize, Serializer,
+    };
+    use std::fmt;
 
     serde!(PrivateKey);
     serde!(PublicKey);

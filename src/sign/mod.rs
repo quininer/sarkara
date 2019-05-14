@@ -1,8 +1,7 @@
-use rand::{ Rng, CryptoRng };
-use crate::{ Packing, Error };
+use crate::{Error, Packing};
+use rand::{CryptoRng, Rng};
 
 pub mod dilithium;
-
 
 pub trait Signature {
     type PrivateKey: Packing;

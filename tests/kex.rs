@@ -1,11 +1,10 @@
 extern crate rand;
 extern crate sarkara;
 
-use rand::{ FromEntropy, ChaChaRng };
-use sarkara::{ Packing, Error };
-use sarkara::kex::{ KeyExchange, CheckedExchange };
+use rand::{ChaChaRng, FromEntropy};
 use sarkara::kex::kyber::Kyber;
-
+use sarkara::kex::{CheckedExchange, KeyExchange};
+use sarkara::{Error, Packing};
 
 fn test_kex<KEX: KeyExchange>() {
     let (mut a, mut b) = (vec![0u8; KEX::SHARED_LENGTH], vec![0u8; KEX::SHARED_LENGTH]);
@@ -39,7 +38,6 @@ fn test_checkedkex<KEX: CheckedExchange>() {
         false
     });
 }
-
 
 #[test]
 fn test_kyber() {

@@ -1,12 +1,8 @@
-use arrayref::{ array_ref, array_mut_ref };
-use norx_permutation::{ U, S, norx };
-use mem_aead_mrs::{
-    KEY_LENGTH, NONCE_LENGTH, TAG_LENGTH,
-    Mrs, Permutation
-};
-use crate::Error;
 use super::AeadCipher;
-
+use crate::Error;
+use arrayref::{array_mut_ref, array_ref};
+use mem_aead_mrs::{Mrs, Permutation, KEY_LENGTH, NONCE_LENGTH, TAG_LENGTH};
+use norx_permutation::{norx, S, U};
 
 pub struct NorxMRS([u8; KEY_LENGTH]);
 
@@ -22,9 +18,7 @@ impl AeadCipher for NorxMRS {
     }
 
     fn seal(&self, nonce: &[u8], aad: &[u8], input: &[u8], output: &mut [u8]) -> Result<(), Error> {
-        if nonce.len() != Self::NONCE_LENGTH ||
-            input.len() + Self::TAG_LENGTH != output.len()
-        {
+        if nonce.len() != Self::NONCE_LENGTH || input.len() + Self::TAG_LENGTH != output.len() {
             return Err(Error::Length);
         }
 
@@ -34,16 +28,13 @@ impl AeadCipher for NorxMRS {
         let tag = array_mut_ref!(tag, 0, TAG_LENGTH);
         let nonce = array_ref!(nonce, 0, NONCE_LENGTH);
 
-        Mrs::<Norx644P>::new()
-            .encrypt(key, nonce, aad, output, tag);
+        Mrs::<Norx644P>::new().encrypt(key, nonce, aad, output, tag);
 
         Ok(())
     }
 
     fn open(&self, nonce: &[u8], aad: &[u8], input: &[u8], output: &mut [u8]) -> Result<(), Error> {
-        if nonce.len() != Self::NONCE_LENGTH ||
-            input.len() != output.len() + Self::TAG_LENGTH
-        {
+        if nonce.len() != Self::NONCE_LENGTH || input.len() != output.len() + Self::TAG_LENGTH {
             return Err(Error::Length);
         }
 
@@ -53,16 +44,13 @@ impl AeadCipher for NorxMRS {
         let tag = array_ref!(tag, 0, TAG_LENGTH);
         let nonce = array_ref!(nonce, 0, NONCE_LENGTH);
 
-        if Mrs::<Norx644P>::new()
-            .decrypt(key, nonce, aad, output, tag)
-        {
+        if Mrs::<Norx644P>::new().decrypt(key, nonce, aad, output, tag) {
             Ok(())
         } else {
             Err(Error::VerificationFailed)
         }
     }
 }
-
 
 enum Norx644P {}
 

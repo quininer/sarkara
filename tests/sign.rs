@@ -1,10 +1,9 @@
 extern crate rand;
 extern crate sarkara;
 
-use rand::{ Rng, RngCore, FromEntropy, ChaChaRng };
-use sarkara::sign::{ Signature, DeterministicSignature };
+use rand::{ChaChaRng, FromEntropy, Rng, RngCore};
 use sarkara::sign::dilithium::Dilithium;
-
+use sarkara::sign::{DeterministicSignature, Signature};
 
 fn test_sign<SS: Signature>() {
     let mut rng = ChaChaRng::from_entropy();
@@ -31,7 +30,6 @@ fn test_dsign<SS: DeterministicSignature>() {
     data[0] ^= 0x42;
     assert!(SS::verify(&pk, &sig, &data).is_err());
 }
-
 
 #[test]
 fn test_dilithium() {
